@@ -11,7 +11,8 @@ Additionally, this action creates a release tagged with a [Semantic Version](htt
 
 ## Configuration
 ### In Godot
-Make sure that you have defined at least 1 export preset by going to `Project -> Export` in the Godot editor and creating a configuration.
+Make sure that you have defined at least 1 export preset by going to `Project -> Export` in the Godot editor and creating a configuration. Also set the file name in the "Export Path" box. This action will not know how how to name your file without this. Notice how the below image has "win.exe" in the "Export Path" for my windows export. Your executables can be named however you like, as long as they include the appropriate extension `.exe`, `.x86_64`, etc.
+![](docs/exports.png)
 
 ### Workflow
 This action requires that your job utilizes Github's `actions/checkout@v1` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
