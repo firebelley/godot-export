@@ -32,7 +32,7 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
 
 ### Example Workflow Configuration
-Below is a sample workflow configuration file utilizing this action.
+Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`.
 
 ```yml
 # Whenever a push is made to the master branch then run the job
