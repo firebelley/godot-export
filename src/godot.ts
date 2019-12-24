@@ -158,13 +158,11 @@ function getExportPresets(): ExportPreset[] {
   const exportPrests: ExportPreset[] = [];
   const projectPath = path.resolve(relativeProjectPath);
 
-  const fileNames = fs.readdirSync(projectPath);
-  const exportFile = fileNames.find(x => x === 'export_presets.cfg');
-  if (!exportFile) {
+  if (!hasExportPresets()) {
     throw new Error(`Could not find export_presets.cfg in ${projectPath}`);
   }
 
-  const exportFilePath = path.join(projectPath, exportFile);
+  const exportFilePath = path.join(projectPath, 'export_presets.cfg');
   const iniStr = fs.readFileSync(exportFilePath, { encoding: 'utf8' });
   const presets = ini.decode(iniStr) as ExportPresets;
 
@@ -179,4 +177,13 @@ function getExportPresets(): ExportPreset[] {
   return exportPrests;
 }
 
-export { setupExecutable, setupTemplates, runExport, createRelease };
+function hasExportPresets(): boolean {
+  try {
+    const projectPath = path.resolve(relativeProjectPath);
+    return fs.statSync(path.join(projectPath, 'export_presets.cfg')).isFile();
+  } catch (e) {
+    return false;
+  }
+}
+
+export { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets };

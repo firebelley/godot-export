@@ -2285,6 +2285,7 @@ function getNewVersion() {
 function logAndExit(error) {
     core.error(error.message);
     core.setFailed(error.message);
+    process.exit(1);
 }
 main();
 
@@ -9614,12 +9615,10 @@ function findExecutableFilePath(basePath) {
 function getExportPresets() {
     const exportPrests = [];
     const projectPath = path.resolve(main_1.relativeProjectPath);
-    const fileNames = fs.readdirSync(projectPath);
-    const exportFile = fileNames.find(x => x === 'export_presets.cfg');
-    if (!exportFile) {
+    if (!hasExportPresets()) {
         throw new Error(`Could not find export_presets.cfg in ${projectPath}`);
     }
-    const exportFilePath = path.join(projectPath, exportFile);
+    const exportFilePath = path.join(projectPath, 'export_presets.cfg');
     const iniStr = fs.readFileSync(exportFilePath, { encoding: 'utf8' });
     const presets = ini.decode(iniStr);
     if (presets && presets.preset) {
@@ -9632,6 +9631,16 @@ function getExportPresets() {
     }
     return exportPrests;
 }
+function hasExportPresets() {
+    try {
+        const projectPath = path.resolve(main_1.relativeProjectPath);
+        return fs.statSync(path.join(projectPath, 'export_presets.cfg')).isFile();
+    }
+    catch (e) {
+        return false;
+    }
+}
+exports.hasExportPresets = hasExportPresets;
 
 
 /***/ }),

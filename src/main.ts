@@ -80,6 +80,7 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
 function logAndExit(error: Error): void {
   core.error(error.message);
   core.setFailed(error.message);
+  process.exit(1);
 }
 
 main();
