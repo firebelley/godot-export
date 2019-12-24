@@ -1,0 +1,22 @@
+name: 'Godot Game Export'
+description: 'Exports game executables.'
+inputs:
+  base_version:
+    description: Base version. Patch versions are incremented when this action runs.
+    default: '0.0.1'
+  godot_executable_download_url:
+    description: The download url of the 64 bit Linux Headless Godot executable
+    required: true
+  godot_export_templates_download_url:
+    description: The url of the export templates corresponding to the Godot executable version
+    required: true
+  relative_project_path:
+    description: The relative path to the project.godot file
+    required: true
+  godot_template_version:
+    description: The name of the folder which templates are stored in. Looks like '3.1.1.stable.mono'. Can be found at %APPDATA\Roaming\Godot\templates on Windows and ~/.local/share/godot/templates on Linux.
+    required: true
+
+runs:
+  using: 'node12'
+  main: 'lib/main.js'
