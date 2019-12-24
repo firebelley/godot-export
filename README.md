@@ -1,2 +1,2 @@
-# GodotExport
- Automatically exports your Godot games.
+# DO NOT USE - GodotExport
+Automatically exports your Godot games.

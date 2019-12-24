@@ -1,5 +1,5 @@
 {
-  "name": "actionstest",
+  "name": "godot-export",
   "version": "1.0.0",
   "description": "",
   "main": "lib/main.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/firebelley/ActionsTest.git"
+    "url": "git+https://github.com/firebelley/godot-export.git"
   },
   "author": "",
-  "license": "MIT",
+  "license": "",
   "bugs": {
-    "url": "https://github.com/firebelley/ActionsTest/issues"
+    "url": "https://github.com/firebelley/godot-export/issues"
   },
-  "homepage": "https://github.com/firebelley/ActionsTest#readme",
+  "homepage": "https://github.com/firebelley/godot-export#readme",
   "dependencies": {
     "@actions/core": "^1.2.0",
     "@actions/exec": "^1.0.2",
