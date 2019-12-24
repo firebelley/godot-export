@@ -2,7 +2,7 @@ import * as io from '@actions/io';
 import * as github from '@actions/github';
 import * as core from '@actions/core';
 import * as semver from 'semver';
-import { setupExecutable, setupTemplates, runExport, createRelease } from './godot';
+import { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets } from './godot';
 import * as path from 'path';
 import * as os from 'os';
 
@@ -14,6 +14,13 @@ const githubClient = new github.GitHub(process.env['GITHUB_TOKEN'] ?? '');
 async function main(): Promise<number> {
   if (!process.env['GITHUB_TOKEN']) {
     core.error('You must supply the GITHUB_TOKEN environment variable.');
+    return 1;
+  }
+
+  if (!hasExportPresets()) {
+    core.error(
+      'No "export_presets.cfg" found. Please be sure you have defined at least 1 export from the Godot editor.',
+    );
     return 1;
   }
 
