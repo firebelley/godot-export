@@ -10,6 +10,9 @@ This action automatically reads your `export_presets.cfg` file to determine whic
 Additionally, this action creates a release tagged with a [Semantic Version](https://semver.org/). The zip files containing the export results will be attached to this release. More info about releases can be found below.
 
 ## Configuration
+### In Godot
+Make sure that you have defined at least 1 export preset by going to `Project -> Export` in the Godot editor and creating a configuration.
+
 ### Workflow
 This action requires that your job utilizes Github's `actions/checkout@v1` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
 
