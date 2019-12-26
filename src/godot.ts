@@ -46,16 +46,14 @@ async function prepareExecutable(): Promise<void> {
     throw new Error('Could not find executable path');
   }
   core.info(`Found executable in ${executablePath}`);
-  await exec('cp', ['-r', `${executablePath}/.`, zipTo]);
-  await exec('rm', ['-rf', executablePath]);
 
-  const executableFilePath = findExecutableFilePath(zipTo);
+  const executableFilePath = findExecutableFilePath(executablePath);
   if (!executableFilePath) {
     throw new Error('Could not find Godot executable');
   }
-  const finalGodotPath = path.join(zipTo, 'godot');
+  const finalGodotPath = path.join(executablePath, 'godot');
   await exec('mv', [executableFilePath, finalGodotPath]);
-  core.addPath(zipTo);
+  core.addPath(executablePath);
 }
 
 async function prepareTemplates(): Promise<void> {
