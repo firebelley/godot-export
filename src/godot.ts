@@ -120,7 +120,9 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
 
 async function zipAndUpload(distPath: string, uploadUrl: string, exportResult: ExportResult): Promise<void> {
   const zipPath = path.join(distPath, `${exportResult.sanitizedName}.zip`);
-  await exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/`]);
+  if (!fs.existsSync(zipPath)) {
+    await exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/*`]);
+  }
 
   const content = fs.readFileSync(zipPath);
   await githubClient.repos.uploadReleaseAsset({

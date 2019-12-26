@@ -9591,7 +9591,9 @@ exports.createRelease = createRelease;
 function zipAndUpload(distPath, uploadUrl, exportResult) {
     return __awaiter(this, void 0, void 0, function* () {
         const zipPath = path.join(distPath, `${exportResult.sanitizedName}.zip`);
-        yield exec_1.exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/`]);
+        if (!fs.existsSync(zipPath)) {
+            yield exec_1.exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/*`]);
+        }
         const content = fs.readFileSync(zipPath);
         yield main_1.githubClient.repos.uploadReleaseAsset({
             file: content,
