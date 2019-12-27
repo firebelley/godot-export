@@ -91,7 +91,7 @@ async function runExport(): Promise<ExportResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const promise = exec('godot', [projectPath, '--export', `${preset.name}`, exportPath]);
+    const promise = exec('godot', [projectPath, '--export', preset.name, exportPath]);
     exportPromises.push(promise);
   }
 
