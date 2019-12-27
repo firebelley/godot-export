@@ -88,11 +88,14 @@ async function runExport(): Promise<ExportResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const promise = exec('godot', ['--export', `'${preset.name}'`, '--path', projectPath, exportPath]);
+    const promise = exec('godot', ['--export', `"${preset.name}"`, '--path', projectPath, exportPath]);
     exportPromises.push(promise);
   }
 
-  await Promise.all(exportPromises);
+  const result = await Promise.all(exportPromises);
+  if (!result.every(x => x === 0)) {
+    throw new Error('1 or more exports failed');
+  }
 
   return exportResults;
 }
