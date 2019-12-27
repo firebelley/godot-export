@@ -9559,7 +9559,7 @@ function runExport() {
                 exportPath = path.join(buildDir, path.basename(preset.export_path));
             }
             yield io.mkdirP(buildDir);
-            const promise = exec_1.exec('godot', ['--export', preset.name, '--path', projectPath, exportPath]);
+            const promise = exec_1.exec('godot', ['--export', `'${preset.name}'`, '--path', projectPath, exportPath]);
             exportPromises.push(promise);
         }
         yield Promise.all(exportPromises);
