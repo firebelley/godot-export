@@ -70,12 +70,15 @@ async function prepareTemplates(): Promise<void> {
 async function runExport(): Promise<ExportResult[]> {
   const exportResults: ExportResult[] = [];
   const exportPromises: Promise<number>[] = [];
-  const projectPath = path.resolve(relativeProjectPath);
+  const projectPath = path.resolve(path.join(relativeProjectPath, 'project.godot'));
+  let dirNo = 0;
   core.info(`Using project file at ${projectPath}`);
 
   for (const preset of getExportPresets()) {
     const sanitized = sanitize(preset.name);
-    const buildDir = path.join(actionWorkingPath, 'builds', sanitized);
+    const buildDir = path.join(actionWorkingPath, 'builds', dirNo.toString());
+    dirNo++;
+
     exportResults.push({
       preset,
       buildDirectory: buildDir,
@@ -88,7 +91,7 @@ async function runExport(): Promise<ExportResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const promise = exec('godot', ['--export', `"${preset.name}"`, '--path', projectPath, exportPath]);
+    const promise = exec('godot', [projectPath, '--export', `${preset.name}`, exportPath]);
     exportPromises.push(promise);
   }
 

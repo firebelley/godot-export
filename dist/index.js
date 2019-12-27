@@ -9544,11 +9544,13 @@ function runExport() {
     return __awaiter(this, void 0, void 0, function* () {
         const exportResults = [];
         const exportPromises = [];
-        const projectPath = path.resolve(main_1.relativeProjectPath);
+        const projectPath = path.resolve(path.join(main_1.relativeProjectPath, 'project.godot'));
+        let dirNo = 0;
         core.info(`Using project file at ${projectPath}`);
         for (const preset of getExportPresets()) {
             const sanitized = sanitize_filename_1.default(preset.name);
-            const buildDir = path.join(main_1.actionWorkingPath, 'builds', sanitized);
+            const buildDir = path.join(main_1.actionWorkingPath, 'builds', dirNo.toString());
+            dirNo++;
             exportResults.push({
                 preset,
                 buildDirectory: buildDir,
@@ -9559,7 +9561,7 @@ function runExport() {
                 exportPath = path.join(buildDir, path.basename(preset.export_path));
             }
             yield io.mkdirP(buildDir);
-            const promise = exec_1.exec('godot', ['--export', `"${preset.name}"`, '--path', projectPath, exportPath]);
+            const promise = exec_1.exec('godot', [projectPath, '--export', `${preset.name}`, exportPath]);
             exportPromises.push(promise);
         }
         const result = yield Promise.all(exportPromises);
