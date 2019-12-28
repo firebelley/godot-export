@@ -14,6 +14,8 @@ Additionally, this action creates a release tagged with a [Semantic Version](htt
 Make sure that you have defined at least 1 export preset by going to `Project -> Export` in the Godot editor and creating a configuration. Also set the file name in the "Export Path" box. This action will not know how how to name your file without this. Notice how the below image has "win.exe" in the "Export Path" for my windows export. Your executables can be named however you like, as long as they include the appropriate extension `.exe`, `.x86_64`, etc.
 ![](docs/exports.png)
 
+**NOTE**: For Mac OSX exports, be sure to change the file extension to anything other than `.zip`. If you don't, then your project source files will be exported instead of a Mac application. This is a known issue with the Godot command line export. It is described here: https://github.com/godotengine/godot/issues/23073.
+
 ### Workflow
 This action requires that your job utilizes Github's `actions/checkout@v1` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
 
