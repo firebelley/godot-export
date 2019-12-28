@@ -4,6 +4,7 @@ inputs:
   base_version:
     description: Base version. Patch versions are incremented when this action runs.
     default: '0.0.1'
+    required: false
   godot_executable_download_url:
     description: The download url of the 64 bit Linux Headless Godot executable
     required: true
