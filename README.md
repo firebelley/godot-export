@@ -66,13 +66,13 @@ jobs:
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
-        godot_executable_download_url: 'https://downloads.tuxfamily.org/godotengine/3.2/beta4/mono/Godot_v3.2-beta4_mono_linux_headless_64.zip'
-        godot_export_templates_download_url: 'https://downloads.tuxfamily.org/godotengine/3.2/beta4/mono/Godot_v3.2-beta4_mono_export_templates.tpz'
-        godot_template_version: '3.2.beta4.mono'
-        relative_project_path: './'
+        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2/beta4/mono/Godot_v3.2-beta4_mono_linux_headless_64.zip
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2/beta4/mono/Godot_v3.2-beta4_mono_export_templates.tpz
+        godot_template_version: 3.2.beta4.mono
+        relative_project_path: ./
         # The first release will start at 0.3.0
         # Default value is 0.0.0
-        base_version: '0.3.0'
+        base_version: 0.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
