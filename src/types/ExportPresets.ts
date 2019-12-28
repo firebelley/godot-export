@@ -5,4 +5,5 @@ export interface ExportPresets {
 export interface ExportPreset {
   name: string;
   export_path: string;
+  platform: string;
 }
