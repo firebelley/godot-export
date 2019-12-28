@@ -104,9 +104,6 @@ async function runExport(): Promise<ExportResult[]> {
 }
 
 async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
-  const distPath = path.join(actionWorkingPath, 'dist');
-  await io.mkdirP(distPath);
-
   const response = await githubClient.repos.createRelease({
     owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
     /* eslint "@typescript-eslint/camelcase": "off" */
@@ -117,16 +114,24 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
 
   const promises: Promise<void>[] = [];
   for (const exportResult of exportResults) {
-    promises.push(zipAndUpload(distPath, response.data.upload_url, exportResult));
+    promises.push(zipAndUpload(response.data.upload_url, exportResult));
   }
 
   await Promise.all(promises);
   return 0;
 }
 
-async function zipAndUpload(distPath: string, uploadUrl: string, exportResult: ExportResult): Promise<void> {
+async function zipAndUpload(uploadUrl: string, exportResult: ExportResult): Promise<void> {
+  const distPath = path.join(actionWorkingPath, 'dist');
+  await io.mkdirP(distPath);
+
   const zipPath = path.join(distPath, `${exportResult.sanitizedName}.zip`);
-  if (!fs.existsSync(zipPath)) {
+
+  if (exportResult.preset.platform.toLowerCase() === 'mac osx') {
+    const baseName = path.basename(exportResult.preset.export_path);
+    const macPath = path.join(exportResult.buildDirectory, baseName);
+    await exec('mv', [macPath, zipPath]);
+  } else if (!fs.existsSync(zipPath)) {
     await exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/*`]);
   }
 
