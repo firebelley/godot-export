@@ -24,7 +24,7 @@ Since this action creates releases and uploads the zip file assets, you will nee
 
 
 ### Inputs
-- `base_version` default `0.0.0`
+- `base_version` default `0.0.1`
     - The version which new releases start at. The first release will be this version. After that, releases will automatically be 1 patch version ahead of the version of the latest release. To increment minor and major versions simply set the `base_version` to reflect your desired major and minor versions. When the `base_version` is set to a higher version than the last release version, the `base_version` will be used.
 - `godot_executable_download_url`
   - The **Linux Headless** version of Godot that you want to export your project with. For example, to use the current stable of version of Godot your value will be `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_linux_headless.64.zip`. If you do not use the Linux Headless version exporting will fail.
