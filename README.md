@@ -71,7 +71,7 @@ jobs:
         godot_template_version: 3.2.beta4.mono
         relative_project_path: ./
         # The first release will start at 0.3.0
-        # Default value is 0.0.0
+        # Default value is 0.0.1
         base_version: 0.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
