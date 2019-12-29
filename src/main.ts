@@ -66,10 +66,7 @@ async function setupDependencies(): Promise<number | Error> {
 }
 
 async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
-  core.info('entering get new version');
   const base = semver.parse(core.getInput('base_version'));
-
-  core.info('getting latest release');
 
   let release;
   try {
