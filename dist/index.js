@@ -2270,22 +2270,25 @@ function setupDependencies() {
     });
 }
 function getNewVersion() {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     return __awaiter(this, void 0, void 0, function* () {
+        core.info('entering get new version');
         const base = semver.parse(core.getInput('base_version'));
+        core.info('getting latest release');
+        core.info((_a = process.env['GITHUB_REPOSITORY'], (_a !== null && _a !== void 0 ? _a : 'no github repository found')));
         const release = yield githubClient.repos.getLatestRelease({
-            owner: (_b = (_a = process.env['GITHUB_REPOSITORY']) === null || _a === void 0 ? void 0 : _a.split('/')[0], (_b !== null && _b !== void 0 ? _b : '')),
-            repo: (_d = (_c = process.env['GITHUB_REPOSITORY']) === null || _c === void 0 ? void 0 : _c.split('/')[1], (_d !== null && _d !== void 0 ? _d : '')),
+            owner: (_c = (_b = process.env['GITHUB_REPOSITORY']) === null || _b === void 0 ? void 0 : _b.split('/')[0], (_c !== null && _c !== void 0 ? _c : '')),
+            repo: (_e = (_d = process.env['GITHUB_REPOSITORY']) === null || _d === void 0 ? void 0 : _d.split('/')[1], (_e !== null && _e !== void 0 ? _e : '')),
         });
         core.info(JSON.stringify(release));
-        if ((_f = (_e = release) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.tag_name) {
+        if ((_g = (_f = release) === null || _f === void 0 ? void 0 : _f.data) === null || _g === void 0 ? void 0 : _g.tag_name) {
             let latest = semver.parse(release.data.tag_name);
             if (latest && base) {
                 if (semver.gt(base, latest)) {
                     latest = base;
                 }
                 else {
-                    latest = (_h = (_g = latest) === null || _g === void 0 ? void 0 : _g.inc('patch'), (_h !== null && _h !== void 0 ? _h : null));
+                    latest = (_j = (_h = latest) === null || _h === void 0 ? void 0 : _h.inc('patch'), (_j !== null && _j !== void 0 ? _j : null));
                 }
                 return latest;
             }
