@@ -1,5 +1,5 @@
 name: 'Godot Export'
-description: 'Automatically exports your Godot game.'
+description: 'Automatically exports your Godot games.'
 inputs:
   base_version:
     description: Base version. Patch versions are incremented when this action runs.
