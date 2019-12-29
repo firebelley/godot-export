@@ -2277,6 +2277,7 @@ function getNewVersion() {
             owner: (_b = (_a = process.env['GITHUB_REPOSITORY']) === null || _a === void 0 ? void 0 : _a.split('/')[0], (_b !== null && _b !== void 0 ? _b : '')),
             repo: (_d = (_c = process.env['GITHUB_REPOSITORY']) === null || _c === void 0 ? void 0 : _c.split('/')[1], (_d !== null && _d !== void 0 ? _d : '')),
         });
+        core.info(JSON.stringify(release));
         if ((_f = (_e = release) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.tag_name) {
             let latest = semver.parse(release.data.tag_name);
             if (latest && base) {
@@ -9543,7 +9544,6 @@ function prepareTemplates() {
 function runExport() {
     return __awaiter(this, void 0, void 0, function* () {
         const exportResults = [];
-        const exportPromises = [];
         const projectPath = path.resolve(path.join(main_1.relativeProjectPath, 'project.godot'));
         let dirNo = 0;
         core.info(`Using project file at ${projectPath}`);
@@ -9561,12 +9561,10 @@ function runExport() {
                 exportPath = path.join(buildDir, path.basename(preset.export_path));
             }
             yield io.mkdirP(buildDir);
-            const promise = exec_1.exec('godot', [projectPath, '--export', preset.name, exportPath]);
-            exportPromises.push(promise);
-        }
-        const result = yield Promise.all(exportPromises);
-        if (!result.every(x => x === 0)) {
-            throw new Error('1 or more exports failed');
+            const result = yield exec_1.exec('godot', [projectPath, '--export', preset.name, exportPath]);
+            if (result !== 0) {
+                throw new Error('1 or more exports failed');
+            }
         }
         return exportResults;
     });
