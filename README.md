@@ -76,3 +76,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+## Tips
+I recommend creating a separate branch just for the purposes of running this action. Suppose I want the action to run on `master` pushes, but I am in the middle of working on game-breaking changes. Rather than push directly to master and create broken builds (and releases) you might want to consider some different approaches:
+  - You could create a `release` branch that this action runs on. Then merge your `master` branch into `release` whenever you want to generate a release.
+  - You could keep `master` as your release-generating branch, and do active development on a `dev` branch. Merge `dev` into `master` when you want to create a release.
+
+## Why?
+Ultimately, I created this action for myself. I often want to test games on different devices, but I dread having to clone the repo, make sure I am on the correct version of Godot, get Mono setup, etc. I _could_ have generated builds myself and uploaded them to a file hosting site but that requires too much manual labor. Automation is much preferred!
+
+Additionally, this solution makes it easier for me (and my friends) to play test. I can look back through any version. I can directly compare two versions side-by-side to see which version feels, looks, and plays better. 
+
+The final thing that this action provides is a project history. Have you ever worked on a game over the course of several months, and forgot what it was like during the beginning? I personally never keep old builds around if I even generate them at all. If you work on a project long enough, it may be a hassle to generate a build at a certain point in time. Allowing builds to be automatically generated ensures that you have a timeline of evolution for your game.
