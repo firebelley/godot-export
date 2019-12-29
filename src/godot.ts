@@ -107,6 +107,7 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
     tag_name: versionStr,
     repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
     name: versionStr,
+    target_commitish: process.env['GITHUB_SHA'],
   });
 
   const promises: Promise<void>[] = [];
