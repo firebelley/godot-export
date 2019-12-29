@@ -100,12 +100,13 @@ async function runExport(): Promise<ExportResult[]> {
 }
 
 async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
+  const versionStr = `v${version.format()}`;
   const response = await githubClient.repos.createRelease({
     owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
     /* eslint "@typescript-eslint/camelcase": "off" */
-    tag_name: `v${version.format()}`,
+    tag_name: versionStr,
     repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
-    name: `v${version.format()}`,
+    name: versionStr,
   });
 
   const promises: Promise<void>[] = [];
