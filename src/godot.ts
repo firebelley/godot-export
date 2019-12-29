@@ -69,7 +69,6 @@ async function prepareTemplates(): Promise<void> {
 
 async function runExport(): Promise<ExportResult[]> {
   const exportResults: ExportResult[] = [];
-  const exportPromises: Promise<number>[] = [];
   const projectPath = path.resolve(path.join(relativeProjectPath, 'project.godot'));
   let dirNo = 0;
   core.info(`Using project file at ${projectPath}`);
@@ -91,13 +90,10 @@ async function runExport(): Promise<ExportResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const promise = exec('godot', [projectPath, '--export', preset.name, exportPath]);
-    exportPromises.push(promise);
-  }
-
-  const result = await Promise.all(exportPromises);
-  if (!result.every(x => x === 0)) {
-    throw new Error('1 or more exports failed');
+    const result = await exec('godot', [projectPath, '--export', preset.name, exportPath]);
+    if (result !== 0) {
+      throw new Error('1 or more exports failed');
+    }
   }
 
   return exportResults;

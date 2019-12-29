@@ -73,6 +73,8 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
     repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
   });
 
+  core.info(JSON.stringify(release));
+
   if (release?.data?.tag_name) {
     let latest = semver.parse(release.data.tag_name);
     if (latest && base) {
