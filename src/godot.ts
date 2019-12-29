@@ -103,9 +103,9 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
   const response = await githubClient.repos.createRelease({
     owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
     /* eslint "@typescript-eslint/camelcase": "off" */
-    tag_name: version.format(),
+    tag_name: `v${version.format()}`,
     repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
-    name: version.format(),
+    name: `v${version.format()}`,
   });
 
   const promises: Promise<void>[] = [];

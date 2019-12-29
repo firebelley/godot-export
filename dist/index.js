@@ -2223,12 +2223,12 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield configCheck();
         const newVersion = yield getAndCheckNewVersion();
-        core.info(`Using release version ${newVersion.format()}`);
+        core.info(`Using release version v${newVersion.format()}`);
         yield setupWorkingPath();
         yield core.group('Godot setup', setupDependencies);
         const exportResults = yield core.group('Exporting', godot_1.runExport);
         if (exportResults) {
-            yield core.group(`Create release ${newVersion.format()}`, () => __awaiter(this, void 0, void 0, function* () {
+            yield core.group(`Create release v${newVersion.format()}`, () => __awaiter(this, void 0, void 0, function* () {
                 yield godot_1.createRelease(newVersion, exportResults);
             }));
         }
@@ -2270,25 +2270,32 @@ function setupDependencies() {
     });
 }
 function getNewVersion() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     return __awaiter(this, void 0, void 0, function* () {
         core.info('entering get new version');
         const base = semver.parse(core.getInput('base_version'));
         core.info('getting latest release');
-        core.info((_a = process.env['GITHUB_REPOSITORY'], (_a !== null && _a !== void 0 ? _a : 'no github repository found')));
-        const release = yield githubClient.repos.getLatestRelease({
-            owner: (_c = (_b = process.env['GITHUB_REPOSITORY']) === null || _b === void 0 ? void 0 : _b.split('/')[0], (_c !== null && _c !== void 0 ? _c : '')),
-            repo: (_e = (_d = process.env['GITHUB_REPOSITORY']) === null || _d === void 0 ? void 0 : _d.split('/')[1], (_e !== null && _e !== void 0 ? _e : '')),
-        });
-        core.info(JSON.stringify(release));
-        if ((_g = (_f = release) === null || _f === void 0 ? void 0 : _f.data) === null || _g === void 0 ? void 0 : _g.tag_name) {
+        let release;
+        try {
+            release = yield githubClient.repos.getLatestRelease({
+                owner: (_b = (_a = process.env['GITHUB_REPOSITORY']) === null || _a === void 0 ? void 0 : _a.split('/')[0], (_b !== null && _b !== void 0 ? _b : '')),
+                repo: (_d = (_c = process.env['GITHUB_REPOSITORY']) === null || _c === void 0 ? void 0 : _c.split('/')[1], (_d !== null && _d !== void 0 ? _d : '')),
+            });
+        }
+        catch (e) {
+            // throws error if no release exists
+            // rather than using 2x api calls to see if releases exist and get latest
+            // just catch the error and log a simple message
+            core.info('No latest release found');
+        }
+        if ((_f = (_e = release) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.tag_name) {
             let latest = semver.parse(release.data.tag_name);
             if (latest && base) {
                 if (semver.gt(base, latest)) {
                     latest = base;
                 }
                 else {
-                    latest = (_j = (_h = latest) === null || _h === void 0 ? void 0 : _h.inc('patch'), (_j !== null && _j !== void 0 ? _j : null));
+                    latest = (_h = (_g = latest) === null || _g === void 0 ? void 0 : _g.inc('patch'), (_h !== null && _h !== void 0 ? _h : null));
                 }
                 return latest;
             }
@@ -9579,9 +9586,9 @@ function createRelease(version, exportResults) {
         const response = yield main_1.githubClient.repos.createRelease({
             owner: (_b = (_a = process.env['GITHUB_REPOSITORY']) === null || _a === void 0 ? void 0 : _a.split('/')[0], (_b !== null && _b !== void 0 ? _b : '')),
             /* eslint "@typescript-eslint/camelcase": "off" */
-            tag_name: version.format(),
+            tag_name: `v${version.format()}`,
             repo: (_d = (_c = process.env['GITHUB_REPOSITORY']) === null || _c === void 0 ? void 0 : _c.split('/')[1], (_d !== null && _d !== void 0 ? _d : '')),
-            name: version.format(),
+            name: `v${version.format()}`,
         });
         const promises = [];
         for (const exportResult of exportResults) {

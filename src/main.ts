@@ -15,14 +15,14 @@ async function main(): Promise<number> {
   await configCheck();
   const newVersion = await getAndCheckNewVersion();
 
-  core.info(`Using release version ${newVersion.format()}`);
+  core.info(`Using release version v${newVersion.format()}`);
 
   await setupWorkingPath();
   await core.group('Godot setup', setupDependencies);
 
   const exportResults = await core.group('Exporting', runExport);
   if (exportResults) {
-    await core.group(`Create release ${newVersion.format()}`, async () => {
+    await core.group(`Create release v${newVersion.format()}`, async () => {
       await createRelease(newVersion, exportResults);
     });
   }
@@ -70,14 +70,19 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
   const base = semver.parse(core.getInput('base_version'));
 
   core.info('getting latest release');
-  core.info(process.env['GITHUB_REPOSITORY'] ?? 'no github repository found');
 
-  const release = await githubClient.repos.getLatestRelease({
-    owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
-    repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
-  });
-
-  core.info(JSON.stringify(release));
+  let release;
+  try {
+    release = await githubClient.repos.getLatestRelease({
+      owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
+      repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
+    });
+  } catch (e) {
+    // throws error if no release exists
+    // rather than using 2x api calls to see if releases exist and get latest
+    // just catch the error and log a simple message
+    core.info('No latest release found');
+  }
 
   if (release?.data?.tag_name) {
     let latest = semver.parse(release.data.tag_name);
