@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc && ncc build -t --v8-cache",
+    "build": "tsc && webpack lib/main.js -o dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/firebelley/godot-export.git"
   },
   "author": "",
-  "license": "",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/firebelley/godot-export/issues"
   },
@@ -36,6 +36,8 @@
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.0",
     "prettier": "^1.19.1",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   }
 }
