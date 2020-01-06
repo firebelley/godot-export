@@ -4,7 +4,7 @@
   "description": "Exports Godot games.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc && webpack",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
@@ -37,7 +37,6 @@
     "eslint-plugin-github": "^3.4.0",
     "prettier": "^1.19.1",
     "typescript": "^3.7.4",
-    "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   }
 }
