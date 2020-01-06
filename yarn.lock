@@ -268,11 +268,6 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
-"@zeit/ncc@0.21.0":
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/@zeit/ncc/-/ncc-0.21.0.tgz#9516fc44ca81614c5b582d6e88542fdf37c401b6"
-  integrity sha512-RUMdvVK/w78oo+yBjruZltt0kJXYar2un/1bYQ2LuHG7GmFVm+QjxzEmySwREctaJdEnBvlMdUNWd9hXHxEI3g==
-
 acorn-jsx@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.1.0.tgz#294adb71b57398b0680015f0a38c563ee1db5384"
