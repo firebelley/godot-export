@@ -1,10 +1,10 @@
 {
   "name": "godot-export",
   "version": "1.0.0",
-  "description": "",
+  "description": "Exports Godot games.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc && webpack lib/main.js -o dist/index.js",
+    "build": "tsc && webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/firebelley/godot-export.git"
   },
-  "author": "",
+  "author": "Firebelley",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/firebelley/godot-export/issues"
