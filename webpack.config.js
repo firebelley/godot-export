@@ -3,12 +3,11 @@
 const path = require('path');
 
 module.exports = {
-  target: 'node',
   mode: 'production',
+  target: 'node',
   entry: './lib/main.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: __dirname + '/dist',
     filename: 'index.js',
-    libraryTarget: 'commonjs',
   },
 };
