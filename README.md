@@ -60,9 +60,8 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
     - name: export game
-      # I recommend using a version other than master. Take a look at the releases
-      # and https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-actions#versioning-your-action
-      uses: firebelley/godot-export@master
+      # Use version 1.0.0 (see releases for all versions)
+      uses: firebelley/godot-export@v1.0.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
