@@ -1,7 +1,8 @@
 name: 'Godot Export'
 description: 'Automatically exports your Godot games.'
+author: 'Firebelley'
 branding:
-  icon: 'icon.svg'
+  icon: 'box'
   color: 'white'
 inputs:
   base_version:
