@@ -1,5 +1,8 @@
 name: 'Godot Export'
 description: 'Automatically exports your Godot games.'
+branding:
+  icon: 'icon.svg'
+  color: 'white'
 inputs:
   base_version:
     description: Base version. Patch versions are incremented when this action runs.
