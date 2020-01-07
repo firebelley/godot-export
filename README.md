@@ -7,7 +7,7 @@ A workflow action to automatically export your Godot games. Supports standard an
 This action automatically reads your `export_presets.cfg` file to determine which builds to make. Whenever this action runs each of your defined exports will run. The resulting executables will be posted as zip files attached to the created release.
 
 ### Automatic Release
-Additionally, this action creates a release tagged with a [Semantic Version](https://semver.org/). The zip files containing the export results will be attached to this release. More info about releases can be found below.
+This action creates a release tagged with a [Semantic Version](https://semver.org/). The zip files containing the export results will be attached to this release. More info about releases can be found below.
 
 ## Configuration
 ### In Godot
