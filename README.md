@@ -1,5 +1,5 @@
-# GodotExport
-A workflow action to automatically exports your Godot games. Supports standard and **Mono** builds!
+# Godot Export
+A workflow action to automatically export your Godot games. Supports standard and **Mono** builds!
 
 ## How it Works
 
