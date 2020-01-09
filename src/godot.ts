@@ -5,11 +5,14 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { actionWorkingPath, relativeProjectPath, godotTemplateVersion, githubClient } from './main';
 import * as ini from 'ini';
-import { ExportPresets, ExportPreset } from './types/ExportPresets';
-import { Constants } from './types/Constants';
+import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
-import ExportResult from './types/ExportResult';
 import { SemVer } from 'semver';
+import { getRepositoryInfo } from './util';
+
+const GODOT_EXECUTABLE = 'godot_executable';
+const GODOT_ZIP = 'godot.zip';
+const GODOT_TEMPLATES = 'godot_templates.tpz';
 
 async function setupTemplates(): Promise<void> {
   await downloadTemplates();
@@ -25,7 +28,7 @@ async function downloadTemplates(): Promise<void> {
   const downloadUrl = core.getInput('godot_export_templates_download_url');
   core.info(`Downloading Godot export templates from ${downloadUrl}`);
 
-  const file = path.join(actionWorkingPath, Constants.GODOT_TEMPLATES);
+  const file = path.join(actionWorkingPath, GODOT_TEMPLATES);
   await exec('wget', ['-nv', downloadUrl, '-O', file]);
 }
 
@@ -33,13 +36,13 @@ async function downloadExecutable(): Promise<void> {
   const downloadUrl = core.getInput('godot_executable_download_url');
   core.info(`Downloading Godot executable from ${downloadUrl}`);
 
-  const file = path.join(actionWorkingPath, Constants.GODOT_ZIP);
+  const file = path.join(actionWorkingPath, GODOT_ZIP);
   await exec('wget', ['-nv', downloadUrl, '-O', file]);
 }
 
 async function prepareExecutable(): Promise<void> {
-  const zipFile = path.join(actionWorkingPath, Constants.GODOT_ZIP);
-  const zipTo = path.join(actionWorkingPath, Constants.GODOT_EXECUTABLE);
+  const zipFile = path.join(actionWorkingPath, GODOT_ZIP);
+  const zipTo = path.join(actionWorkingPath, GODOT_EXECUTABLE);
   await exec('unzip', ['-q', zipFile, '-d', zipTo]);
   const executablePath = findExecutablePath(zipTo);
   if (!executablePath) {
@@ -57,7 +60,7 @@ async function prepareExecutable(): Promise<void> {
 }
 
 async function prepareTemplates(): Promise<void> {
-  const templateFile = path.join(actionWorkingPath, Constants.GODOT_TEMPLATES);
+  const templateFile = path.join(actionWorkingPath, GODOT_TEMPLATES);
   const templatesPath = path.join(actionWorkingPath, 'templates');
   const tmpPath = path.join(actionWorkingPath, 'tmp');
 
@@ -101,13 +104,13 @@ async function runExport(): Promise<ExportResult[]> {
 
 async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
   const versionStr = `v${version.format()}`;
+  const repoInfo = getRepositoryInfo();
   const response = await githubClient.repos.createRelease({
-    owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
-    /* eslint "@typescript-eslint/camelcase": "off" */
-    tag_name: versionStr,
-    repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
+    owner: repoInfo.owner,
+    tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
+    repo: repoInfo.repository,
     name: versionStr,
-    target_commitish: process.env['GITHUB_SHA'],
+    target_commitish: process.env.GITHUB_SHA, // eslint-disable-line @typescript-eslint/camelcase
   });
 
   const promises: Promise<void>[] = [];

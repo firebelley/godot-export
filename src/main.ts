@@ -5,11 +5,12 @@ import * as semver from 'semver';
 import { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets } from './godot';
 import * as path from 'path';
 import * as os from 'os';
+import { getRepositoryInfo } from './util';
 
 const actionWorkingPath = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const godotTemplateVersion = core.getInput('godot_template_version');
 const relativeProjectPath = core.getInput('relative_project_path');
-const githubClient = new github.GitHub(process.env['GITHUB_TOKEN'] ?? '');
+const githubClient = new github.GitHub(process.env.GITHUB_TOKEN ?? '');
 
 async function main(): Promise<number> {
   await configCheck();
@@ -30,7 +31,7 @@ async function main(): Promise<number> {
 }
 
 async function configCheck(): Promise<void> {
-  if (!process.env['GITHUB_TOKEN']) {
+  if (!process.env.GITHUB_TOKEN) {
     throw new Error('You must supply the GITHUB_TOKEN environment variable.');
   }
 
@@ -70,9 +71,10 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
 
   let release;
   try {
+    const repoInfo = getRepositoryInfo();
     release = await githubClient.repos.getLatestRelease({
-      owner: process.env['GITHUB_REPOSITORY']?.split('/')[0] ?? '',
-      repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] ?? '',
+      owner: repoInfo.owner,
+      repo: repoInfo.repository,
     });
   } catch (e) {
     // throws error if no release exists
