@@ -3,7 +3,7 @@ export function getRepositoryInfo(): { owner: string; repository: string } {
 
   let owner = '';
   let repository = '';
-  if (repoInfo && repoInfo.length === 2) {
+  if (repoInfo?.length === 2) {
     [owner, repository] = repoInfo;
   }
 
