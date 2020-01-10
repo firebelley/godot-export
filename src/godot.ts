@@ -87,9 +87,13 @@ async function runExport(): Promise<ExportResult[]> {
       sanitizedName: sanitized,
     });
 
-    let exportPath = path.join(buildDir, sanitized);
+    let exportPath;
     if (preset.export_path) {
       exportPath = path.join(buildDir, path.basename(preset.export_path));
+    }
+    if (!exportPath) {
+      core.warning(`No file path set for preset "${preset.name}". Skipping export!`);
+      continue;
     }
 
     await io.mkdirP(buildDir);
@@ -178,7 +182,7 @@ function getExportPresets(): ExportPreset[] {
   const iniStr = fs.readFileSync(exportFilePath, { encoding: 'utf8' });
   const presets = ini.decode(iniStr) as ExportPresets;
 
-  if (presets && presets.preset) {
+  if (presets?.preset) {
     for (const key in presets.preset) {
       exportPrests.push(presets.preset[key]);
     }
