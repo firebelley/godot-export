@@ -1,10 +1,10 @@
 var global = require('../internals/global');
 var fails = require('../internals/fails');
 var classof = require('../internals/classof-raw');
-var bind = require('../internals/bind-context');
+var bind = require('../internals/function-bind-context');
 var html = require('../internals/html');
 var createElement = require('../internals/document-create-element');
-var IS_IOS = require('../internals/is-ios');
+var IS_IOS = require('../internals/engine-is-ios');
 
 var location = global.location;
 var set = global.setImmediate;

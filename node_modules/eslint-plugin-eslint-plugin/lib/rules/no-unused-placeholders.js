@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallow unused placeholders in rule report messages',
+      description: 'disallow unused placeholders in rule report messages',
       category: 'Rules',
       recommended: true,
     },

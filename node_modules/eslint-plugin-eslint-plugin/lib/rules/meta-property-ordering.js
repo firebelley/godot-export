@@ -13,7 +13,7 @@ const { getKeyName, getRuleInfo } = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'Enforces the order of meta properties',
+      description: 'enforce the order of meta properties',
       category: 'Rules',
       recommended: false,
     },
