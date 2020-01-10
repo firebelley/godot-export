@@ -36,7 +36,6 @@
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.0",
     "prettier": "^1.19.1",
-    "typescript": "^3.7.4",
-    "webpack-cli": "^3.3.10"
+    "typescript": "^3.7.4"
   }
 }
