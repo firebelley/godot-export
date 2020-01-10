@@ -10,10 +10,10 @@ otherwise ugly:
 ```js
 let matches;
 while ((matches = regex.exec(str)) !== null) {
-    // Do something
-    if (condition) {
-        break;
-    }
+  // Do something
+  if (condition) {
+    break;
+  }
 }
 ```
 
@@ -23,20 +23,21 @@ general purpose as it (as with `every`) allows short-circuiting (breaking).
 The following is equivalent to that above (though with `matches` as local):
 
 ```js
-Regextras(regex).some(str, (matches) => {
-    // Do something
-    if (condition) {
-        return true;
-    }
+RegExtras(regex).some(str, (matches) => {
+  // Do something
+  if (condition) {
+    return true;
+  }
+  return false;
 });
 ```
 
 And if the condition is at the end of the loop, just this:
 
 ```js
-Regextras(regex).some(str, (matches) => {
-    // Do something
-    return condition;
+RegExtras(regex).some(str, (matches) => {
+  // Do something
+  return condition;
 });
 ```
 
@@ -51,7 +52,7 @@ const RegExtras = require('regextras');
 Modern browsers:
 
 ```js
-import {RegExtras} from 'node_modules/regextras/dist/index-es.js';
+import {RegExtras} from './node_modules/regextras/dist/index-es.js';
 ```
 
 Older browsers:
@@ -78,9 +79,8 @@ Example:
 
 ```js
 const piglatinArray = RegExtras(/\w*w?ay/).reduce('ouyay areway illysay', function (arr, i, word) {
-    if ((/way$/).test(word)) {arr.push(word.replace(/way$/, ''));}
-    else {arr.push(word.slice(-3, -2) + word.slice(0, -3));}
-    return arr;
+  if (word.endsWith('way')) { arr.push(word.replace(/way$/, '')); } else { arr.push(word.slice(-3, -2) + word.slice(0, -3)); }
+  return arr;
 }, []);
 ```
 

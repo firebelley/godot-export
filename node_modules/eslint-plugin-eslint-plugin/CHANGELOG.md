@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.0 (2020-01-08)
+
+* Update: Add new rule `require-meta-docs-description` ([#89](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/89)) ([b175b46](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/b175b46732033c99e26e5380d83ea94727c15218))
+* New: add `always` option to `consistent-output` rule ([#88](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/88)) ([8c74f24](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/8c74f242431de0d809f7be2801d4d889340fe84e))
+* New: add new rule `require-meta-schema` ([#87](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/87)) ([10b28f0](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/10b28f03d12a4770db3433b3b9cedface0d480d4))
+* Fix: Check for meta type even when using a function reference ([#84](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/84)) ([38ad521](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/38ad521963b4e10d001ef91314a637c1028972cf))
+* Chore: fix incorrect test cases. ([#82](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/82)) ([c86c224](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/c86c22453bc9cb9aad536985f4361c7c9d3de096))
+
 ## v2.1.0 (2019-05-08)
 
 * New: meta-property-ordering (fixes [#62](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/62)) ([#80](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/issues/80)) ([aebf1cf](https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/commit/aebf1cf2023e014aa8778fe457bfa5c8a4c876fc))

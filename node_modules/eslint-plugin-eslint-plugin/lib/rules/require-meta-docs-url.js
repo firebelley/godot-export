@@ -64,23 +64,6 @@ module.exports = {
       );
     }
 
-    /**
-     * Insert a given property into a given object literal.
-     * @param {SourceCodeFixer} fixer The fixer.
-     * @param {Node} node The ObjectExpression node to insert a property.
-     * @param {string} propertyText The property code to insert.
-     * @returns {void}
-     */
-    function insertProperty (fixer, node, propertyText) {
-      if (node.properties.length === 0) {
-        return fixer.replaceText(node, `{\n${propertyText}\n}`);
-      }
-      return fixer.insertTextAfter(
-        sourceCode.getLastToken(node.properties[node.properties.length - 1]),
-        `,\n${propertyText}`
-      );
-    }
-
     return {
       Program (node) {
         const info = util.getRuleInfo(node);
@@ -125,10 +108,10 @@ module.exports = {
                 return fixer.replaceText(urlPropNode.value, urlString);
               }
               if (docsPropNode && docsPropNode.value.type === 'ObjectExpression') {
-                return insertProperty(fixer, docsPropNode.value, `url: ${urlString}`);
+                return util.insertProperty(fixer, docsPropNode.value, `url: ${urlString}`, sourceCode);
               }
               if (!docsPropNode && metaNode && metaNode.type === 'ObjectExpression') {
-                return insertProperty(fixer, metaNode, `docs: {\nurl: ${urlString}\n}`);
+                return util.insertProperty(fixer, metaNode, `docs: {\nurl: ${urlString}\n}`, sourceCode);
               }
             }
             return null;

@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'disallows invalid RuleTester test cases with the output the same as the code.',
+      description: 'disallow invalid RuleTester test cases with the output the same as the code.',
       category: 'Tests',
       recommended: false,
     },

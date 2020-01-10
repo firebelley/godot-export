@@ -30,7 +30,7 @@ module.exports = {
 
   create (context) {
     const sourceCode = context.getSourceCode();
-    const info = utils.getRuleInfo(sourceCode.ast);
+    const info = utils.getRuleInfo(sourceCode.ast, sourceCode.scopeManager);
 
     // ----------------------------------------------------------------------
     // Helpers

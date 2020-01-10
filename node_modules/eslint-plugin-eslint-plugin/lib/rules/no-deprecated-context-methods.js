@@ -37,7 +37,7 @@ const DEPRECATED_PASSTHROUGHS = {
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallows usage of deprecated methods on rule context objects',
+      description: 'disallow usage of deprecated methods on rule context objects',
       category: 'Rules',
       recommended: false,
     },

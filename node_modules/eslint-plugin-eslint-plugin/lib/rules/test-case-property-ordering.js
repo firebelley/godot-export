@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'Requires the properties of a test case to be placed in a consistent order',
+      description: 'require the properties of a test case to be placed in a consistent order',
       category: 'Tests',
       recommended: false,
     },

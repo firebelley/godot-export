@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'prefer using replaceText instead of replaceTextRange.',
+      description: 'require using replaceText instead of replaceTextRange.',
       category: 'Rules',
       recommended: false,
     },

@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallow unnecessary calls to sourceCode.getFirstToken and sourceCode.getLastToken',
+      description: 'disallow unnecessary calls to sourceCode.getFirstToken and sourceCode.getLastToken',
       category: 'Rules',
       recommended: true,
     },

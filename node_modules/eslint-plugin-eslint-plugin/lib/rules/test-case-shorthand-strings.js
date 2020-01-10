@@ -14,7 +14,7 @@ const utils = require('../utils');
 module.exports = {
   meta: {
     docs: {
-      description: 'Enforce consistent usage of shorthand strings for test cases with no options',
+      description: 'enforce consistent usage of shorthand strings for test cases with no options',
       category: 'Tests',
       recommended: false,
     },
