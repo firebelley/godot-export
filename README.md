@@ -58,7 +58,7 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2.0.0
     - name: export game
       # Use version 1.0.0 (see releases for all versions)
       uses: firebelley/godot-export@v1.0.0
