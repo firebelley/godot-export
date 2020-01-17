@@ -43,20 +43,16 @@ async function downloadExecutable(): Promise<void> {
 async function prepareExecutable(): Promise<void> {
   const zipFile = path.join(actionWorkingPath, GODOT_ZIP);
   const zipTo = path.join(actionWorkingPath, GODOT_EXECUTABLE);
-  await exec('unzip', ['-q', zipFile, '-d', zipTo]);
+  await exec('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
   const executablePath = findExecutablePath(zipTo);
   if (!executablePath) {
-    throw new Error('Could not find executable path');
-  }
-  core.info(`Found executable in ${executablePath}`);
-
-  const executableFilePath = findExecutableFilePath(executablePath);
-  if (!executableFilePath) {
     throw new Error('Could not find Godot executable');
   }
-  const finalGodotPath = path.join(executablePath, 'godot');
-  await exec('mv', [executableFilePath, finalGodotPath]);
-  core.addPath(executablePath);
+  core.info(`Found executable at ${executablePath}`);
+
+  const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
+  await exec('mv', [executablePath, finalGodotPath]);
+  core.addPath(path.dirname(finalGodotPath));
 }
 
 async function prepareTemplates(): Promise<void> {
@@ -151,21 +147,18 @@ async function zipAndUpload(uploadUrl: string, exportResult: ExportResult): Prom
 
 function findExecutablePath(basePath: string): string | undefined {
   const paths = fs.readdirSync(basePath);
-  if (paths.length) {
-    return path.join(basePath, paths[0]);
+  const dirs: string[] = [];
+  for (const subPath of paths) {
+    const fullPath = path.join(basePath, subPath);
+    const stats = fs.statSync(fullPath);
+    if (stats.isFile() && path.extname(fullPath) === '.64') {
+      return fullPath;
+    } else {
+      dirs.push(fullPath);
+    }
   }
-  return undefined;
-}
-
-function findExecutableFilePath(basePath: string): string | undefined {
-  let paths = fs.readdirSync(basePath);
-  paths = paths.filter(p => {
-    const fullPath = path.join(basePath, p);
-    const isFile = fs.statSync(fullPath).isFile();
-    return isFile;
-  });
-  if (paths.length) {
-    return path.join(basePath, paths[0]);
+  for (const dir of dirs) {
+    return findExecutablePath(dir);
   }
   return undefined;
 }
