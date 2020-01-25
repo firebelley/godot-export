@@ -36,6 +36,8 @@ Since this action creates releases and uploads the zip file assets, you will nee
     - `%APPDATA%/Roaming/Godot/templates` for Windows
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
+- `create_release` default `true`
+  - Enable release creation. If `false`, exports will be available in folder `exports` in `relativeProjectPath`.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).

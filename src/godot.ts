@@ -3,7 +3,13 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
-import { actionWorkingPath, relativeProjectPath, godotTemplateVersion, githubClient } from './main';
+import {
+  actionWorkingPath,
+  relativeProjectPath,
+  relativeProjectExportsPath,
+  godotTemplateVersion,
+  githubClient,
+} from './main';
 import * as ini from 'ini';
 import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
@@ -115,14 +121,26 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
 
   const promises: Promise<void>[] = [];
   for (const exportResult of exportResults) {
-    promises.push(zipAndUpload(response.data.upload_url, exportResult));
+    promises.push(upload(response.data.upload_url, await zip(exportResult)));
   }
 
   await Promise.all(promises);
   return 0;
 }
 
-async function zipAndUpload(uploadUrl: string, exportResult: ExportResult): Promise<void> {
+async function moveExports(exportResults: ExportResult[]): Promise<number> {
+  await io.mkdirP(relativeProjectExportsPath);
+
+  const promises: Promise<void>[] = [];
+  for (const exportResult of exportResults) {
+    promises.push(move(await zip(exportResult)));
+  }
+
+  await Promise.all(promises);
+  return 0;
+}
+
+async function zip(exportResult: ExportResult): Promise<string> {
   const distPath = path.join(actionWorkingPath, 'dist');
   await io.mkdirP(distPath);
 
@@ -136,6 +154,10 @@ async function zipAndUpload(uploadUrl: string, exportResult: ExportResult): Prom
     await exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/*`]);
   }
 
+  return zipPath;
+}
+
+async function upload(uploadUrl: string, zipPath: string): Promise<void> {
   const content = fs.readFileSync(zipPath);
   await githubClient.repos.uploadReleaseAsset({
     file: content,
@@ -143,6 +165,10 @@ async function zipAndUpload(uploadUrl: string, exportResult: ExportResult): Prom
     name: path.basename(zipPath),
     url: uploadUrl,
   });
+}
+
+async function move(zipPath: string): Promise<void> {
+  await io.mv(zipPath, path.join(relativeProjectExportsPath, path.basename(zipPath)));
 }
 
 function findExecutablePath(basePath: string): string | undefined {
@@ -195,4 +221,4 @@ function hasExportPresets(): boolean {
   }
 }
 
-export { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets };
+export { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets, moveExports };

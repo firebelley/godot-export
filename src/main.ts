@@ -2,7 +2,7 @@ import * as io from '@actions/io';
 import * as github from '@actions/github';
 import * as core from '@actions/core';
 import * as semver from 'semver';
-import { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets } from './godot';
+import { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets, moveExports } from './godot';
 import * as path from 'path';
 import * as os from 'os';
 import { getRepositoryInfo } from './util';
@@ -10,6 +10,7 @@ import { getRepositoryInfo } from './util';
 const actionWorkingPath = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const godotTemplateVersion = core.getInput('godot_template_version');
 const relativeProjectPath = core.getInput('relative_project_path');
+const relativeProjectExportsPath = path.join(relativeProjectPath, 'exports');
 const githubClient = new github.GitHub(process.env.GITHUB_TOKEN ?? '');
 
 async function main(): Promise<number> {
@@ -23,9 +24,15 @@ async function main(): Promise<number> {
 
   const exportResults = await core.group('Exporting', runExport);
   if (exportResults) {
-    await core.group(`Create release v${newVersion.format()}`, async () => {
-      await createRelease(newVersion, exportResults);
-    });
+    if (core.getInput('create_release') === 'true') {
+      await core.group(`Create release v${newVersion.format()}`, async () => {
+        await createRelease(newVersion, exportResults);
+      });
+    } else {
+      await core.group(`Move exported files`, async () => {
+        await moveExports(exportResults);
+      });
+    }
   }
   return 0;
 }
@@ -105,4 +112,4 @@ function logAndExit(error: Error): void {
 
 main().catch(logAndExit);
 
-export { actionWorkingPath, godotTemplateVersion, relativeProjectPath, githubClient };
+export { actionWorkingPath, godotTemplateVersion, relativeProjectPath, relativeProjectExportsPath, githubClient };
