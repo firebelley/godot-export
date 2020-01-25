@@ -10,6 +10,7 @@ import { getRepositoryInfo } from './util';
 const actionWorkingPath = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const godotTemplateVersion = core.getInput('godot_template_version');
 const relativeProjectPath = core.getInput('relative_project_path');
+const shouldCreateRelease = core.getInput('create_release') === 'true';
 const relativeProjectExportsPath = path.join(relativeProjectPath, 'exports');
 const githubClient = new github.GitHub(process.env.GITHUB_TOKEN ?? '');
 
@@ -24,7 +25,7 @@ async function main(): Promise<number> {
 
   const exportResults = await core.group('Exporting', runExport);
   if (exportResults) {
-    if (core.getInput('create_release') === 'true') {
+    if (shouldCreateRelease) {
       await core.group(`Create release v${newVersion.format()}`, async () => {
         await createRelease(newVersion, exportResults);
       });
@@ -38,8 +39,8 @@ async function main(): Promise<number> {
 }
 
 async function configCheck(): Promise<void> {
-  if (!process.env.GITHUB_TOKEN) {
-    throw new Error('You must supply the GITHUB_TOKEN environment variable.');
+  if (shouldCreateRelease && !process.env.GITHUB_TOKEN) {
+    throw new Error('You must supply the GITHUB_TOKEN environment variable to create a release.');
   }
 
   if (!hasExportPresets()) {
