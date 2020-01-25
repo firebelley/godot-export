@@ -63,7 +63,7 @@ jobs:
       uses: actions/checkout@v2.0.0
     - name: export game
       # Use version 1.0.0 (see releases for all versions)
-      uses: firebelley/godot-export@v1.0.1
+      uses: firebelley/godot-export@v1.1.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
