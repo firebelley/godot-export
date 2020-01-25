@@ -16,9 +16,12 @@ const githubClient = new github.GitHub(process.env.GITHUB_TOKEN ?? '');
 
 async function main(): Promise<number> {
   await configCheck();
-  const newVersion = await getAndCheckNewVersion();
 
-  core.info(`Using release version v${newVersion.format()}`);
+  let newReleaseVersion: semver.SemVer | undefined;
+  if (shouldCreateRelease) {
+    newReleaseVersion = await getAndCheckNewVersion();
+    core.info(`Using release version v${newReleaseVersion.format()}`);
+  }
 
   await setupWorkingPath();
   await core.group('Godot setup', setupDependencies);
@@ -26,8 +29,8 @@ async function main(): Promise<number> {
   const exportResults = await core.group('Exporting', runExport);
   if (exportResults) {
     if (shouldCreateRelease) {
-      await core.group(`Create release v${newVersion.format()}`, async () => {
-        await createRelease(newVersion, exportResults);
+      await core.group(`Create release v${(<semver.SemVer>newReleaseVersion).format()}`, async () => {
+        await createRelease(<semver.SemVer>newReleaseVersion, exportResults);
       });
     } else {
       await core.group(`Move exported files`, async () => {
