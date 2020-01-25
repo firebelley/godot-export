@@ -20,7 +20,7 @@ Make sure that you have defined at least 1 export preset by going to `Project ->
 This action requires that your job utilizes Github's `actions/checkout@v1` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
 
 ### Environment Variables
-Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-workflow-configuration).
+Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-workflow-configuration). This environment variable is not needed if you set `create_release` to `false`.
 
 
 ### Inputs
