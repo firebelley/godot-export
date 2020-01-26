@@ -17,7 +17,7 @@ Make sure that you have defined at least 1 export preset by going to `Project ->
 **NOTE**: The file extension for the Mac OSX export must be anything but `.zip` for versions of Godot before 3.2. If the Mac OSX export file extension is `.zip` for a Godot version earlier than 3.2, then your project source files will be exported instead of a Mac application. [This was a known issue with the Godot command line export](https://github.com/godotengine/godot/issues/23073). For reference, I used a `.z` file extension to make it work for my Mac OSX builds.
 
 ### Workflow
-This action requires that your job utilizes Github's `actions/checkout@v1` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
+This action requires that your job utilizes Github's `actions/checkout` so that the source code is available for Godot to export the game. See the below [example workflow configuration](#example-workflow-configuration) for an example.
 
 ### Environment Variables
 Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-workflow-configuration). This environment variable is not needed if you set `create_release` to `false`.
@@ -37,7 +37,7 @@ Since this action creates releases and uploads the zip file assets, you will nee
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
 - `create_release` default `true`
-  - Enable release creation. If `false`, exports will be available in folder `exports` in `relativeProjectPath`.
+  - Enable release creation. If `false`, exports will be available in folder `exports` in `relative_project_path`.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
@@ -62,7 +62,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2.0.0
     - name: export game
-      # Use version 1.0.0 (see releases for all versions)
+      # Use version 1.1.0 (see releases for all versions)
       uses: firebelley/godot-export@v1.1.0
       with:
         # Defining all the required inputs
