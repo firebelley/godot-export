@@ -160,7 +160,7 @@ async function zip(exportResult: ExportResult): Promise<string> {
 async function upload(uploadUrl: string, zipPath: string): Promise<void> {
   const content = fs.readFileSync(zipPath);
   await githubClient.repos.uploadReleaseAsset({
-    file: content,
+    data: content,
     headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
     name: path.basename(zipPath),
     url: uploadUrl,

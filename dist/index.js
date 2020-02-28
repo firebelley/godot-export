@@ -10484,7 +10484,7 @@ function upload(uploadUrl, zipPath) {
     return __awaiter(this, void 0, void 0, function* () {
         const content = Object(external_fs_.readFileSync)(zipPath);
         yield githubClient.repos.uploadReleaseAsset({
-            file: content,
+            data: content,
             headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
             name: Object(external_path_.basename)(zipPath),
             url: uploadUrl,
