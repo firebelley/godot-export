@@ -30,10 +30,6 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - The **Linux Headless** version of Godot that you want to export your project with. For example, to use the current stable of version of Godot your value will be `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_linux_headless.64.zip`. If you do not use the Linux Headless version exporting will fail.
 - `godot_export_templates_download_url`
   - The link to the `.tpz` archive of export templates. Can be found at `https://downloads.tuxfamily.org/godotengine`. The export templates must be for the same version of Godot that you are using in `godot_executable_download_url`. For example, the `godot_export_templates_download_url` that matches the `godot_executable_download_url` version is `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_export_templates.tpz`
-- `godot_template_version`
-  - A representation of the Godot version. For the above stable version, this value would be `3.1.2.stable`. For mono, it would be `3.1.2.stable.mono`. If you have templates installed on your local machine you can find this exact string by looking at your local templates directory:
-    - `~/.local/share/godot/templates` for Linux
-    - `%APPDATA%/Roaming/Godot/templates` for Windows
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
 - `create_release` default `true`
@@ -60,16 +56,15 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v2.0.0
+      uses: actions/checkout@v2.1.0
     - name: export game
-      # Use version 1.2.0 (see releases for all versions)
-      uses: firebelley/godot-export@v1.2.0
+      # Use latest version (see releases for all versions)
+      uses: firebelley/godot-export@v1.3.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
         godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2.1/mono/Godot_v3.2.1-stable_mono_linux_headless_64.zip
         godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2.1/mono/Godot_v3.2.1-stable_mono_export_templates.tpz
-        godot_template_version: 3.2.1.stable.mono
         relative_project_path: ./
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

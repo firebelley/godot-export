@@ -3,18 +3,13 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
-import {
-  actionWorkingPath,
-  relativeProjectPath,
-  relativeProjectExportsPath,
-  godotTemplateVersion,
-  githubClient,
-} from './main';
+import { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient } from './main';
 import * as ini from 'ini';
 import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
 import { SemVer } from 'semver';
 import { getRepositoryInfo } from './util';
+import { ExecOptions } from '@actions/exec/lib/interfaces';
 
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
@@ -59,17 +54,41 @@ async function prepareExecutable(): Promise<void> {
   const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
   await exec('mv', [executablePath, finalGodotPath]);
   core.addPath(path.dirname(finalGodotPath));
+  await exec('chmod', ['+x', finalGodotPath]);
+}
+
+async function getGodotVersion(): Promise<string> {
+  let version = '';
+  const options: ExecOptions = {
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        version += data.toString();
+      },
+    },
+  };
+
+  await exec('godot', ['--version'], options);
+  version = version.trim();
+  version = version.replace('.official', '');
+
+  if (!version) {
+    throw new Error('Godot version could not be determined.');
+  }
+
+  return version;
 }
 
 async function prepareTemplates(): Promise<void> {
   const templateFile = path.join(actionWorkingPath, GODOT_TEMPLATES);
   const templatesPath = path.join(actionWorkingPath, 'templates');
   const tmpPath = path.join(actionWorkingPath, 'tmp');
+  const godotVersion = await getGodotVersion();
 
   await exec('unzip', ['-q', templateFile, '-d', actionWorkingPath]);
   await exec('mv', [templatesPath, tmpPath]);
   await io.mkdirP(templatesPath);
-  await exec('mv', [tmpPath, path.join(templatesPath, godotTemplateVersion)]);
+  await exec('mv', [tmpPath, path.join(templatesPath, godotVersion)]);
 }
 
 async function runExport(): Promise<ExportResult[]> {
@@ -111,7 +130,7 @@ async function runExport(): Promise<ExportResult[]> {
 async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
   const versionStr = `v${version.format()}`;
   const repoInfo = getRepositoryInfo();
-  const response = await githubClient.repos.createRelease({
+  const response = await getGitHubClient().repos.createRelease({
     owner: repoInfo.owner,
     tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
     repo: repoInfo.repository,
@@ -159,7 +178,7 @@ async function zip(exportResult: ExportResult): Promise<string> {
 
 async function upload(uploadUrl: string, zipPath: string): Promise<void> {
   const content = fs.readFileSync(zipPath);
-  await githubClient.repos.uploadReleaseAsset({
+  await getGitHubClient().repos.uploadReleaseAsset({
     data: content,
     headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
     name: path.basename(zipPath),

@@ -8,11 +8,9 @@ import * as os from 'os';
 import { getRepositoryInfo } from './util';
 
 const actionWorkingPath = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
-const godotTemplateVersion = core.getInput('godot_template_version');
 const relativeProjectPath = core.getInput('relative_project_path');
 const shouldCreateRelease = core.getInput('create_release') === 'true';
 const relativeProjectExportsPath = path.join(relativeProjectPath, 'exports');
-const githubClient = new github.GitHub(process.env.GITHUB_TOKEN ?? '');
 
 async function main(): Promise<number> {
   await configCheck();
@@ -68,13 +66,9 @@ async function setupWorkingPath(): Promise<void> {
   core.info(`Working path created ${actionWorkingPath}`);
 }
 
-async function setupDependencies(): Promise<number | Error> {
-  const setups: Promise<void>[] = [];
-
-  setups.push(setupExecutable());
-  setups.push(setupTemplates());
-  await Promise.all(setups);
-  return 0;
+async function setupDependencies(): Promise<void> {
+  await setupExecutable();
+  await setupTemplates();
 }
 
 async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
@@ -83,7 +77,7 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
   let release;
   try {
     const repoInfo = getRepositoryInfo();
-    release = await githubClient.repos.getLatestRelease({
+    release = await getGitHubClient().repos.getLatestRelease({
       owner: repoInfo.owner,
       repo: repoInfo.repository,
     });
@@ -108,6 +102,14 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
   return base;
 }
 
+function getGitHubClient(): github.GitHub {
+  const githubClient = shouldCreateRelease ? new github.GitHub(process.env.GITHUB_TOKEN ?? '') : undefined;
+  if (githubClient === undefined) {
+    throw new Error('No GitHub client could be created. Did you supply a GitHub token?');
+  }
+  return githubClient;
+}
+
 function logAndExit(error: Error): void {
   core.error(error.message);
   core.setFailed(error.message);
@@ -116,4 +118,4 @@ function logAndExit(error: Error): void {
 
 main().catch(logAndExit);
 
-export { actionWorkingPath, godotTemplateVersion, relativeProjectPath, relativeProjectExportsPath, githubClient };
+export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient };
