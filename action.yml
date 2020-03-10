@@ -18,9 +18,6 @@ inputs:
   relative_project_path:
     description: The relative path containing the "project.godot" file
     required: true
-  godot_template_version:
-    description: The name of the folder which templates are stored in. Looks like '3.1.1.stable.mono'. Can be found at %APPDATA\Roaming\Godot\templates on Windows and ~/.local/share/godot/templates on Linux.
-    required: true
   create_release:
     description: Should a release be created.
     default: true
