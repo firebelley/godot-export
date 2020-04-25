@@ -10482,12 +10482,14 @@ function createRelease(version, exportResults) {
     return __awaiter(this, void 0, void 0, function* () {
         const versionStr = `v${version.format()}`;
         const repoInfo = getRepositoryInfo();
+        const body = Object(core.getInput)('generate_release_notes') === 'true' ? yield getReleaseBody() : undefined;
         const response = yield getGitHubClient().repos.createRelease({
             owner: repoInfo.owner,
             tag_name: versionStr,
             repo: repoInfo.repository,
             name: versionStr,
             target_commitish: process.env.GITHUB_SHA,
+            body,
         });
         const promises = [];
         for (const exportResult of exportResults) {
@@ -10495,6 +10497,36 @@ function createRelease(version, exportResults) {
         }
         yield Promise.all(promises);
         return 0;
+    });
+}
+function getReleaseBody() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Object(exec.exec)('git', ['fetch', '--tags']);
+        yield Object(exec.exec)('git', ['pull', '--unshallow']);
+        const delimiter = '---delimiter---';
+        const latestTag = yield getLatestReleaseTagName();
+        const args = ['log'];
+        if (latestTag) {
+            args.push(`${latestTag}..HEAD`);
+        }
+        args.push(`--format=%B%H${delimiter}`);
+        let body = '';
+        const options = {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => {
+                    body += data.toString();
+                },
+            },
+        };
+        yield Object(exec.exec)('git', args, options);
+        const changes = body.trim().split(delimiter);
+        changes.reverse();
+        const formattedChanges = changes
+            .map(change => change.trim())
+            .filter(change => change.length)
+            .map(change => `- ${change}`);
+        return formattedChanges.join('\n');
     });
 }
 function moveExports(exportResults) {
@@ -10596,6 +10628,7 @@ var external_os_ = __webpack_require__(87);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "relativeProjectPath", function() { return relativeProjectPath; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "relativeProjectExportsPath", function() { return relativeProjectExportsPath; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getGitHubClient", function() { return getGitHubClient; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLatestReleaseTagName", function() { return getLatestReleaseTagName; });
 var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10675,9 +10708,28 @@ function setupDependencies() {
     });
 }
 function getNewVersion() {
-    var _a, _b;
+    var _a;
     return main_awaiter(this, void 0, void 0, function* () {
         const base = Object(semver.parse)(Object(core.getInput)('base_version'));
+        const latestTag = yield getLatestReleaseTagName();
+        if (latestTag) {
+            let latest = Object(semver.parse)(latestTag);
+            if (latest && base) {
+                if (Object(semver.gt)(base, latest)) {
+                    latest = base;
+                }
+                else {
+                    latest = (_a = latest === null || latest === void 0 ? void 0 : latest.inc('patch')) !== null && _a !== void 0 ? _a : null;
+                }
+                return latest;
+            }
+        }
+        return base;
+    });
+}
+function getLatestReleaseTagName() {
+    var _a;
+    return main_awaiter(this, void 0, void 0, function* () {
         let release;
         try {
             const repoInfo = getRepositoryInfo();
@@ -10692,19 +10744,7 @@ function getNewVersion() {
             // just catch the error and log a simple message
             Object(core.info)('No latest release found');
         }
-        if ((_a = release === null || release === void 0 ? void 0 : release.data) === null || _a === void 0 ? void 0 : _a.tag_name) {
-            let latest = Object(semver.parse)(release.data.tag_name);
-            if (latest && base) {
-                if (Object(semver.gt)(base, latest)) {
-                    latest = base;
-                }
-                else {
-                    latest = (_b = latest === null || latest === void 0 ? void 0 : latest.inc('patch')) !== null && _b !== void 0 ? _b : null;
-                }
-                return latest;
-            }
-        }
-        return base;
+        return (_a = release === null || release === void 0 ? void 0 : release.data) === null || _a === void 0 ? void 0 : _a.tag_name;
     });
 }
 function getGitHubClient() {

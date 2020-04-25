@@ -3,7 +3,13 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
-import { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient } from './main';
+import {
+  actionWorkingPath,
+  relativeProjectPath,
+  relativeProjectExportsPath,
+  getGitHubClient,
+  getLatestReleaseTagName,
+} from './main';
 import * as ini from 'ini';
 import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
@@ -130,12 +136,15 @@ async function runExport(): Promise<ExportResult[]> {
 async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
   const versionStr = `v${version.format()}`;
   const repoInfo = getRepositoryInfo();
+
+  const body = core.getInput('generate_release_notes') === 'true' ? await getReleaseBody() : undefined;
   const response = await getGitHubClient().repos.createRelease({
     owner: repoInfo.owner,
     tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
     repo: repoInfo.repository,
     name: versionStr,
     target_commitish: process.env.GITHUB_SHA, // eslint-disable-line @typescript-eslint/camelcase
+    body,
   });
 
   const promises: Promise<void>[] = [];
@@ -145,6 +154,39 @@ async function createRelease(version: SemVer, exportResults: ExportResult[]): Pr
 
   await Promise.all(promises);
   return 0;
+}
+
+async function getReleaseBody(): Promise<string> {
+  await exec('git', ['fetch', '--tags']);
+  await exec('git', ['pull', '--unshallow']);
+
+  const delimiter = '---delimiter---';
+  const latestTag = await getLatestReleaseTagName();
+  const args: string[] = ['log'];
+  if (latestTag) {
+    args.push(`${latestTag}..HEAD`);
+  }
+  args.push(`--format=%B%H${delimiter}`);
+
+  let body = '';
+  const options: ExecOptions = {
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        body += data.toString();
+      },
+    },
+  };
+
+  await exec('git', args, options);
+
+  const changes = body.trim().split(delimiter);
+  changes.reverse();
+  const formattedChanges = changes
+    .map(change => change.trim())
+    .filter(change => change.length)
+    .map(change => `- ${change}`);
+  return formattedChanges.join('\n');
 }
 
 async function moveExports(exportResults: ExportResult[]): Promise<number> {

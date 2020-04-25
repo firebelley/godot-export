@@ -5,10 +5,6 @@ branding:
   icon: 'box'
   color: 'white'
 inputs:
-  base_version:
-    description: Base version. Patch versions are incremented when this action runs.
-    default: 0.0.1
-    required: false
   godot_executable_download_url:
     description: The download url of the 64 bit Linux Headless Godot executable
     required: true
@@ -18,9 +14,17 @@ inputs:
   relative_project_path:
     description: The relative path containing the "project.godot" file
     required: true
+  base_version:
+    description: Base version. Patch versions are incremented when this action runs.
+    default: 0.0.1
+    required: false
   create_release:
-    description: Should a release be created.
+    description: If a release should be created.
     default: true
+    required: false
+  generate_release_notes:
+    description: If release notes should be automatically generated.
+    default: false
     required: false
 
 runs:
