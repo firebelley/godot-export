@@ -74,6 +74,22 @@ async function setupDependencies(): Promise<void> {
 async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
   const base = semver.parse(core.getInput('base_version'));
 
+  const latestTag = await getLatestReleaseTagName();
+  if (latestTag) {
+    let latest = semver.parse(latestTag);
+    if (latest && base) {
+      if (semver.gt(base, latest)) {
+        latest = base;
+      } else {
+        latest = latest?.inc('patch') ?? null;
+      }
+      return latest;
+    }
+  }
+  return base;
+}
+
+async function getLatestReleaseTagName(): Promise<string | undefined> {
   let release;
   try {
     const repoInfo = getRepositoryInfo();
@@ -88,18 +104,7 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
     core.info('No latest release found');
   }
 
-  if (release?.data?.tag_name) {
-    let latest = semver.parse(release.data.tag_name);
-    if (latest && base) {
-      if (semver.gt(base, latest)) {
-        latest = base;
-      } else {
-        latest = latest?.inc('patch') ?? null;
-      }
-      return latest;
-    }
-  }
-  return base;
+  return release?.data?.tag_name;
 }
 
 function getGitHubClient(): github.GitHub {
@@ -118,4 +123,4 @@ function logAndExit(error: Error): void {
 
 main().catch(logAndExit);
 
-export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient };
+export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient, getLatestReleaseTagName };
