@@ -24,16 +24,18 @@ Since this action creates releases and uploads the zip file assets, you will nee
 
 
 ### Inputs
-- `base_version` default `0.0.1`
-    - The version which new releases start at. The first release will be this version. After that, releases will automatically be 1 patch version ahead of the version of the latest release. To increment minor and major versions simply set the `base_version` to reflect your desired major and minor versions. When the `base_version` is set to a higher version than the last release version, the `base_version` will be used.
 - `godot_executable_download_url`
   - The **Linux Headless** version of Godot that you want to export your project with. For example, to use the current stable of version of Godot your value will be `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_linux_headless.64.zip`. If you do not use the Linux Headless version exporting will fail.
 - `godot_export_templates_download_url`
   - The link to the `.tpz` archive of export templates. Can be found at `https://downloads.tuxfamily.org/godotengine`. The export templates must be for the same version of Godot that you are using in `godot_executable_download_url`. For example, the `godot_export_templates_download_url` that matches the `godot_executable_download_url` version is `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_export_templates.tpz`
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
+- `base_version` default `0.0.1`
+    - The version which new releases start at. The first release will be this version. After that, releases will automatically be 1 patch version ahead of the version of the latest release. To increment minor and major versions simply set the `base_version` to reflect your desired major and minor versions. When the `base_version` is set to a higher version than the last release version, the `base_version` will be used.
 - `create_release` default `true`
   - Enable release creation. If `false`, exports will be available in folder `exports` in `relative_project_path`.
+- `generate_release_notes` default `false`
+  - Enable auto-generation of release notes based on commit history.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
@@ -59,7 +61,7 @@ jobs:
       uses: actions/checkout@v2.1.0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v1.3.0
+      uses: firebelley/godot-export@v1.4.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -74,10 +76,3 @@ jobs:
 I recommend creating a separate branch just for the purposes of running this action. Suppose I want the action to run on `master` pushes, but I am in the middle of working on game-breaking changes. Rather than push directly to master and create broken builds (and releases) you might want to consider some different approaches:
   - You could create a `release` branch that this action runs on. Then merge your `master` branch into `release` whenever you want to generate a release.
   - You could keep `master` as your release-generating branch, and do active development on a `dev` branch. Merge `dev` into `master` when you want to create a release.
-
-## Why?
-Ultimately, I created this action for myself. I often want to test games on different devices, but I dread having to clone the repo, make sure I am on the correct version of Godot, get Mono setup, etc. I _could_ have generated builds myself and uploaded them to a file hosting site but that requires too much manual labor. Automation is much preferred!
-
-Additionally, this solution makes it easier for me (and my friends) to play test. I can look back through any version. I can directly compare two versions side-by-side to see which version feels, looks, and plays better. 
-
-The final thing that this action provides is a project history. Have you ever worked on a game over the course of several months, and forgot what it was like during the beginning? I personally never keep old builds around if I even generate them at all. If you work on a project long enough, it may be a hassle to generate a build at a certain point in time. Allowing builds to be automatically generated ensures that you have a timeline of evolution for your game.
