@@ -26,6 +26,11 @@ inputs:
     description: If release notes should be automatically generated.
     default: false
     required: false
+  zip_export:
+    description: If the export should be zipped. Only used if create_release is false.
+    default: true
+    required: false
+
 
 runs:
   using: 'node12'

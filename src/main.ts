@@ -11,6 +11,7 @@ const actionWorkingPath = path.resolve(path.join(os.homedir(), '/.local/share/go
 const relativeProjectPath = core.getInput('relative_project_path');
 const shouldCreateRelease = core.getInput('create_release') === 'true';
 const relativeProjectExportsPath = path.join(relativeProjectPath, 'exports');
+const shouldZipExport = core.getInput('zip_export') === 'true';
 
 async function main(): Promise<number> {
   await configCheck();
@@ -123,4 +124,4 @@ function logAndExit(error: Error): void {
 
 main().catch(logAndExit);
 
-export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient, getLatestReleaseTagName };
+export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient, getLatestReleaseTagName, shouldZipExport };
