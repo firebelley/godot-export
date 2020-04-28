@@ -9,6 +9,7 @@ import {
   relativeProjectExportsPath,
   getGitHubClient,
   getLatestReleaseTagName,
+  shouldZipExport,
 } from './main';
 import * as ini from 'ini';
 import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
@@ -194,7 +195,12 @@ async function moveExports(exportResults: ExportResult[]): Promise<number> {
 
   const promises: Promise<void>[] = [];
   for (const exportResult of exportResults) {
-    promises.push(move(await zip(exportResult)));
+    if (shouldZipExport) {
+      promises.push(move(await zip(exportResult)));
+    }
+    else {
+      promises.push(move_directory(exportResult.buildDirectory));
+    }
   }
 
   await Promise.all(promises);
@@ -230,6 +236,11 @@ async function upload(uploadUrl: string, zipPath: string): Promise<void> {
 
 async function move(zipPath: string): Promise<void> {
   await io.mv(zipPath, path.join(relativeProjectExportsPath, path.basename(zipPath)));
+}
+
+async function move_directory(dir: string): Promise<void> {
+
+  await io.mv(dir, path.join(relativeProjectExportsPath, path.basename(dir)));
 }
 
 function findExecutablePath(basePath: string): string | undefined {
