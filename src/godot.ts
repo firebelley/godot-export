@@ -197,8 +197,7 @@ async function moveExports(exportResults: ExportResult[]): Promise<number> {
   for (const exportResult of exportResults) {
     if (shouldZipExport) {
       promises.push(move(await zip(exportResult)));
-    }
-    else {
+    } else {
       promises.push(moveDirectory(exportResult.buildDirectory));
     }
   }

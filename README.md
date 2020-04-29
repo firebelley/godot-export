@@ -36,6 +36,8 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - Enable release creation. If `false`, exports will be available in folder `exports` in `relative_project_path`.
 - `generate_release_notes` default `false`
   - Enable auto-generation of release notes based on commit history.
+- `zip_export` default `true`
+  - If `create_release` is `false`, this input determines whether the binaries are zipped when moved to the `exports` directory in `relative_project_path`. If `true`, the binaries are zipped. If `false`, the subdirectories containing the binaries are moved into the `exports` directory.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).

@@ -124,4 +124,11 @@ function logAndExit(error: Error): void {
 
 main().catch(logAndExit);
 
-export { actionWorkingPath, relativeProjectPath, relativeProjectExportsPath, getGitHubClient, getLatestReleaseTagName, shouldZipExport };
+export {
+  actionWorkingPath,
+  relativeProjectPath,
+  relativeProjectExportsPath,
+  getGitHubClient,
+  getLatestReleaseTagName,
+  shouldZipExport,
+};
