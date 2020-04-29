@@ -10534,7 +10534,12 @@ function moveExports(exportResults) {
         yield Object(io.mkdirP)(relativeProjectExportsPath);
         const promises = [];
         for (const exportResult of exportResults) {
-            promises.push(move(yield zip(exportResult)));
+            if (shouldZipExport) {
+                promises.push(move(yield zip(exportResult)));
+            }
+            else {
+                promises.push(moveDirectory(exportResult.buildDirectory));
+            }
         }
         yield Promise.all(promises);
         return 0;
@@ -10570,6 +10575,11 @@ function upload(uploadUrl, zipPath) {
 function move(zipPath) {
     return __awaiter(this, void 0, void 0, function* () {
         yield Object(io.mv)(zipPath, Object(external_path_.join)(relativeProjectExportsPath, Object(external_path_.basename)(zipPath)));
+    });
+}
+function moveDirectory(dir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Object(io.mv)(dir, relativeProjectExportsPath);
     });
 }
 function findExecutablePath(basePath) {
@@ -10629,6 +10639,7 @@ var external_os_ = __webpack_require__(87);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "relativeProjectExportsPath", function() { return relativeProjectExportsPath; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getGitHubClient", function() { return getGitHubClient; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLatestReleaseTagName", function() { return getLatestReleaseTagName; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "shouldZipExport", function() { return shouldZipExport; });
 var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10650,6 +10661,7 @@ const actionWorkingPath = Object(external_path_.resolve)(Object(external_path_.j
 const relativeProjectPath = Object(core.getInput)('relative_project_path');
 const shouldCreateRelease = Object(core.getInput)('create_release') === 'true';
 const relativeProjectExportsPath = Object(external_path_.join)(relativeProjectPath, 'exports');
+const shouldZipExport = Object(core.getInput)('zip_export') === 'true';
 function main() {
     return main_awaiter(this, void 0, void 0, function* () {
         yield configCheck();
