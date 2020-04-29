@@ -239,8 +239,7 @@ async function move(zipPath: string): Promise<void> {
 }
 
 async function move_directory(dir: string): Promise<void> {
-
-  await io.mv(dir, path.join(relativeProjectExportsPath, path.basename(dir)));
+  await io.mv(dir, relativeProjectExportsPath);
 }
 
 function findExecutablePath(basePath: string): string | undefined {
