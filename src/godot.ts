@@ -199,7 +199,7 @@ async function moveExports(exportResults: ExportResult[]): Promise<number> {
       promises.push(move(await zip(exportResult)));
     }
     else {
-      promises.push(move_directory(exportResult.buildDirectory));
+      promises.push(moveDirectory(exportResult.buildDirectory));
     }
   }
 
@@ -238,7 +238,7 @@ async function move(zipPath: string): Promise<void> {
   await io.mv(zipPath, path.join(relativeProjectExportsPath, path.basename(zipPath)));
 }
 
-async function move_directory(dir: string): Promise<void> {
+async function moveDirectory(dir: string): Promise<void> {
   await io.mv(dir, relativeProjectExportsPath);
 }
 
