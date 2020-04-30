@@ -3,24 +3,58 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
-import {
-  actionWorkingPath,
-  relativeProjectPath,
-  relativeProjectExportsPath,
-  getGitHubClient,
-  getLatestReleaseTagName,
-  shouldZipExport,
-} from './main';
 import * as ini from 'ini';
-import { ExportPresets, ExportPreset, ExportResult } from './types/GodotExport';
+import { ExportPresets, ExportPreset, BuildResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
-import { SemVer } from 'semver';
-import { getRepositoryInfo } from './util';
 import { ExecOptions } from '@actions/exec/lib/interfaces';
+import {
+  GODOT_TEMPLATES_DOWNLOAD_URL,
+  GODOT_DOWNLOAD_URL,
+  RELATIVE_PROJECT_PATH,
+  GODOT_WORKING_PATH,
+} from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
-const GODOT_TEMPLATES = 'godot_templates.tpz';
+const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
+
+async function exportBuilds(): Promise<BuildResult[]> {
+  if (!hasExportPresets()) {
+    core.setFailed(
+      'No export_presets.cfg found. Please ensure you have defined at least one export via the Godot editor.',
+    );
+    return [];
+  }
+
+  core.startGroup('Download Godot');
+  await downloadGodot();
+  core.endGroup();
+
+  core.startGroup('Export binaries');
+  const results = await doExport();
+  core.endGroup();
+
+  return results;
+}
+
+function hasExportPresets(): boolean {
+  try {
+    const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
+    return fs.statSync(path.join(projectPath, 'export_presets.cfg')).isFile();
+  } catch (e) {
+    return false;
+  }
+}
+
+async function downloadGodot(): Promise<void> {
+  await setupWorkingPath();
+  await Promise.all([setupTemplates(), setupExecutable()]);
+}
+
+async function setupWorkingPath(): Promise<void> {
+  await io.mkdirP(GODOT_WORKING_PATH);
+  core.info(`Working path created ${GODOT_WORKING_PATH}`);
+}
 
 async function setupTemplates(): Promise<void> {
   await downloadTemplates();
@@ -33,26 +67,24 @@ async function setupExecutable(): Promise<void> {
 }
 
 async function downloadTemplates(): Promise<void> {
-  const downloadUrl = core.getInput('godot_export_templates_download_url');
-  core.info(`Downloading Godot export templates from ${downloadUrl}`);
+  core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
 
-  const file = path.join(actionWorkingPath, GODOT_TEMPLATES);
-  await exec('wget', ['-nv', downloadUrl, '-O', file]);
+  const file = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+  await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', file]);
 }
 
 async function downloadExecutable(): Promise<void> {
-  const downloadUrl = core.getInput('godot_executable_download_url');
-  core.info(`Downloading Godot executable from ${downloadUrl}`);
+  core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
 
-  const file = path.join(actionWorkingPath, GODOT_ZIP);
-  await exec('wget', ['-nv', downloadUrl, '-O', file]);
+  const file = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
+  await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', file]);
 }
 
 async function prepareExecutable(): Promise<void> {
-  const zipFile = path.join(actionWorkingPath, GODOT_ZIP);
-  const zipTo = path.join(actionWorkingPath, GODOT_EXECUTABLE);
+  const zipFile = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
+  const zipTo = path.join(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
   await exec('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
-  const executablePath = findExecutablePath(zipTo);
+  const executablePath = findGodotExecutablePath(zipTo);
   if (!executablePath) {
     throw new Error('Could not find Godot executable');
   }
@@ -62,6 +94,18 @@ async function prepareExecutable(): Promise<void> {
   await exec('mv', [executablePath, finalGodotPath]);
   core.addPath(path.dirname(finalGodotPath));
   await exec('chmod', ['+x', finalGodotPath]);
+}
+
+async function prepareTemplates(): Promise<void> {
+  const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+  const templatesPath = path.join(GODOT_WORKING_PATH, 'templates');
+  const tmpPath = path.join(GODOT_WORKING_PATH, 'tmp');
+  const godotVersion = await getGodotVersion();
+
+  await exec('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
+  await exec('mv', [templatesPath, tmpPath]);
+  await io.mkdirP(templatesPath);
+  await exec('mv', [tmpPath, path.join(templatesPath, godotVersion)]);
 }
 
 async function getGodotVersion(): Promise<string> {
@@ -86,162 +130,45 @@ async function getGodotVersion(): Promise<string> {
   return version;
 }
 
-async function prepareTemplates(): Promise<void> {
-  const templateFile = path.join(actionWorkingPath, GODOT_TEMPLATES);
-  const templatesPath = path.join(actionWorkingPath, 'templates');
-  const tmpPath = path.join(actionWorkingPath, 'tmp');
-  const godotVersion = await getGodotVersion();
-
-  await exec('unzip', ['-q', templateFile, '-d', actionWorkingPath]);
-  await exec('mv', [templatesPath, tmpPath]);
-  await io.mkdirP(templatesPath);
-  await exec('mv', [tmpPath, path.join(templatesPath, godotVersion)]);
-}
-
-async function runExport(): Promise<ExportResult[]> {
-  const exportResults: ExportResult[] = [];
-  const projectPath = path.resolve(path.join(relativeProjectPath, 'project.godot'));
+async function doExport(): Promise<BuildResult[]> {
+  const buildResults: BuildResult[] = [];
+  const projectPath = path.resolve(path.join(RELATIVE_PROJECT_PATH, 'project.godot'));
   let dirNo = 0;
   core.info(`Using project file at ${projectPath}`);
 
   for (const preset of getExportPresets()) {
-    const sanitized = sanitize(preset.name);
-    const buildDir = path.join(actionWorkingPath, 'builds', dirNo.toString());
+    const buildDir = path.join(GODOT_WORKING_PATH, 'builds', dirNo.toString());
     dirNo++;
 
-    exportResults.push({
-      preset,
-      buildDirectory: buildDir,
-      sanitizedName: sanitized,
-    });
-
-    let exportPath;
+    let executablePath;
     if (preset.export_path) {
-      exportPath = path.join(buildDir, path.basename(preset.export_path));
+      executablePath = path.join(buildDir, path.basename(preset.export_path));
     }
-    if (!exportPath) {
+
+    if (!executablePath) {
       core.warning(`No file path set for preset "${preset.name}". Skipping export!`);
       continue;
     }
 
     await io.mkdirP(buildDir);
-    const result = await exec('godot', [projectPath, '--export', preset.name, exportPath]);
+    const result = await exec('godot', [projectPath, '--export', preset.name, executablePath]);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }
+
+    const sanitizedName = sanitize(preset.name);
+    buildResults.push({
+      preset,
+      sanitizedName,
+      executablePath,
+      directory: buildDir,
+    });
   }
 
-  return exportResults;
+  return buildResults;
 }
 
-async function createRelease(version: SemVer, exportResults: ExportResult[]): Promise<number> {
-  const versionStr = `v${version.format()}`;
-  const repoInfo = getRepositoryInfo();
-
-  const body = core.getInput('generate_release_notes') === 'true' ? await getReleaseBody() : undefined;
-  const response = await getGitHubClient().repos.createRelease({
-    owner: repoInfo.owner,
-    tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
-    repo: repoInfo.repository,
-    name: versionStr,
-    target_commitish: process.env.GITHUB_SHA, // eslint-disable-line @typescript-eslint/camelcase
-    body,
-  });
-
-  const promises: Promise<void>[] = [];
-  for (const exportResult of exportResults) {
-    promises.push(upload(response.data.upload_url, await zip(exportResult)));
-  }
-
-  await Promise.all(promises);
-  return 0;
-}
-
-async function getReleaseBody(): Promise<string> {
-  await exec('git', ['fetch', '--tags']);
-  await exec('git', ['pull', '--unshallow']);
-
-  const delimiter = '---delimiter---';
-  const latestTag = await getLatestReleaseTagName();
-  const args: string[] = ['log'];
-  if (latestTag) {
-    args.push(`${latestTag}..HEAD`);
-  }
-  args.push(`--format=%B%H${delimiter}`);
-
-  let body = '';
-  const options: ExecOptions = {
-    ignoreReturnCode: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        body += data.toString();
-      },
-    },
-  };
-
-  await exec('git', args, options);
-
-  const changes = body.trim().split(delimiter);
-  changes.reverse();
-  const formattedChanges = changes
-    .map(change => change.trim())
-    .filter(change => change.length)
-    .map(change => `- ${change}`);
-  return formattedChanges.join('\n');
-}
-
-async function moveExports(exportResults: ExportResult[]): Promise<number> {
-  await io.mkdirP(relativeProjectExportsPath);
-
-  const promises: Promise<void>[] = [];
-  for (const exportResult of exportResults) {
-    if (shouldZipExport) {
-      promises.push(move(await zip(exportResult)));
-    } else {
-      promises.push(moveDirectory(exportResult.buildDirectory));
-    }
-  }
-
-  await Promise.all(promises);
-  return 0;
-}
-
-async function zip(exportResult: ExportResult): Promise<string> {
-  const distPath = path.join(actionWorkingPath, 'dist');
-  await io.mkdirP(distPath);
-
-  const zipPath = path.join(distPath, `${exportResult.sanitizedName}.zip`);
-
-  if (exportResult.preset.platform.toLowerCase() === 'mac osx') {
-    const baseName = path.basename(exportResult.preset.export_path);
-    const macPath = path.join(exportResult.buildDirectory, baseName);
-    await exec('mv', [macPath, zipPath]);
-  } else if (!fs.existsSync(zipPath)) {
-    await exec('7z', ['a', zipPath, `${exportResult.buildDirectory}/*`]);
-  }
-
-  return zipPath;
-}
-
-async function upload(uploadUrl: string, zipPath: string): Promise<void> {
-  const content = fs.readFileSync(zipPath);
-  await getGitHubClient().repos.uploadReleaseAsset({
-    data: content,
-    headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
-    name: path.basename(zipPath),
-    url: uploadUrl,
-  });
-}
-
-async function move(zipPath: string): Promise<void> {
-  await io.mv(zipPath, path.join(relativeProjectExportsPath, path.basename(zipPath)));
-}
-
-async function moveDirectory(dir: string): Promise<void> {
-  await io.mv(dir, relativeProjectExportsPath);
-}
-
-function findExecutablePath(basePath: string): string | undefined {
+function findGodotExecutablePath(basePath: string): string | undefined {
   const paths = fs.readdirSync(basePath);
   const dirs: string[] = [];
   for (const subPath of paths) {
@@ -254,14 +181,14 @@ function findExecutablePath(basePath: string): string | undefined {
     }
   }
   for (const dir of dirs) {
-    return findExecutablePath(dir);
+    return findGodotExecutablePath(dir);
   }
   return undefined;
 }
 
 function getExportPresets(): ExportPreset[] {
   const exportPrests: ExportPreset[] = [];
-  const projectPath = path.resolve(relativeProjectPath);
+  const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
 
   if (!hasExportPresets()) {
     throw new Error(`Could not find export_presets.cfg in ${projectPath}`);
@@ -282,13 +209,4 @@ function getExportPresets(): ExportPreset[] {
   return exportPrests;
 }
 
-function hasExportPresets(): boolean {
-  try {
-    const projectPath = path.resolve(relativeProjectPath);
-    return fs.statSync(path.join(projectPath, 'export_presets.cfg')).isFile();
-  } catch (e) {
-    return false;
-  }
-}
-
-export { setupExecutable, setupTemplates, runExport, createRelease, hasExportPresets, moveExports };
+export { exportBuilds };

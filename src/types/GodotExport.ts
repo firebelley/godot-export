@@ -8,8 +8,10 @@ export interface ExportPreset {
   platform: string;
 }
 
-export interface ExportResult {
+export type BuildResult = {
+  directory: string;
   sanitizedName: string;
-  buildDirectory: string;
+  executablePath: string;
   preset: ExportPreset;
-}
+  archivePath?: string;
+};

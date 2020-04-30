@@ -6,13 +6,13 @@ branding:
   color: 'white'
 inputs:
   godot_executable_download_url:
-    description: The download url of the 64 bit Linux Headless Godot executable
+    description: The download url of the 64 bit Linux Headless Godot executable.
     required: true
   godot_export_templates_download_url:
-    description: The url of the export templates corresponding to the Godot executable version
+    description: The url of the export templates corresponding to the Godot executable version.
     required: true
   relative_project_path:
-    description: The relative path containing the "project.godot" file
+    description: The relative path containing the "project.godot" file.
     required: true
   base_version:
     description: Base version. Patch versions are incremented when this action runs.
@@ -26,10 +26,24 @@ inputs:
     description: If release notes should be automatically generated.
     default: false
     required: false
-  zip_export:
-    description: If the export should be zipped. Only used if create_release is false.
-    default: true
+
+  # TODO:
+    # need auto-increment input for versions
+    # need an export directory input
+    # need input to determine if binaries are zipped
+    # need input to determine if single-file output is archived
+  relative_export_path:
+    description: If provided, binaries will be exported to this directory. This should be a path relative to the root of your Git repository.
+    default: ''
     required: false
+  archive_export_output:
+    description: If exported binaries should be archived. Note that when create_release is true builds may be archived regardless of this setting.
+    default: false
+    required: false
+  # archive_release_single_file_output:
+  #   description: If an export output should be archived for single files when creating releases.
+  #   default: true
+  #   required: false
 
 runs:
   using: 'node12'
