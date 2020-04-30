@@ -12,6 +12,7 @@ export type BuildResult = {
   directory: string;
   sanitizedName: string;
   executablePath: string;
+  directoryEntryCount: number;
   preset: ExportPreset;
   archivePath?: string;
 };

@@ -5,6 +5,7 @@ branding:
   icon: 'box'
   color: 'white'
 inputs:
+  # required inputs
   godot_executable_download_url:
     description: The download url of the 64 bit Linux Headless Godot executable.
     required: true
@@ -14,6 +15,16 @@ inputs:
   relative_project_path:
     description: The relative path containing the "project.godot" file.
     required: true
+
+  # optional inputs
+  archive_export_output:
+    description: If exported binaries should be archived. Note that when create_release is true builds attached to the release may archived regardless of this setting.
+    default: false
+    required: false
+  archive_single_release_output:
+    description: If create_release is true, should the export output be archived if it is contained in a single file. Useful for exports with the "Embed PCK" option enabled.
+    default: true
+    required: false
   base_version:
     description: Base version. Patch versions are incremented when this action runs.
     default: 0.0.1
@@ -26,24 +37,10 @@ inputs:
     description: If release notes should be automatically generated.
     default: false
     required: false
-
-  # TODO:
-    # need auto-increment input for versions
-    # need an export directory input
-    # need input to determine if binaries are zipped
-    # need input to determine if single-file output is archived
   relative_export_path:
     description: If provided, binaries will be exported to this directory. This should be a path relative to the root of your Git repository.
     default: ''
     required: false
-  archive_export_output:
-    description: If exported binaries should be archived. Note that when create_release is true builds may be archived regardless of this setting.
-    default: false
-    required: false
-  # archive_release_single_file_output:
-  #   description: If an export output should be archived for single files when creating releases.
-  #   default: true
-  #   required: false
 
 runs:
   using: 'node12'

@@ -26,7 +26,7 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
   if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
     const baseName = path.basename(buildResult.preset.export_path);
     const macPath = path.join(buildResult.directory, baseName);
-    await exec('mv', [macPath, zipPath]);
+    await io.cp(macPath, zipPath);
   } else if (!fs.existsSync(zipPath)) {
     await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
   }
@@ -36,6 +36,8 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
 
 async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArchived?: boolean): Promise<void> {
   const fullExportPath = path.resolve(RELATIVE_EXPORT_PATH);
+  core.startGroup(`Moving exports to ${fullExportPath}`);
+
   await io.mkdirP(fullExportPath);
 
   const promises: Promise<void>[] = [];
@@ -47,17 +49,21 @@ async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArch
         continue;
       }
       const newArchivePath = path.join(fullExportPath, path.basename(buildResult.archivePath));
+      core.info(`Moving ${buildResult.archivePath} to ${newArchivePath}`);
       promise = io.mv(buildResult.archivePath, newArchivePath);
       buildResult.archivePath = newArchivePath;
     } else {
+      core.info(`Moving ${buildResult.directory} to ${fullExportPath}`);
       promise = io.mv(buildResult.directory, fullExportPath);
       buildResult.directory = path.join(fullExportPath, path.basename(buildResult.directory));
+      buildResult.executablePath = path.join(buildResult.directory, path.basename(buildResult.executablePath));
     }
 
     promises.push(promise);
   }
 
   await Promise.all(promises);
+  core.endGroup();
 }
 
 export { zipBuildResults, moveBuildsToExportDirectory };

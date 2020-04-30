@@ -20,9 +20,6 @@ async function main(): Promise<number> {
   }
 
   if (SHOULD_CREATE_RELEASE) {
-    if (buildResults.some(x => !x.archivePath)) {
-      await zipBuildResults(buildResults);
-    }
     await createRelease(buildResults);
   }
 

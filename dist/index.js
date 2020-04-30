@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(463);
+/******/ 		return __webpack_require__(744);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -3390,6 +3390,16 @@ module.exports = sort
 
 /***/ }),
 
+/***/ 122:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const SemVer = __webpack_require__(65)
+const major = (a, loose) => new SemVer(a, loose).major
+module.exports = major
+
+
+/***/ }),
+
 /***/ 124:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -6249,7 +6259,7 @@ module.exports = compareLoose
 
 module.exports = authenticationRequestError;
 
-const { RequestError } = __webpack_require__(844);
+const { RequestError } = __webpack_require__(463);
 
 function authenticationRequestError(state, error, options) {
   if (!error.headers) throw error;
@@ -6642,7 +6652,7 @@ function hasLastPage (link) {
 
 module.exports = validate;
 
-const { RequestError } = __webpack_require__(844);
+const { RequestError } = __webpack_require__(463);
 const get = __webpack_require__(854);
 const set = __webpack_require__(883);
 
@@ -6798,7 +6808,7 @@ function validate(octokit, options) {
 
 module.exports = authenticationRequestError;
 
-const { RequestError } = __webpack_require__(844);
+const { RequestError } = __webpack_require__(463);
 
 function authenticationRequestError(state, error, options) {
   /* istanbul ignore next */
@@ -9587,541 +9597,64 @@ module.exports = outside
 /***/ }),
 
 /***/ 463:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __webpack_require__(470);
-
-// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
-var exec = __webpack_require__(986);
-
-// EXTERNAL MODULE: ./node_modules/@actions/io/lib/io.js
-var io = __webpack_require__(1);
-
-// EXTERNAL MODULE: external "path"
-var external_path_ = __webpack_require__(622);
-var external_path_default = /*#__PURE__*/__webpack_require__.n(external_path_);
-
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __webpack_require__(747);
-
-// EXTERNAL MODULE: ./node_modules/ini/ini.js
-var ini = __webpack_require__(62);
-
-// EXTERNAL MODULE: ./node_modules/sanitize-filename/index.js
-var sanitize_filename = __webpack_require__(834);
-var sanitize_filename_default = /*#__PURE__*/__webpack_require__.n(sanitize_filename);
-
-// EXTERNAL MODULE: external "os"
-var external_os_ = __webpack_require__(87);
-
-// CONCATENATED MODULE: ./src/constants.ts
 
 
+Object.defineProperty(exports, '__esModule', { value: true });
 
-const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
-const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templates_download_url');
-const GODOT_DOWNLOAD_URL = Object(core.getInput)('godot_executable_download_url');
-const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
-const ARCHIVE_EXPORT_OUTPUT = Object(core.getInput)('archive_export_output') === 'true';
-const BASE_VERSION = Object(core.getInput)('base_version');
-const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_project_path');
-const GENERATE_RELEASE_NOTES = Object(core.getInput)('generate_release_notes') === 'true';
-const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.local/share/godot'));
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var deprecation = __webpack_require__(692);
+var once = _interopDefault(__webpack_require__(969));
 
-// CONCATENATED MODULE: ./src/godot.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+const logOnce = once(deprecation => console.warn(deprecation));
+/**
+ * Error with extra properties to help with debugging
+ */
 
+class RequestError extends Error {
+  constructor(message, statusCode, options) {
+    super(message); // Maintains proper stack trace (only available on V8)
 
+    /* istanbul ignore next */
 
-
-
-
-
-
-const GODOT_EXECUTABLE = 'godot_executable';
-const GODOT_ZIP = 'godot.zip';
-const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
-function exportBuilds() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!hasExportPresets()) {
-            Object(core.setFailed)('No export_presets.cfg found. Please ensure you have defined at least one export via the Godot editor.');
-            return [];
-        }
-        Object(core.startGroup)('Download Godot');
-        yield downloadGodot();
-        Object(core.endGroup)();
-        Object(core.startGroup)('Export binaries');
-        const results = yield doExport();
-        Object(core.endGroup)();
-        return results;
-    });
-}
-function hasExportPresets() {
-    try {
-        const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
-        return Object(external_fs_.statSync)(Object(external_path_.join)(projectPath, 'export_presets.cfg')).isFile();
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
     }
-    catch (e) {
-        return false;
+
+    this.name = "HttpError";
+    this.status = statusCode;
+    Object.defineProperty(this, "code", {
+      get() {
+        logOnce(new deprecation.Deprecation("[@octokit/request-error] `error.code` is deprecated, use `error.status`."));
+        return statusCode;
+      }
+
+    });
+    this.headers = options.headers || {}; // redact request credentials without mutating original request options
+
+    const requestCopy = Object.assign({}, options.request);
+
+    if (options.request.headers.authorization) {
+      requestCopy.headers = Object.assign({}, options.request.headers, {
+        authorization: options.request.headers.authorization.replace(/ .*$/, " [REDACTED]")
+      });
     }
-}
-function downloadGodot() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield setupWorkingPath();
-        yield Promise.all([setupTemplates(), setupExecutable()]);
-    });
-}
-function setupWorkingPath() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield Object(io.mkdirP)(GODOT_WORKING_PATH);
-        Object(core.info)(`Working path created ${GODOT_WORKING_PATH}`);
-    });
-}
-function setupTemplates() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield downloadTemplates();
-        yield prepareTemplates();
-    });
-}
-function setupExecutable() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield downloadExecutable();
-        yield prepareExecutable();
-    });
-}
-function downloadTemplates() {
-    return __awaiter(this, void 0, void 0, function* () {
-        Object(core.info)(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
-        const file = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
-        yield Object(exec.exec)('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', file]);
-    });
-}
-function downloadExecutable() {
-    return __awaiter(this, void 0, void 0, function* () {
-        Object(core.info)(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
-        const file = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_ZIP);
-        yield Object(exec.exec)('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', file]);
-    });
-}
-function prepareExecutable() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const zipFile = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_ZIP);
-        const zipTo = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
-        yield Object(exec.exec)('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
-        const executablePath = findGodotExecutablePath(zipTo);
-        if (!executablePath) {
-            throw new Error('Could not find Godot executable');
-        }
-        Object(core.info)(`Found executable at ${executablePath}`);
-        const finalGodotPath = Object(external_path_.join)(Object(external_path_.dirname)(executablePath), 'godot');
-        yield Object(exec.exec)('mv', [executablePath, finalGodotPath]);
-        Object(core.addPath)(Object(external_path_.dirname)(finalGodotPath));
-        yield Object(exec.exec)('chmod', ['+x', finalGodotPath]);
-    });
-}
-function prepareTemplates() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const templateFile = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
-        const templatesPath = Object(external_path_.join)(GODOT_WORKING_PATH, 'templates');
-        const tmpPath = Object(external_path_.join)(GODOT_WORKING_PATH, 'tmp');
-        const godotVersion = yield getGodotVersion();
-        yield Object(exec.exec)('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
-        yield Object(exec.exec)('mv', [templatesPath, tmpPath]);
-        yield Object(io.mkdirP)(templatesPath);
-        yield Object(exec.exec)('mv', [tmpPath, Object(external_path_.join)(templatesPath, godotVersion)]);
-    });
-}
-function getGodotVersion() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let version = '';
-        const options = {
-            ignoreReturnCode: true,
-            listeners: {
-                stdout: (data) => {
-                    version += data.toString();
-                },
-            },
-        };
-        yield Object(exec.exec)('godot', ['--version'], options);
-        version = version.trim();
-        version = version.replace('.official', '');
-        if (!version) {
-            throw new Error('Godot version could not be determined.');
-        }
-        return version;
-    });
-}
-function doExport() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const buildResults = [];
-        const projectPath = Object(external_path_.resolve)(Object(external_path_.join)(RELATIVE_PROJECT_PATH, 'project.godot'));
-        let dirNo = 0;
-        Object(core.info)(`Using project file at ${projectPath}`);
-        for (const preset of getExportPresets()) {
-            const buildDir = Object(external_path_.join)(GODOT_WORKING_PATH, 'builds', dirNo.toString());
-            dirNo++;
-            let executablePath;
-            if (preset.export_path) {
-                executablePath = Object(external_path_.join)(buildDir, Object(external_path_.basename)(preset.export_path));
-            }
-            if (!executablePath) {
-                Object(core.warning)(`No file path set for preset "${preset.name}". Skipping export!`);
-                continue;
-            }
-            yield Object(io.mkdirP)(buildDir);
-            const result = yield Object(exec.exec)('godot', [projectPath, '--export', preset.name, executablePath]);
-            if (result !== 0) {
-                throw new Error('1 or more exports failed');
-            }
-            const sanitizedName = sanitize_filename_default()(preset.name);
-            buildResults.push({
-                preset,
-                sanitizedName,
-                executablePath,
-                directory: buildDir,
-            });
-        }
-        return buildResults;
-    });
-}
-function findGodotExecutablePath(basePath) {
-    const paths = Object(external_fs_.readdirSync)(basePath);
-    const dirs = [];
-    for (const subPath of paths) {
-        const fullPath = Object(external_path_.join)(basePath, subPath);
-        const stats = Object(external_fs_.statSync)(fullPath);
-        if (stats.isFile() && Object(external_path_.extname)(fullPath) === '.64') {
-            return fullPath;
-        }
-        else {
-            dirs.push(fullPath);
-        }
-    }
-    for (const dir of dirs) {
-        return findGodotExecutablePath(dir);
-    }
-    return undefined;
-}
-function getExportPresets() {
-    const exportPrests = [];
-    const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
-    if (!hasExportPresets()) {
-        throw new Error(`Could not find export_presets.cfg in ${projectPath}`);
-    }
-    const exportFilePath = Object(external_path_.join)(projectPath, 'export_presets.cfg');
-    const iniStr = Object(external_fs_.readFileSync)(exportFilePath, { encoding: 'utf8' });
-    const presets = Object(ini.decode)(iniStr);
-    if (presets === null || presets === void 0 ? void 0 : presets.preset) {
-        for (const key in presets.preset) {
-            exportPrests.push(presets.preset[key]);
-        }
-    }
-    else {
-        Object(core.warning)(`No presets found in export_presets.cfg at ${projectPath}`);
-    }
-    return exportPrests;
+
+    requestCopy.url = requestCopy.url // client_id & client_secret can be passed as URL query parameters to increase rate limit
+    // see https://developer.github.com/v3/#increasing-the-unauthenticated-rate-limit-for-oauth-applications
+    .replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]") // OAuth tokens can be passed as URL query parameters, although it is not recommended
+    // see https://developer.github.com/v3/#oauth2-token-sent-in-a-header
+    .replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
+    this.request = requestCopy;
+  }
+
 }
 
-
-// EXTERNAL MODULE: ./node_modules/semver/index.js
-var semver = __webpack_require__(876);
-
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __webpack_require__(469);
-
-// CONCATENATED MODULE: ./src/github.ts
-
-function getGitHubClient() {
-    var _a;
-    return new github.GitHub((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
-}
-function getRepositoryInfo() {
-    var _a;
-    const repoInfo = (_a = process.env.GITHUB_REPOSITORY) === null || _a === void 0 ? void 0 : _a.split('/');
-    let owner = '';
-    let repository = '';
-    if ((repoInfo === null || repoInfo === void 0 ? void 0 : repoInfo.length) === 2) {
-        [owner, repository] = repoInfo;
-    }
-    return {
-        owner,
-        repository,
-    };
-}
-
-
-// CONCATENATED MODULE: ./src/release.ts
-var release_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-function createRelease(buildResults) {
-    return release_awaiter(this, void 0, void 0, function* () {
-        Object(core.startGroup)('Creating release');
-        yield createGitHubRelease(buildResults);
-        Object(core.endGroup)();
-    });
-}
-function createGitHubRelease(buildResults) {
-    return release_awaiter(this, void 0, void 0, function* () {
-        const version = yield getAndCheckNewVersion();
-        const versionStr = `v${version.format()}`;
-        Object(core.info)(`Using release version ${versionStr}`);
-        const repoInfo = getRepositoryInfo();
-        const body = GENERATE_RELEASE_NOTES ? yield getReleaseBody() : undefined;
-        const response = yield getGitHubClient().repos.createRelease({
-            owner: repoInfo.owner,
-            tag_name: versionStr,
-            repo: repoInfo.repository,
-            name: versionStr,
-            target_commitish: process.env.GITHUB_SHA,
-            body,
-        });
-        const promises = [];
-        for (const buildResult of buildResults) {
-            promises.push(upload(response.data.upload_url, buildResult));
-        }
-        yield Promise.all(promises);
-    });
-}
-function getAndCheckNewVersion() {
-    return release_awaiter(this, void 0, void 0, function* () {
-        const newVersion = yield getNewVersion();
-        if (!newVersion) {
-            const message = 'Could not establish a version for the release. Please check that "base_version" is a https://semver.org/ style string.';
-            Object(core.setFailed)(message);
-            throw new Error(message);
-        }
-        return newVersion;
-    });
-}
-function getNewVersion() {
-    var _a;
-    return release_awaiter(this, void 0, void 0, function* () {
-        const latestTag = yield getLatestReleaseTagName();
-        const parsedBaseVersion = Object(semver.parse)(BASE_VERSION);
-        if (latestTag) {
-            let latest = Object(semver.parse)(latestTag);
-            if (latest && parsedBaseVersion) {
-                if (Object(semver.gt)(parsedBaseVersion, latest)) {
-                    latest = Object(semver.parse)(parsedBaseVersion);
-                }
-                else {
-                    latest = (_a = latest === null || latest === void 0 ? void 0 : latest.inc('patch')) !== null && _a !== void 0 ? _a : null;
-                }
-                return latest;
-            }
-        }
-        return parsedBaseVersion;
-    });
-}
-function getLatestReleaseTagName() {
-    var _a;
-    return release_awaiter(this, void 0, void 0, function* () {
-        let release;
-        try {
-            const repoInfo = getRepositoryInfo();
-            release = yield getGitHubClient().repos.getLatestRelease({
-                owner: repoInfo.owner,
-                repo: repoInfo.repository,
-            });
-        }
-        catch (e) {
-            // throws error if no release exists
-            // rather than using 2x api calls to see if releases exist and get latest
-            // just catch the error and log a simple message
-            Object(core.info)('No latest release found');
-        }
-        return (_a = release === null || release === void 0 ? void 0 : release.data) === null || _a === void 0 ? void 0 : _a.tag_name;
-    });
-}
-function getReleaseBody() {
-    return release_awaiter(this, void 0, void 0, function* () {
-        Object(core.info)('Generating release notes');
-        yield Object(exec.exec)('git', ['fetch', '--tags']);
-        yield Object(exec.exec)('git', ['pull', '--unshallow']);
-        const delimiter = '---delimiter---';
-        const latestTag = yield getLatestReleaseTagName();
-        const args = ['log'];
-        if (latestTag) {
-            args.push(`${latestTag}..HEAD`);
-        }
-        args.push(`--format=%B%H${delimiter}`);
-        let body = '';
-        const options = {
-            ignoreReturnCode: true,
-            listeners: {
-                stdout: (data) => {
-                    body += data.toString();
-                },
-            },
-        };
-        yield Object(exec.exec)('git', args, options);
-        const changes = body.trim().split(delimiter);
-        changes.reverse();
-        const formattedChanges = changes
-            .map(change => change.trim())
-            .filter(change => change.length)
-            .map(change => `- ${change}`);
-        return formattedChanges.join('\n');
-    });
-}
-function upload(uploadUrl, buildResult) {
-    return release_awaiter(this, void 0, void 0, function* () {
-        if (!buildResult.archivePath) {
-            const message = 'Attempted to upload a non-existent archive.';
-            Object(core.setFailed)(message);
-            throw new Error(message);
-        }
-        Object(core.info)(`Uploading ${external_path_default().basename(buildResult.archivePath)}`);
-        const content = Object(external_fs_.readFileSync)(buildResult.archivePath);
-        yield getGitHubClient().repos.uploadReleaseAsset({
-            data: content,
-            headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
-            name: external_path_default().basename(buildResult.archivePath),
-            url: uploadUrl,
-        });
-    });
-}
-
-
-// CONCATENATED MODULE: ./src/file.ts
-var file_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-function zipBuildResults(buildResults) {
-    return file_awaiter(this, void 0, void 0, function* () {
-        Object(core.startGroup)('Zipping binaries');
-        const promises = [];
-        for (const buildResult of buildResults) {
-            promises.push(zipBuildResult(buildResult));
-        }
-        yield Promise.all(promises);
-        Object(core.endGroup)();
-    });
-}
-function zipBuildResult(buildResult) {
-    return file_awaiter(this, void 0, void 0, function* () {
-        const distPath = external_path_default().join(GODOT_WORKING_PATH, 'dist');
-        yield Object(io.mkdirP)(distPath);
-        const zipPath = external_path_default().join(distPath, `${buildResult.sanitizedName}.zip`);
-        // mac exports a zip by default, so just move the file
-        if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
-            const baseName = external_path_default().basename(buildResult.preset.export_path);
-            const macPath = external_path_default().join(buildResult.directory, baseName);
-            yield Object(exec.exec)('mv', [macPath, zipPath]);
-        }
-        else if (!Object(external_fs_.existsSync)(zipPath)) {
-            yield Object(exec.exec)('7z', ['a', zipPath, `${buildResult.directory}/*`]);
-        }
-        buildResult.archivePath = zipPath;
-    });
-}
-function moveBuildsToExportDirectory(buildResults, moveArchived) {
-    return file_awaiter(this, void 0, void 0, function* () {
-        const fullExportPath = external_path_default().resolve(RELATIVE_EXPORT_PATH);
-        yield Object(io.mkdirP)(fullExportPath);
-        const promises = [];
-        for (const buildResult of buildResults) {
-            let promise;
-            if (moveArchived) {
-                if (!buildResult.archivePath) {
-                    Object(core.warning)('Attempted to move export output that was not archived. Skipping');
-                    continue;
-                }
-                const newArchivePath = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.archivePath));
-                promise = Object(io.mv)(buildResult.archivePath, newArchivePath);
-                buildResult.archivePath = newArchivePath;
-            }
-            else {
-                promise = Object(io.mv)(buildResult.directory, fullExportPath);
-                buildResult.directory = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.directory));
-            }
-            promises.push(promise);
-        }
-        yield Promise.all(promises);
-    });
-}
-
-
-// CONCATENATED MODULE: ./src/main.ts
-var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-function main() {
-    return main_awaiter(this, void 0, void 0, function* () {
-        const buildResults = yield exportBuilds();
-        if (!buildResults.length) {
-            Object(core.setFailed)('No valid export presets found, exiting.');
-            return 1;
-        }
-        if (ARCHIVE_EXPORT_OUTPUT) {
-            yield zipBuildResults(buildResults);
-        }
-        if (RELATIVE_EXPORT_PATH) {
-            yield moveBuildsToExportDirectory(buildResults, ARCHIVE_EXPORT_OUTPUT);
-        }
-        if (SHOULD_CREATE_RELEASE) {
-            if (buildResults.some(x => !x.archivePath)) {
-                yield zipBuildResults(buildResults);
-            }
-            yield createRelease(buildResults);
-        }
-        return 0;
-    });
-}
-main().catch((error) => {
-    Object(core.setFailed)(error.message);
-    process.exit(1);
-});
+exports.RequestError = RequestError;
+//# sourceMappingURL=index.js.map
 
 
 /***/ }),
@@ -12343,11 +11876,552 @@ exports.withCustomRequest = withCustomRequest;
 /***/ }),
 
 /***/ 744:
-/***/ (function(module, __unusedexports, __webpack_require__) {
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
-const SemVer = __webpack_require__(65)
-const major = (a, loose) => new SemVer(a, loose).major
-module.exports = major
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(470);
+
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __webpack_require__(986);
+
+// EXTERNAL MODULE: ./node_modules/@actions/io/lib/io.js
+var io = __webpack_require__(1);
+
+// EXTERNAL MODULE: external "path"
+var external_path_ = __webpack_require__(622);
+var external_path_default = /*#__PURE__*/__webpack_require__.n(external_path_);
+
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __webpack_require__(747);
+
+// EXTERNAL MODULE: ./node_modules/ini/ini.js
+var ini = __webpack_require__(62);
+
+// EXTERNAL MODULE: ./node_modules/sanitize-filename/index.js
+var sanitize_filename = __webpack_require__(834);
+var sanitize_filename_default = /*#__PURE__*/__webpack_require__.n(sanitize_filename);
+
+// EXTERNAL MODULE: external "os"
+var external_os_ = __webpack_require__(87);
+
+// CONCATENATED MODULE: ./src/constants.ts
+
+
+
+const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
+const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templates_download_url');
+const GODOT_DOWNLOAD_URL = Object(core.getInput)('godot_executable_download_url');
+const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
+const ARCHIVE_EXPORT_OUTPUT = Object(core.getInput)('archive_export_output') === 'true';
+const BASE_VERSION = Object(core.getInput)('base_version');
+const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_export_path');
+const GENERATE_RELEASE_NOTES = Object(core.getInput)('generate_release_notes') === 'true';
+const ARCHIVE_SINGLE_RELEASE_OUTPUT = Object(core.getInput)('archive_single_release_output') === 'true';
+const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.local/share/godot'));
+
+
+// CONCATENATED MODULE: ./src/godot.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+const GODOT_EXECUTABLE = 'godot_executable';
+const GODOT_ZIP = 'godot.zip';
+const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
+function exportBuilds() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!hasExportPresets()) {
+            Object(core.setFailed)('No export_presets.cfg found. Please ensure you have defined at least one export via the Godot editor.');
+            return [];
+        }
+        Object(core.startGroup)('Download Godot');
+        yield downloadGodot();
+        Object(core.endGroup)();
+        Object(core.startGroup)('Export binaries');
+        const results = yield doExport();
+        Object(core.endGroup)();
+        return results;
+    });
+}
+function hasExportPresets() {
+    try {
+        const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
+        return Object(external_fs_.statSync)(Object(external_path_.join)(projectPath, 'export_presets.cfg')).isFile();
+    }
+    catch (e) {
+        return false;
+    }
+}
+function downloadGodot() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield setupWorkingPath();
+        yield Promise.all([setupTemplates(), setupExecutable()]);
+    });
+}
+function setupWorkingPath() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Object(io.mkdirP)(GODOT_WORKING_PATH);
+        Object(core.info)(`Working path created ${GODOT_WORKING_PATH}`);
+    });
+}
+function setupTemplates() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield downloadTemplates();
+        yield prepareTemplates();
+    });
+}
+function setupExecutable() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield downloadExecutable();
+        yield prepareExecutable();
+    });
+}
+function downloadTemplates() {
+    return __awaiter(this, void 0, void 0, function* () {
+        Object(core.info)(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
+        const file = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+        yield Object(exec.exec)('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', file]);
+    });
+}
+function downloadExecutable() {
+    return __awaiter(this, void 0, void 0, function* () {
+        Object(core.info)(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
+        const file = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_ZIP);
+        yield Object(exec.exec)('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', file]);
+    });
+}
+function prepareExecutable() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const zipFile = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_ZIP);
+        const zipTo = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
+        yield Object(exec.exec)('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
+        const executablePath = findGodotExecutablePath(zipTo);
+        if (!executablePath) {
+            throw new Error('Could not find Godot executable');
+        }
+        Object(core.info)(`Found executable at ${executablePath}`);
+        const finalGodotPath = Object(external_path_.join)(Object(external_path_.dirname)(executablePath), 'godot');
+        yield Object(exec.exec)('mv', [executablePath, finalGodotPath]);
+        Object(core.addPath)(Object(external_path_.dirname)(finalGodotPath));
+        yield Object(exec.exec)('chmod', ['+x', finalGodotPath]);
+    });
+}
+function prepareTemplates() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const templateFile = Object(external_path_.join)(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+        const templatesPath = Object(external_path_.join)(GODOT_WORKING_PATH, 'templates');
+        const tmpPath = Object(external_path_.join)(GODOT_WORKING_PATH, 'tmp');
+        const godotVersion = yield getGodotVersion();
+        yield Object(exec.exec)('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
+        yield Object(exec.exec)('mv', [templatesPath, tmpPath]);
+        yield Object(io.mkdirP)(templatesPath);
+        yield Object(exec.exec)('mv', [tmpPath, Object(external_path_.join)(templatesPath, godotVersion)]);
+    });
+}
+function getGodotVersion() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let version = '';
+        const options = {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => {
+                    version += data.toString();
+                },
+            },
+        };
+        yield Object(exec.exec)('godot', ['--version'], options);
+        version = version.trim();
+        version = version.replace('.official', '');
+        if (!version) {
+            throw new Error('Godot version could not be determined.');
+        }
+        return version;
+    });
+}
+function doExport() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const buildResults = [];
+        const projectPath = Object(external_path_.resolve)(Object(external_path_.join)(RELATIVE_PROJECT_PATH, 'project.godot'));
+        Object(core.info)(`Using project file at ${projectPath}`);
+        for (const preset of getExportPresets()) {
+            const sanitizedName = sanitize_filename_default()(preset.name);
+            const buildDir = Object(external_path_.join)(GODOT_WORKING_PATH, 'builds', sanitizedName);
+            let executablePath;
+            if (preset.export_path) {
+                executablePath = Object(external_path_.join)(buildDir, Object(external_path_.basename)(preset.export_path));
+            }
+            if (!executablePath) {
+                Object(core.warning)(`No file path set for preset "${preset.name}". Skipping export!`);
+                continue;
+            }
+            yield Object(io.mkdirP)(buildDir);
+            const result = yield Object(exec.exec)('godot', [projectPath, '--export', preset.name, executablePath]);
+            if (result !== 0) {
+                throw new Error('1 or more exports failed');
+            }
+            const directoryEntries = Object(external_fs_.readdirSync)(buildDir);
+            buildResults.push({
+                preset,
+                sanitizedName,
+                executablePath,
+                directoryEntryCount: directoryEntries.length,
+                directory: buildDir,
+            });
+        }
+        return buildResults;
+    });
+}
+function findGodotExecutablePath(basePath) {
+    const paths = Object(external_fs_.readdirSync)(basePath);
+    const dirs = [];
+    for (const subPath of paths) {
+        const fullPath = Object(external_path_.join)(basePath, subPath);
+        const stats = Object(external_fs_.statSync)(fullPath);
+        if (stats.isFile() && Object(external_path_.extname)(fullPath) === '.64') {
+            return fullPath;
+        }
+        else {
+            dirs.push(fullPath);
+        }
+    }
+    for (const dir of dirs) {
+        return findGodotExecutablePath(dir);
+    }
+    return undefined;
+}
+function getExportPresets() {
+    const exportPrests = [];
+    const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
+    if (!hasExportPresets()) {
+        throw new Error(`Could not find export_presets.cfg in ${projectPath}`);
+    }
+    const exportFilePath = Object(external_path_.join)(projectPath, 'export_presets.cfg');
+    const iniStr = Object(external_fs_.readFileSync)(exportFilePath, { encoding: 'utf8' });
+    const presets = Object(ini.decode)(iniStr);
+    if (presets === null || presets === void 0 ? void 0 : presets.preset) {
+        for (const key in presets.preset) {
+            exportPrests.push(presets.preset[key]);
+        }
+    }
+    else {
+        Object(core.warning)(`No presets found in export_presets.cfg at ${projectPath}`);
+    }
+    return exportPrests;
+}
+
+
+// EXTERNAL MODULE: ./node_modules/semver/index.js
+var semver = __webpack_require__(876);
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __webpack_require__(469);
+
+// CONCATENATED MODULE: ./src/github.ts
+
+function getGitHubClient() {
+    var _a;
+    return new github.GitHub((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
+}
+function getRepositoryInfo() {
+    var _a;
+    const repoInfo = (_a = process.env.GITHUB_REPOSITORY) === null || _a === void 0 ? void 0 : _a.split('/');
+    let owner = '';
+    let repository = '';
+    if ((repoInfo === null || repoInfo === void 0 ? void 0 : repoInfo.length) === 2) {
+        [owner, repository] = repoInfo;
+    }
+    return {
+        owner,
+        repository,
+    };
+}
+
+
+// CONCATENATED MODULE: ./src/file.ts
+var file_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+function zipBuildResults(buildResults) {
+    return file_awaiter(this, void 0, void 0, function* () {
+        Object(core.startGroup)('Zipping binaries');
+        const promises = [];
+        for (const buildResult of buildResults) {
+            promises.push(zipBuildResult(buildResult));
+        }
+        yield Promise.all(promises);
+        Object(core.endGroup)();
+    });
+}
+function zipBuildResult(buildResult) {
+    return file_awaiter(this, void 0, void 0, function* () {
+        const distPath = external_path_default().join(GODOT_WORKING_PATH, 'dist');
+        yield Object(io.mkdirP)(distPath);
+        const zipPath = external_path_default().join(distPath, `${buildResult.sanitizedName}.zip`);
+        // mac exports a zip by default, so just move the file
+        if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
+            const baseName = external_path_default().basename(buildResult.preset.export_path);
+            const macPath = external_path_default().join(buildResult.directory, baseName);
+            yield Object(io.cp)(macPath, zipPath);
+        }
+        else if (!Object(external_fs_.existsSync)(zipPath)) {
+            yield Object(exec.exec)('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+        }
+        buildResult.archivePath = zipPath;
+    });
+}
+function moveBuildsToExportDirectory(buildResults, moveArchived) {
+    return file_awaiter(this, void 0, void 0, function* () {
+        const fullExportPath = external_path_default().resolve(RELATIVE_EXPORT_PATH);
+        Object(core.startGroup)(`Moving exports to ${fullExportPath}`);
+        yield Object(io.mkdirP)(fullExportPath);
+        const promises = [];
+        for (const buildResult of buildResults) {
+            let promise;
+            if (moveArchived) {
+                if (!buildResult.archivePath) {
+                    Object(core.warning)('Attempted to move export output that was not archived. Skipping');
+                    continue;
+                }
+                const newArchivePath = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.archivePath));
+                Object(core.info)(`Moving ${buildResult.archivePath} to ${newArchivePath}`);
+                promise = Object(io.mv)(buildResult.archivePath, newArchivePath);
+                buildResult.archivePath = newArchivePath;
+            }
+            else {
+                Object(core.info)(`Moving ${buildResult.directory} to ${fullExportPath}`);
+                promise = Object(io.mv)(buildResult.directory, fullExportPath);
+                buildResult.directory = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.directory));
+                buildResult.executablePath = external_path_default().join(buildResult.directory, external_path_default().basename(buildResult.executablePath));
+            }
+            promises.push(promise);
+        }
+        yield Promise.all(promises);
+        Object(core.endGroup)();
+    });
+}
+
+
+// CONCATENATED MODULE: ./src/release.ts
+var release_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+function createRelease(buildResults) {
+    return release_awaiter(this, void 0, void 0, function* () {
+        if (buildResults.some(x => !x.archivePath)) {
+            yield zipBuildResults(buildResults);
+        }
+        Object(core.startGroup)('Creating release');
+        yield createGitHubRelease(buildResults);
+        Object(core.endGroup)();
+    });
+}
+function createGitHubRelease(buildResults) {
+    return release_awaiter(this, void 0, void 0, function* () {
+        const version = yield getAndCheckNewVersion();
+        const versionStr = `v${version.format()}`;
+        Object(core.info)(`Using release version ${versionStr}`);
+        const repoInfo = getRepositoryInfo();
+        const body = GENERATE_RELEASE_NOTES ? yield getReleaseBody() : undefined;
+        const response = yield getGitHubClient().repos.createRelease({
+            owner: repoInfo.owner,
+            tag_name: versionStr,
+            repo: repoInfo.repository,
+            name: versionStr,
+            target_commitish: process.env.GITHUB_SHA,
+            body,
+        });
+        const promises = [];
+        for (const buildResult of buildResults) {
+            promises.push(upload(response.data.upload_url, buildResult));
+        }
+        yield Promise.all(promises);
+    });
+}
+function getAndCheckNewVersion() {
+    return release_awaiter(this, void 0, void 0, function* () {
+        const newVersion = yield getNewVersion();
+        if (!newVersion) {
+            const message = 'Could not establish a version for the release. Please check that "base_version" is a https://semver.org/ style string.';
+            Object(core.setFailed)(message);
+            throw new Error(message);
+        }
+        return newVersion;
+    });
+}
+function getNewVersion() {
+    var _a;
+    return release_awaiter(this, void 0, void 0, function* () {
+        const latestTag = yield getLatestReleaseTagName();
+        const parsedBaseVersion = Object(semver.parse)(BASE_VERSION);
+        if (latestTag) {
+            let latest = Object(semver.parse)(latestTag);
+            if (latest && parsedBaseVersion) {
+                if (Object(semver.gt)(parsedBaseVersion, latest)) {
+                    latest = Object(semver.parse)(parsedBaseVersion);
+                }
+                else {
+                    latest = (_a = latest === null || latest === void 0 ? void 0 : latest.inc('patch')) !== null && _a !== void 0 ? _a : null;
+                }
+                return latest;
+            }
+        }
+        return parsedBaseVersion;
+    });
+}
+function getLatestReleaseTagName() {
+    var _a;
+    return release_awaiter(this, void 0, void 0, function* () {
+        let release;
+        try {
+            const repoInfo = getRepositoryInfo();
+            release = yield getGitHubClient().repos.getLatestRelease({
+                owner: repoInfo.owner,
+                repo: repoInfo.repository,
+            });
+        }
+        catch (e) {
+            // throws error if no release exists
+            // rather than using 2x api calls to see if releases exist and get latest
+            // just catch the error and log a simple message
+            Object(core.info)('No latest release found');
+        }
+        return (_a = release === null || release === void 0 ? void 0 : release.data) === null || _a === void 0 ? void 0 : _a.tag_name;
+    });
+}
+function getReleaseBody() {
+    return release_awaiter(this, void 0, void 0, function* () {
+        Object(core.info)('Generating release notes');
+        yield Object(exec.exec)('git', ['fetch', '--tags']);
+        yield Object(exec.exec)('git', ['pull', '--unshallow']);
+        const delimiter = '---delimiter---';
+        const latestTag = yield getLatestReleaseTagName();
+        const args = ['log'];
+        if (latestTag) {
+            args.push(`${latestTag}..HEAD`);
+        }
+        args.push(`--format=%B%H${delimiter}`);
+        let body = '';
+        const options = {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => {
+                    body += data.toString();
+                },
+            },
+        };
+        yield Object(exec.exec)('git', args, options);
+        const changes = body.trim().split(delimiter);
+        changes.reverse();
+        const formattedChanges = changes
+            .map(change => change.trim())
+            .filter(change => change.length)
+            .map(change => `- ${change}`);
+        return formattedChanges.join('\n');
+    });
+}
+function upload(uploadUrl, buildResult) {
+    return release_awaiter(this, void 0, void 0, function* () {
+        if (!buildResult.archivePath) {
+            const message = 'Attempted to upload a non-existent archive.';
+            Object(core.setFailed)(message);
+            throw new Error(message);
+        }
+        let fileToUpload = buildResult.archivePath;
+        if (!ARCHIVE_SINGLE_RELEASE_OUTPUT && buildResult.directoryEntryCount === 1) {
+            fileToUpload = buildResult.executablePath;
+        }
+        Object(core.info)(`Uploading ${fileToUpload}`);
+        const content = Object(external_fs_.readFileSync)(fileToUpload);
+        yield getGitHubClient().repos.uploadReleaseAsset({
+            data: content,
+            headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
+            name: external_path_default().basename(fileToUpload),
+            url: uploadUrl,
+        });
+    });
+}
+
+
+// CONCATENATED MODULE: ./src/main.ts
+var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+function main() {
+    return main_awaiter(this, void 0, void 0, function* () {
+        const buildResults = yield exportBuilds();
+        if (!buildResults.length) {
+            Object(core.setFailed)('No valid export presets found, exiting.');
+            return 1;
+        }
+        if (ARCHIVE_EXPORT_OUTPUT) {
+            yield zipBuildResults(buildResults);
+        }
+        if (RELATIVE_EXPORT_PATH) {
+            yield moveBuildsToExportDirectory(buildResults, ARCHIVE_EXPORT_OUTPUT);
+        }
+        if (SHOULD_CREATE_RELEASE) {
+            yield createRelease(buildResults);
+        }
+        return 0;
+    });
+}
+main().catch((error) => {
+    Object(core.setFailed)(error.message);
+    process.exit(1);
+});
 
 
 /***/ }),
@@ -12428,7 +12502,7 @@ var endpoint = __webpack_require__(385);
 var universalUserAgent = __webpack_require__(796);
 var isPlainObject = _interopDefault(__webpack_require__(696));
 var nodeFetch = _interopDefault(__webpack_require__(454));
-var requestError = __webpack_require__(844);
+var requestError = __webpack_require__(463);
 
 const VERSION = "5.3.1";
 
@@ -26350,69 +26424,6 @@ exports.restEndpointMethods = restEndpointMethods;
 
 /***/ }),
 
-/***/ 844:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var deprecation = __webpack_require__(692);
-var once = _interopDefault(__webpack_require__(969));
-
-const logOnce = once(deprecation => console.warn(deprecation));
-/**
- * Error with extra properties to help with debugging
- */
-
-class RequestError extends Error {
-  constructor(message, statusCode, options) {
-    super(message); // Maintains proper stack trace (only available on V8)
-
-    /* istanbul ignore next */
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-
-    this.name = "HttpError";
-    this.status = statusCode;
-    Object.defineProperty(this, "code", {
-      get() {
-        logOnce(new deprecation.Deprecation("[@octokit/request-error] `error.code` is deprecated, use `error.status`."));
-        return statusCode;
-      }
-
-    });
-    this.headers = options.headers || {}; // redact request credentials without mutating original request options
-
-    const requestCopy = Object.assign({}, options.request);
-
-    if (options.request.headers.authorization) {
-      requestCopy.headers = Object.assign({}, options.request.headers, {
-        authorization: options.request.headers.authorization.replace(/ .*$/, " [REDACTED]")
-      });
-    }
-
-    requestCopy.url = requestCopy.url // client_id & client_secret can be passed as URL query parameters to increase rate limit
-    // see https://developer.github.com/v3/#increasing-the-unauthenticated-rate-limit-for-oauth-applications
-    .replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]") // OAuth tokens can be passed as URL query parameters, although it is not recommended
-    // see https://developer.github.com/v3/#oauth2-token-sent-in-a-header
-    .replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
-    this.request = requestCopy;
-  }
-
-}
-
-exports.RequestError = RequestError;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
 /***/ 850:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -27521,7 +27532,7 @@ module.exports = {
   clean: __webpack_require__(503),
   inc: __webpack_require__(928),
   diff: __webpack_require__(822),
-  major: __webpack_require__(744),
+  major: __webpack_require__(122),
   minor: __webpack_require__(803),
   patch: __webpack_require__(489),
   prerelease: __webpack_require__(968),
