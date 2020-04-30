@@ -133,12 +133,11 @@ async function getGodotVersion(): Promise<string> {
 async function doExport(): Promise<BuildResult[]> {
   const buildResults: BuildResult[] = [];
   const projectPath = path.resolve(path.join(RELATIVE_PROJECT_PATH, 'project.godot'));
-  let dirNo = 0;
   core.info(`Using project file at ${projectPath}`);
 
   for (const preset of getExportPresets()) {
-    const buildDir = path.join(GODOT_WORKING_PATH, 'builds', dirNo.toString());
-    dirNo++;
+    const sanitizedName = sanitize(preset.name);
+    const buildDir = path.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
 
     let executablePath;
     if (preset.export_path) {
@@ -156,11 +155,12 @@ async function doExport(): Promise<BuildResult[]> {
       throw new Error('1 or more exports failed');
     }
 
-    const sanitizedName = sanitize(preset.name);
+    const directoryEntries = fs.readdirSync(buildDir);
     buildResults.push({
       preset,
       sanitizedName,
       executablePath,
+      directoryEntryCount: directoryEntries.length,
       directory: buildDir,
     });
   }

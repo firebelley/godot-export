@@ -1,14 +1,19 @@
 import { BuildResult } from './types/GodotExport';
 import * as semver from 'semver';
 import * as core from '@actions/core';
-import { BASE_VERSION, GENERATE_RELEASE_NOTES } from './constants';
+import { BASE_VERSION, GENERATE_RELEASE_NOTES, ARCHIVE_SINGLE_RELEASE_OUTPUT } from './constants';
 import { getRepositoryInfo, getGitHubClient } from './github';
 import { exec } from '@actions/exec';
 import { ExecOptions } from '@actions/exec/lib/interfaces';
 import path from 'path';
 import * as fs from 'fs';
+import { zipBuildResults } from './file';
 
 async function createRelease(buildResults: BuildResult[]): Promise<void> {
+  if (buildResults.some(x => !x.archivePath)) {
+    await zipBuildResults(buildResults);
+  }
+
   core.startGroup('Creating release');
   await createGitHubRelease(buildResults);
   core.endGroup();
@@ -127,13 +132,18 @@ async function upload(uploadUrl: string, buildResult: BuildResult): Promise<void
     throw new Error(message);
   }
 
-  core.info(`Uploading ${path.basename(buildResult.archivePath)}`);
+  let fileToUpload = buildResult.archivePath;
+  if (!ARCHIVE_SINGLE_RELEASE_OUTPUT && buildResult.directoryEntryCount === 1) {
+    fileToUpload = buildResult.executablePath;
+  }
 
-  const content = fs.readFileSync(buildResult.archivePath);
+  core.info(`Uploading ${fileToUpload}`);
+
+  const content = fs.readFileSync(fileToUpload);
   await getGitHubClient().repos.uploadReleaseAsset({
     data: content,
     headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
-    name: path.basename(buildResult.archivePath),
+    name: path.basename(fileToUpload),
     url: uploadUrl,
   });
 }
