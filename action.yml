@@ -18,27 +18,27 @@ inputs:
 
   # optional inputs
   archive_export_output:
-    description: If exported binaries should be archived. Note that when create_release is true builds attached to the release may archived regardless of this setting.
+    description: If exports should be archived.
     default: false
     required: false
   archive_single_release_output:
-    description: If create_release is true, should the export output be archived if it is contained in a single file. Useful for exports with the "Embed PCK" option enabled.
+    description: If exports that result in single files should be archived.
     default: true
     required: false
   base_version:
-    description: Base version. Patch versions are incremented when this action runs.
+    description: The version which new releases start at.
     default: 0.0.1
     required: false
   create_release:
-    description: If a release should be created.
+    description: If releases should be automatically created.
     default: true
     required: false
   generate_release_notes:
-    description: If release notes should be automatically generated.
+    description: If release notes should be automatically generated based on commit history.
     default: false
     required: false
   relative_export_path:
-    description: If provided, binaries will be exported to this directory. This should be a path relative to the root of your Git repository.
+    description: If provided, exports will be moved to this directory relative to the root of the Git repository.
     default: ''
     required: false
 
