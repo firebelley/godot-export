@@ -24,20 +24,32 @@ Since this action creates releases and uploads the zip file assets, you will nee
 
 
 ### Inputs
+
+#### Required Inputs
 - `godot_executable_download_url`
   - The **Linux Headless** version of Godot that you want to export your project with. For example, to use the current stable of version of Godot your value will be `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_linux_headless.64.zip`. If you do not use the Linux Headless version exporting will fail.
 - `godot_export_templates_download_url`
   - The link to the `.tpz` archive of export templates. Can be found at `https://downloads.tuxfamily.org/godotengine`. The export templates must be for the same version of Godot that you are using in `godot_executable_download_url`. For example, the `godot_export_templates_download_url` that matches the `godot_executable_download_url` version is `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_export_templates.tpz`
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
+
+#### Optional Inputs
+- `archive_export_output` default `false`
+  - If `true`, exports will be archived.
+  - **Note**: When `create_release` is true then exports uploaded to the release may be archived regardless of this setting.
+- `archive_single_release_output` default `true`
+  - If exports that result in a single file output should be archived when uploading to the release. Setting this to `false` is useful for exports that use the "Embed PCK" option, as the output executable can be directly uploaded to the release.
+  - **Note**: This input is only used when `create_release` is `true`.
 - `base_version` default `0.0.1`
     - The version which new releases start at. The first release will be this version. After that, releases will automatically be 1 patch version ahead of the version of the latest release. To increment minor and major versions simply set the `base_version` to reflect your desired major and minor versions. When the `base_version` is set to a higher version than the last release version, the `base_version` will be used.
+    - **Note**: This input is only used when `create_release` is `true`.
 - `create_release` default `true`
-  - Enable release creation. If `false`, exports will be available in folder `exports` in `relative_project_path`.
+  - If releases should be automatically created.
 - `generate_release_notes` default `false`
-  - Enable auto-generation of release notes based on commit history.
-- `zip_export` default `true`
-  - If `create_release` is `false`, this input determines whether the binaries are zipped when moved to the `exports` directory in `relative_project_path`. If `true`, the binaries are zipped. If `false`, the subdirectories containing the binaries are moved into the `exports` directory.
+  - If release notes should be automatically generated based on commit history. The generated notes will be added as the body of the release.
+  - **Note**: This input is only used when `create_release` is `true`.
+- `relative_export_path` default `''`
+  - If provided, exports will be moved to this directory relative to the root of the Git repository.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
@@ -63,7 +75,7 @@ jobs:
       uses: actions/checkout@v2.1.0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v1.5.0
+      uses: firebelley/godot-export@v2.0.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
