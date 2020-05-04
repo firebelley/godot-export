@@ -4,14 +4,16 @@ import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ini from 'ini';
+import * as rcedit from 'rcedit';
 import { ExportPresets, ExportPreset, BuildResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
 import { ExecOptions } from '@actions/exec/lib/interfaces';
 import {
-  GODOT_TEMPLATES_DOWNLOAD_URL,
   GODOT_DOWNLOAD_URL,
-  RELATIVE_PROJECT_PATH,
+  GODOT_TEMPLATES_DOWNLOAD_URL,
   GODOT_WORKING_PATH,
+  RELATIVE_PROJECT_PATH,
+  UPDATE_WINDOWS_ICONS,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -33,6 +35,10 @@ async function exportBuilds(): Promise<BuildResult[]> {
   core.startGroup('Export binaries');
   const results = await doExport();
   core.endGroup();
+
+  if (UPDATE_WINDOWS_ICONS && results.some(windowsExeFilter)) {
+    await updateWindowsIcons(results);
+  }
 
   return results;
 }
@@ -168,6 +174,36 @@ async function doExport(): Promise<BuildResult[]> {
   return buildResults;
 }
 
+async function updateWindowsIcons(buildResults: BuildResult[]): Promise<void> {
+  core.startGroup('Installing Wine');
+  await installWine();
+  core.endGroup();
+
+  core.startGroup('Updating .exe icons');
+  await editWindowsIcons(buildResults);
+  core.endGroup();
+}
+
+async function installWine(): Promise<void> {
+  await exec('sudo', ['apt-get', 'update']);
+  await exec('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
+  await exec('wine64', ['--version']);
+}
+
+async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
+  const windowsBuilds = buildResults.filter(windowsExeFilter);
+  const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
+  for (const build of windowsBuilds) {
+    const resPath = build.preset.options['application/icon'];
+    if (!resPath) continue;
+    const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
+    core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
+    await rcedit(build.executablePath, {
+      icon: fullIconPath,
+    });
+  }
+}
+
 function findGodotExecutablePath(basePath: string): string | undefined {
   const paths = fs.readdirSync(basePath);
   const dirs: string[] = [];
@@ -207,6 +243,10 @@ function getExportPresets(): ExportPreset[] {
   }
 
   return exportPrests;
+}
+
+function windowsExeFilter(buildResult: BuildResult): boolean {
+  return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
 }
 
 export { exportBuilds };

@@ -5154,6 +5154,86 @@ function paginatePlugin(octokit) {
 
 /***/ }),
 
+/***/ 152:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const path = __webpack_require__(622)
+const { spawn } = __webpack_require__(129)
+
+const pairSettings = ['version-string']
+const singleSettings = ['file-version', 'product-version', 'icon', 'requested-execution-level']
+const noPrefixSettings = ['application-manifest']
+
+module.exports = async (exe, options) => {
+  let rcedit = process.arch === 'x64' ? __webpack_require__.ab + "rcedit-x64.exe" : __webpack_require__.ab + "rcedit.exe"
+  const args = [exe]
+
+  for (const name of pairSettings) {
+    if (options[name]) {
+      for (const [key, value] of Object.entries(options[name])) {
+        args.push(`--set-${name}`, key, value)
+      }
+    }
+  }
+
+  for (const name of singleSettings) {
+    if (options[name]) {
+      args.push(`--set-${name}`, options[name])
+    }
+  }
+
+  for (const name of noPrefixSettings) {
+    if (options[name]) {
+      args.push(`--${name}`, options[name])
+    }
+  }
+
+  const spawnOptions = {
+    env: { ...process.env }
+  }
+
+  if (process.platform !== 'win32') {
+    args.unshift(rcedit)
+    rcedit = process.arch === 'x64' ? 'wine64' : 'wine'
+    // Suppress "fixme:" stderr log messages
+    spawnOptions.env.WINEDEBUG = '-all'
+  }
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(rcedit, args, spawnOptions)
+    let stderr = ''
+    let error = null
+
+    child.on('error', err => {
+      if (error === null) {
+        error = err
+      }
+    })
+
+    child.stderr.on('data', data => {
+      stderr += data
+    })
+
+    child.on('close', code => {
+      if (error !== null) {
+        reject(error)
+      } else if (code === 0) {
+        resolve()
+      } else {
+        let message = `rcedit.exe failed with exit code ${code}`
+        stderr = stderr.trim()
+        if (stderr) {
+          message += `. ${stderr}`
+        }
+        reject(new Error(message))
+      }
+    })
+  })
+}
+
+
+/***/ }),
+
 /***/ 164:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -11900,6 +11980,9 @@ var external_fs_ = __webpack_require__(747);
 // EXTERNAL MODULE: ./node_modules/ini/ini.js
 var ini = __webpack_require__(62);
 
+// EXTERNAL MODULE: ./node_modules/rcedit/lib/rcedit.js
+var rcedit = __webpack_require__(152);
+
 // EXTERNAL MODULE: ./node_modules/sanitize-filename/index.js
 var sanitize_filename = __webpack_require__(834);
 var sanitize_filename_default = /*#__PURE__*/__webpack_require__.n(sanitize_filename);
@@ -11911,15 +11994,16 @@ var external_os_ = __webpack_require__(87);
 
 
 
-const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
-const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templates_download_url');
-const GODOT_DOWNLOAD_URL = Object(core.getInput)('godot_executable_download_url');
-const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
 const ARCHIVE_EXPORT_OUTPUT = Object(core.getInput)('archive_export_output') === 'true';
-const BASE_VERSION = Object(core.getInput)('base_version');
-const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_export_path');
-const GENERATE_RELEASE_NOTES = Object(core.getInput)('generate_release_notes') === 'true';
 const ARCHIVE_SINGLE_RELEASE_OUTPUT = Object(core.getInput)('archive_single_release_output') === 'true';
+const BASE_VERSION = Object(core.getInput)('base_version');
+const GENERATE_RELEASE_NOTES = Object(core.getInput)('generate_release_notes') === 'true';
+const GODOT_DOWNLOAD_URL = Object(core.getInput)('godot_executable_download_url');
+const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templates_download_url');
+const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_export_path');
+const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
+const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
+const UPDATE_WINDOWS_ICONS = Object(core.getInput)('update_windows_icons') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.local/share/godot'));
 
 
@@ -11933,6 +12017,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -11956,6 +12041,9 @@ function exportBuilds() {
         Object(core.startGroup)('Export binaries');
         const results = yield doExport();
         Object(core.endGroup)();
+        if (UPDATE_WINDOWS_ICONS && results.some(windowsExeFilter)) {
+            yield updateWindowsIcons(results);
+        }
         return results;
     });
 }
@@ -12087,6 +12175,39 @@ function doExport() {
         return buildResults;
     });
 }
+function updateWindowsIcons(buildResults) {
+    return __awaiter(this, void 0, void 0, function* () {
+        Object(core.startGroup)('Installing Wine');
+        yield installWine();
+        Object(core.endGroup)();
+        Object(core.startGroup)('Updating .exe icons');
+        yield editWindowsIcons(buildResults);
+        Object(core.endGroup)();
+    });
+}
+function installWine() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Object(exec.exec)('sudo', ['apt-get', 'update']);
+        yield Object(exec.exec)('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
+        yield Object(exec.exec)('wine64', ['--version']);
+    });
+}
+function editWindowsIcons(buildResults) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const windowsBuilds = buildResults.filter(windowsExeFilter);
+        const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
+        for (const build of windowsBuilds) {
+            const resPath = build.preset.options['application/icon'];
+            if (!resPath)
+                continue;
+            const fullIconPath = Object(external_path_.resolve)(Object(external_path_.join)(projectPath, resPath.replace('res://', '')));
+            Object(core.info)(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
+            yield rcedit(build.executablePath, {
+                icon: fullIconPath,
+            });
+        }
+    });
+}
 function findGodotExecutablePath(basePath) {
     const paths = Object(external_fs_.readdirSync)(basePath);
     const dirs = [];
@@ -12123,6 +12244,9 @@ function getExportPresets() {
         Object(core.warning)(`No presets found in export_presets.cfg at ${projectPath}`);
     }
     return exportPrests;
+}
+function windowsExeFilter(buildResult) {
+    return Object(external_path_.extname)(buildResult.executablePath).toLowerCase() === '.exe';
 }
 
 

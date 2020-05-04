@@ -24,6 +24,7 @@
     "@actions/github": "^2.1.1",
     "@actions/io": "^1.0.2",
     "ini": "^1.3.5",
+    "rcedit": "^2.1.1",
     "sanitize-filename": "^1.6.3",
     "semver": "^7.3.2"
   },

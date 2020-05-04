@@ -41,6 +41,10 @@ inputs:
     description: If provided, exports will be moved to this directory relative to the root of the Git repository.
     default: ''
     required: false
+  update_windows_icons:
+    description: If Windows executable icons should be updated with the preset .ico file.
+    default: false
+    required: false
 
 runs:
   using: 'node12'

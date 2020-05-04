@@ -50,6 +50,10 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - **Note**: This input is only used when `create_release` is `true`.
 - `relative_export_path` default `''`
   - If provided, exports will be moved to this directory relative to the root of the Git repository.
+- `update_windows_icons` default `false`
+  - If Windows executable icons should be updated with the preset `.ico` file.
+  - **Note**: This setting will break your `.exe` if you have the "Embed PCK" option enabled.
+  - **Note**: This process installs Wine, and will need a small amount of additional run time. In my tests, this setting increased run time by approximately 30 seconds.
 
 ### Example Workflow Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow would be defined in `.github/workflows/main.yml`. For more information about defining workflows [check out the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
