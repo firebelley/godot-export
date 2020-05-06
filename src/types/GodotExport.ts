@@ -6,9 +6,6 @@ export interface ExportPreset {
   name: string;
   export_path: string;
   platform: string;
-  options: {
-    'application/icon': string;
-  };
 }
 
 export type BuildResult = {
