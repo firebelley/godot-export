@@ -5154,86 +5154,6 @@ function paginatePlugin(octokit) {
 
 /***/ }),
 
-/***/ 152:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-const path = __webpack_require__(622)
-const { spawn } = __webpack_require__(129)
-
-const pairSettings = ['version-string']
-const singleSettings = ['file-version', 'product-version', 'icon', 'requested-execution-level']
-const noPrefixSettings = ['application-manifest']
-
-module.exports = async (exe, options) => {
-  let rcedit = process.arch === 'x64' ? __webpack_require__.ab + "rcedit-x64.exe" : __webpack_require__.ab + "rcedit.exe"
-  const args = [exe]
-
-  for (const name of pairSettings) {
-    if (options[name]) {
-      for (const [key, value] of Object.entries(options[name])) {
-        args.push(`--set-${name}`, key, value)
-      }
-    }
-  }
-
-  for (const name of singleSettings) {
-    if (options[name]) {
-      args.push(`--set-${name}`, options[name])
-    }
-  }
-
-  for (const name of noPrefixSettings) {
-    if (options[name]) {
-      args.push(`--${name}`, options[name])
-    }
-  }
-
-  const spawnOptions = {
-    env: { ...process.env }
-  }
-
-  if (process.platform !== 'win32') {
-    args.unshift(rcedit)
-    rcedit = process.arch === 'x64' ? 'wine64' : 'wine'
-    // Suppress "fixme:" stderr log messages
-    spawnOptions.env.WINEDEBUG = '-all'
-  }
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(rcedit, args, spawnOptions)
-    let stderr = ''
-    let error = null
-
-    child.on('error', err => {
-      if (error === null) {
-        error = err
-      }
-    })
-
-    child.stderr.on('data', data => {
-      stderr += data
-    })
-
-    child.on('close', code => {
-      if (error !== null) {
-        reject(error)
-      } else if (code === 0) {
-        resolve()
-      } else {
-        let message = `rcedit.exe failed with exit code ${code}`
-        stderr = stderr.trim()
-        if (stderr) {
-          message += `. ${stderr}`
-        }
-        reject(new Error(message))
-      }
-    })
-  })
-}
-
-
-/***/ }),
-
 /***/ 164:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -11980,9 +11900,6 @@ var external_fs_ = __webpack_require__(747);
 // EXTERNAL MODULE: ./node_modules/ini/ini.js
 var ini = __webpack_require__(62);
 
-// EXTERNAL MODULE: ./node_modules/rcedit/lib/rcedit.js
-var rcedit = __webpack_require__(152);
-
 // EXTERNAL MODULE: ./node_modules/sanitize-filename/index.js
 var sanitize_filename = __webpack_require__(834);
 var sanitize_filename_default = /*#__PURE__*/__webpack_require__.n(sanitize_filename);
@@ -12025,7 +11942,6 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
@@ -12038,12 +11954,12 @@ function exportBuilds() {
         Object(core.startGroup)('Download Godot');
         yield downloadGodot();
         Object(core.endGroup)();
+        if (UPDATE_WINDOWS_ICONS) {
+            yield configureWindowsExport();
+        }
         Object(core.startGroup)('Export binaries');
         const results = yield doExport();
         Object(core.endGroup)();
-        if (UPDATE_WINDOWS_ICONS && results.some(windowsExeFilter)) {
-            yield updateWindowsIcons(results);
-        }
         return results;
     });
 }
@@ -12175,14 +12091,17 @@ function doExport() {
         return buildResults;
     });
 }
-function updateWindowsIcons(buildResults) {
+function configureWindowsExport() {
     return __awaiter(this, void 0, void 0, function* () {
         Object(core.startGroup)('Installing Wine');
         yield installWine();
         Object(core.endGroup)();
-        Object(core.startGroup)('Updating .exe icons');
-        yield editWindowsIcons(buildResults);
+        Object(core.startGroup)('Adding editor settings');
+        yield addEditorSettings();
         Object(core.endGroup)();
+        // core.startGroup('Updating .exe icons');
+        // await editWindowsIcons(buildResults);
+        // core.endGroup();
     });
 }
 function installWine() {
@@ -12192,20 +12111,34 @@ function installWine() {
         yield Object(exec.exec)('wine64', ['--version']);
     });
 }
-function editWindowsIcons(buildResults) {
+// async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
+//   const windowsBuilds = buildResults.filter(windowsExeFilter);
+//   const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
+//   for (const build of windowsBuilds) {
+//     const resPath = build.preset.options['application/icon'];
+//     if (!resPath) continue;
+//     const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
+//     core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
+//     await rcedit(build.executablePath, {
+//       icon: fullIconPath,
+//     });
+//   }
+// }
+function addEditorSettings() {
     return __awaiter(this, void 0, void 0, function* () {
-        const windowsBuilds = buildResults.filter(windowsExeFilter);
-        const projectPath = Object(external_path_.resolve)(RELATIVE_PROJECT_PATH);
-        for (const build of windowsBuilds) {
-            const resPath = build.preset.options['application/icon'];
-            if (!resPath)
-                continue;
-            const fullIconPath = Object(external_path_.resolve)(Object(external_path_.join)(projectPath, resPath.replace('res://', '')));
-            Object(core.info)(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
-            yield rcedit(build.executablePath, {
-                icon: fullIconPath,
-            });
-        }
+        let winePath = '';
+        const opts = {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: data => {
+                    winePath += data.toString();
+                },
+            },
+        };
+        yield Object(exec.exec)('which', ['wine64'], opts);
+        winePath = winePath.trim();
+        const rceditPath = Object(external_path_.join)(__dirname, 'rcedit-x64.exe');
+        writeEditorSettings(rceditPath, winePath);
     });
 }
 function findGodotExecutablePath(basePath) {
@@ -12245,9 +12178,22 @@ function getExportPresets() {
     }
     return exportPrests;
 }
-function windowsExeFilter(buildResult) {
-    return Object(external_path_.extname)(buildResult.executablePath).toLowerCase() === '.exe';
+function writeEditorSettings(rceditPath, winePath) {
+    Object(core.info)(`Writing rcedit path to editor settings ${rceditPath}`);
+    Object(core.info)(`Writing wine path to editor settings ${winePath}`);
+    const editorSettings = 'editor_settings-3.tres';
+    const editorSettingsDist = Object(external_path_.join)(__dirname, editorSettings);
+    let file = Object(external_fs_.readFileSync)(editorSettingsDist).toString('utf8');
+    file = file.replace('{{ rcedit }}', rceditPath);
+    file = file.replace('{{ wine }}', winePath);
+    const editorSettingsPath = Object(external_path_.join)(GODOT_WORKING_PATH, editorSettings);
+    Object(external_fs_.writeFileSync)(editorSettingsPath, file, { encoding: 'utf8' });
+    Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
+    // await exec('ls', ['-la', GODOT_WORKING_PATH]);
 }
+// function windowsExeFilter(buildResult: BuildResult): boolean {
+//   return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
+// }
 
 
 // EXTERNAL MODULE: ./node_modules/semver/index.js
