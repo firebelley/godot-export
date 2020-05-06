@@ -12099,9 +12099,6 @@ function configureWindowsExport() {
         Object(core.startGroup)('Adding editor settings');
         yield addEditorSettings();
         Object(core.endGroup)();
-        // core.startGroup('Updating .exe icons');
-        // await editWindowsIcons(buildResults);
-        // core.endGroup();
     });
 }
 function installWine() {
@@ -12111,19 +12108,6 @@ function installWine() {
         yield Object(exec.exec)('wine64', ['--version']);
     });
 }
-// async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
-//   const windowsBuilds = buildResults.filter(windowsExeFilter);
-//   const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
-//   for (const build of windowsBuilds) {
-//     const resPath = build.preset.options['application/icon'];
-//     if (!resPath) continue;
-//     const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
-//     core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
-//     await rcedit(build.executablePath, {
-//       icon: fullIconPath,
-//     });
-//   }
-// }
 function addEditorSettings() {
     return __awaiter(this, void 0, void 0, function* () {
         let winePath = '';
@@ -12189,11 +12173,7 @@ function writeEditorSettings(rceditPath, winePath) {
     const editorSettingsPath = Object(external_path_.join)(GODOT_WORKING_PATH, editorSettings);
     Object(external_fs_.writeFileSync)(editorSettingsPath, file, { encoding: 'utf8' });
     Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
-    // await exec('ls', ['-la', GODOT_WORKING_PATH]);
 }
-// function windowsExeFilter(buildResult: BuildResult): boolean {
-//   return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
-// }
 
 
 // EXTERNAL MODULE: ./node_modules/semver/index.js
