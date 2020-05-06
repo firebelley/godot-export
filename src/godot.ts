@@ -247,7 +247,6 @@ async function writeEditorSettings(): Promise<void> {
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
   fs.writeFileSync(editorSettingsPath, file, { encoding: 'utf8' });
   core.info(`Wrote settings to ${editorSettingsPath}`);
-  core.info(`\n\n\n${file}\n\n\n`);
 }
 
 export { exportBuilds };
