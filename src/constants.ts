@@ -14,12 +14,14 @@ const SHOULD_CREATE_RELEASE = core.getInput('create_release') === 'true';
 const UPDATE_WINDOWS_ICONS = core.getInput('update_windows_icons') === 'true';
 
 const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
+const GODOT_CONFIG_PATH = path.resolve(path.join(os.homedir(), '/.config/godot'));
 
 export {
   ARCHIVE_EXPORT_OUTPUT,
   ARCHIVE_SINGLE_RELEASE_OUTPUT,
   BASE_VERSION,
   GENERATE_RELEASE_NOTES,
+  GODOT_CONFIG_PATH,
   GODOT_DOWNLOAD_URL,
   GODOT_TEMPLATES_DOWNLOAD_URL,
   GODOT_WORKING_PATH,
