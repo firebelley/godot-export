@@ -181,10 +181,6 @@ async function configureWindowsExport(): Promise<void> {
   core.startGroup('Adding editor settings');
   await addEditorSettings();
   core.endGroup();
-
-  // core.startGroup('Updating .exe icons');
-  // await editWindowsIcons(buildResults);
-  // core.endGroup();
 }
 
 async function installWine(): Promise<void> {
@@ -192,20 +188,6 @@ async function installWine(): Promise<void> {
   await exec('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
   await exec('wine64', ['--version']);
 }
-
-// async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
-//   const windowsBuilds = buildResults.filter(windowsExeFilter);
-//   const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
-//   for (const build of windowsBuilds) {
-//     const resPath = build.preset.options['application/icon'];
-//     if (!resPath) continue;
-//     const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
-//     core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
-//     await rcedit(build.executablePath, {
-//       icon: fullIconPath,
-//     });
-//   }
-// }
 
 async function addEditorSettings(): Promise<void> {
   let winePath = '';
@@ -277,11 +259,6 @@ function writeEditorSettings(rceditPath: string, winePath: string): void {
   const editorSettingsPath = path.join(GODOT_WORKING_PATH, editorSettings);
   fs.writeFileSync(editorSettingsPath, file, { encoding: 'utf8' });
   core.info(`Wrote settings to ${editorSettingsPath}`);
-  // await exec('ls', ['-la', GODOT_WORKING_PATH]);
 }
-
-// function windowsExeFilter(buildResult: BuildResult): boolean {
-//   return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
-// }
 
 export { exportBuilds };
