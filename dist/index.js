@@ -12161,7 +12161,6 @@ function writeEditorSettings() {
         const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
         Object(external_fs_.writeFileSync)(editorSettingsPath, file, { encoding: 'utf8' });
         Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
-        Object(core.info)(`\n\n\n${file}\n\n\n`);
     });
 }
 
