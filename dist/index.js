@@ -11922,6 +11922,7 @@ const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
 const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
 const UPDATE_WINDOWS_ICONS = Object(core.getInput)('update_windows_icons') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.local/share/godot'));
+const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.config/godot'));
 
 
 // CONCATENATED MODULE: ./src/godot.ts
@@ -12097,7 +12098,7 @@ function configureWindowsExport() {
         yield installWine();
         Object(core.endGroup)();
         Object(core.startGroup)('Adding editor settings');
-        yield addEditorSettings();
+        yield writeEditorSettings();
         Object(core.endGroup)();
     });
 }
@@ -12106,23 +12107,6 @@ function installWine() {
         yield Object(exec.exec)('sudo', ['apt-get', 'update']);
         yield Object(exec.exec)('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
         yield Object(exec.exec)('wine64', ['--version']);
-    });
-}
-function addEditorSettings() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let winePath = '';
-        const opts = {
-            ignoreReturnCode: true,
-            listeners: {
-                stdout: data => {
-                    winePath += data.toString();
-                },
-            },
-        };
-        yield Object(exec.exec)('which', ['wine64'], opts);
-        winePath = winePath.trim();
-        const rceditPath = Object(external_path_.join)(__dirname, 'rcedit-x64.exe');
-        writeEditorSettings(rceditPath, winePath);
     });
 }
 function findGodotExecutablePath(basePath) {
@@ -12162,17 +12146,23 @@ function getExportPresets() {
     }
     return exportPrests;
 }
-function writeEditorSettings(rceditPath, winePath) {
-    Object(core.info)(`Writing rcedit path to editor settings ${rceditPath}`);
-    Object(core.info)(`Writing wine path to editor settings ${winePath}`);
-    const editorSettings = 'editor_settings-3.tres';
-    const editorSettingsDist = Object(external_path_.join)(__dirname, editorSettings);
-    let file = Object(external_fs_.readFileSync)(editorSettingsDist).toString('utf8');
-    file = file.replace('{{ rcedit }}', rceditPath);
-    file = file.replace('{{ wine }}', winePath);
-    const editorSettingsPath = Object(external_path_.join)(GODOT_WORKING_PATH, editorSettings);
-    Object(external_fs_.writeFileSync)(editorSettingsPath, file, { encoding: 'utf8' });
-    Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
+function writeEditorSettings() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const rceditPath = Object(external_path_.join)(__dirname, 'rcedit-x64.exe');
+        const winePath = '/usr/bin/wine64';
+        Object(core.info)(`Writing rcedit path to editor settings ${rceditPath}`);
+        Object(core.info)(`Writing wine path to editor settings ${winePath}`);
+        const editorSettings = 'editor_settings-3.tres';
+        const editorSettingsDist = Object(external_path_.join)(__dirname, editorSettings);
+        let file = Object(external_fs_.readFileSync)(editorSettingsDist).toString('utf8');
+        file = file.replace('{{ rcedit }}', rceditPath);
+        file = file.replace('{{ wine }}', winePath);
+        yield Object(io.mkdirP)(GODOT_CONFIG_PATH);
+        const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
+        Object(external_fs_.writeFileSync)(editorSettingsPath, file, { encoding: 'utf8' });
+        Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
+        Object(core.info)(`\n\n\n${file}\n\n\n`);
+    });
 }
 
 
