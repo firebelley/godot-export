@@ -4,7 +4,6 @@ import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ini from 'ini';
-import * as rcedit from 'rcedit';
 import { ExportPresets, ExportPreset, BuildResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
 import { ExecOptions } from '@actions/exec/lib/interfaces';
@@ -32,13 +31,13 @@ async function exportBuilds(): Promise<BuildResult[]> {
   await downloadGodot();
   core.endGroup();
 
+  if (UPDATE_WINDOWS_ICONS) {
+    await configureWindowsExport();
+  }
+
   core.startGroup('Export binaries');
   const results = await doExport();
   core.endGroup();
-
-  if (UPDATE_WINDOWS_ICONS && results.some(windowsExeFilter)) {
-    await updateWindowsIcons(results);
-  }
 
   return results;
 }
@@ -174,14 +173,18 @@ async function doExport(): Promise<BuildResult[]> {
   return buildResults;
 }
 
-async function updateWindowsIcons(buildResults: BuildResult[]): Promise<void> {
+async function configureWindowsExport(): Promise<void> {
   core.startGroup('Installing Wine');
   await installWine();
   core.endGroup();
 
-  core.startGroup('Updating .exe icons');
-  await editWindowsIcons(buildResults);
+  core.startGroup('Adding editor settings');
+  await addEditorSettings();
   core.endGroup();
+
+  // core.startGroup('Updating .exe icons');
+  // await editWindowsIcons(buildResults);
+  // core.endGroup();
 }
 
 async function installWine(): Promise<void> {
@@ -190,18 +193,34 @@ async function installWine(): Promise<void> {
   await exec('wine64', ['--version']);
 }
 
-async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
-  const windowsBuilds = buildResults.filter(windowsExeFilter);
-  const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
-  for (const build of windowsBuilds) {
-    const resPath = build.preset.options['application/icon'];
-    if (!resPath) continue;
-    const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
-    core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
-    await rcedit(build.executablePath, {
-      icon: fullIconPath,
-    });
-  }
+// async function editWindowsIcons(buildResults: BuildResult[]): Promise<void> {
+//   const windowsBuilds = buildResults.filter(windowsExeFilter);
+//   const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
+//   for (const build of windowsBuilds) {
+//     const resPath = build.preset.options['application/icon'];
+//     if (!resPath) continue;
+//     const fullIconPath = path.resolve(path.join(projectPath, resPath.replace('res://', '')));
+//     core.info(`Setting executable ${build.executablePath} icon to ${fullIconPath}`);
+//     await rcedit(build.executablePath, {
+//       icon: fullIconPath,
+//     });
+//   }
+// }
+
+async function addEditorSettings(): Promise<void> {
+  let winePath = '';
+  const opts: ExecOptions = {
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: data => {
+        winePath += data.toString();
+      },
+    },
+  };
+  await exec('which', ['wine64'], opts);
+  winePath = winePath.trim();
+  const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
+  writeEditorSettings(rceditPath, winePath);
 }
 
 function findGodotExecutablePath(basePath: string): string | undefined {
@@ -245,8 +264,24 @@ function getExportPresets(): ExportPreset[] {
   return exportPrests;
 }
 
-function windowsExeFilter(buildResult: BuildResult): boolean {
-  return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
+function writeEditorSettings(rceditPath: string, winePath: string): void {
+  core.info(`Writing rcedit path to editor settings ${rceditPath}`);
+  core.info(`Writing wine path to editor settings ${winePath}`);
+
+  const editorSettings = 'editor_settings-3.tres';
+  const editorSettingsDist = path.join(__dirname, editorSettings);
+  let file = fs.readFileSync(editorSettingsDist).toString('utf8');
+  file = file.replace('{{ rcedit }}', rceditPath);
+  file = file.replace('{{ wine }}', winePath);
+
+  const editorSettingsPath = path.join(GODOT_WORKING_PATH, editorSettings);
+  fs.writeFileSync(editorSettingsPath, file, { encoding: 'utf8' });
+  core.info(`Wrote settings to ${editorSettingsPath}`);
+  // await exec('ls', ['-la', GODOT_WORKING_PATH]);
 }
+
+// function windowsExeFilter(buildResult: BuildResult): boolean {
+//   return path.extname(buildResult.executablePath).toLowerCase() === '.exe';
+// }
 
 export { exportBuilds };
