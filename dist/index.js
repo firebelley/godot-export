@@ -12372,8 +12372,6 @@ function getLatestReleaseTagName() {
 function getReleaseBody() {
     return release_awaiter(this, void 0, void 0, function* () {
         Object(core.info)('Generating release notes');
-        yield Object(exec.exec)('git', ['fetch', '--tags']);
-        yield Object(exec.exec)('git', ['pull', '--unshallow']);
         const delimiter = '---delimiter---';
         const latestTag = yield getLatestReleaseTagName();
         const args = ['log'];
