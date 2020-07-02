@@ -93,8 +93,6 @@ async function getLatestReleaseTagName(): Promise<string | undefined> {
 
 async function getReleaseBody(): Promise<string> {
   core.info('Generating release notes');
-  await exec('git', ['fetch', '--tags']);
-  await exec('git', ['pull', '--unshallow']);
 
   const delimiter = '---delimiter---';
   const latestTag = await getLatestReleaseTagName();

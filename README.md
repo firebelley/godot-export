@@ -48,6 +48,7 @@ Since this action creates releases and uploads the zip file assets, you will nee
 - `generate_release_notes` default `false`
   - If release notes should be automatically generated based on commit history. The generated notes will be added as the body of the release.
   - **Note**: This input is only used when `create_release` is `true`.
+  - **Note**: When using the GitHub checkout action, ensure you are fetching the entire project history by including `fetch-depth: 0`. See the example workflow configuration for more context.
 - `relative_export_path` default `''`
   - If provided, exports will be moved to this directory relative to the root of the Git repository.
 - `update_windows_icons` default `false`
@@ -75,10 +76,13 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v2.1.0
+      uses: actions/checkout@v2.3.1
+      # Ensure that you get the entire project history
+      with:
+        fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.1.0
+      uses: firebelley/godot-export@v2.1.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -119,7 +123,10 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v2.1.0
+      uses: actions/checkout@v2.3.1
+      # Ensure that you get the entire project history
+      with:
+        fetch-depth: 0
       # separate step to extract the version from the tag name
     - name: get tag from version
       id: tag_version
@@ -127,7 +134,7 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.1.0
+      uses: firebelley/godot-export@v2.1.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
