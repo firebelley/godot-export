@@ -1,5 +1,4 @@
 [gd_resource type="EditorSettings" format=2]
 
 [resource]
-export/windows/rcedit = "{{ rcedit }}"
-export/windows/wine = "{{ wine }}"
+mono/builds/build_tool = 0
