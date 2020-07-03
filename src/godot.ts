@@ -32,6 +32,10 @@ async function exportBuilds(): Promise<BuildResult[]> {
   await downloadGodot();
   core.endGroup();
 
+  core.startGroup('Adding Editor Settings');
+  await addEditorSettings();
+  core.endGroup();
+
   if (UPDATE_WINDOWS_ICONS) {
     await configureWindowsExport();
   }
@@ -156,7 +160,7 @@ async function doExport(): Promise<BuildResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const result = await exec('godot', [projectPath, '--export', preset.name, executablePath]);
+    const result = await exec('godot', [projectPath, '--export', preset.name, executablePath, '--verbose']);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }
@@ -179,8 +183,8 @@ async function configureWindowsExport(): Promise<void> {
   await installWine();
   core.endGroup();
 
-  core.startGroup('Adding editor settings');
-  await writeEditorSettings();
+  core.startGroup('Appending editor settings');
+  writeIconSettings();
   core.endGroup();
 }
 
@@ -231,21 +235,29 @@ function getExportPresets(): ExportPreset[] {
   return exportPrests;
 }
 
-async function writeEditorSettings(): Promise<void> {
+async function addEditorSettings(): Promise<void> {
+  const editorSettings = 'editor_settings-3.tres';
+  const editorSettingsDist = path.join(__dirname, editorSettings);
+  await io.mkdirP(GODOT_CONFIG_PATH);
+
+  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
+  await io.cp(editorSettingsDist, editorSettingsPath);
+  core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+
+function writeIconSettings(): void {
   const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
   const winePath = '/usr/bin/wine64';
   core.info(`Writing rcedit path to editor settings ${rceditPath}`);
   core.info(`Writing wine path to editor settings ${winePath}`);
 
   const editorSettings = 'editor_settings-3.tres';
-  const editorSettingsDist = path.join(__dirname, editorSettings);
-  let file = fs.readFileSync(editorSettingsDist).toString('utf8');
-  file = file.replace('{{ rcedit }}', rceditPath);
-  file = file.replace('{{ wine }}', winePath);
-
-  await io.mkdirP(GODOT_CONFIG_PATH);
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
-  fs.writeFileSync(editorSettingsPath, file, { encoding: 'utf8' });
+  const stream = fs.createWriteStream(editorSettingsPath, { flags: 'a' });
+  stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
+  stream.write(`export/windows/wine = "${winePath}"\n`);
+  stream.close();
+
   core.info(`Wrote settings to ${editorSettingsPath}`);
 }
 
