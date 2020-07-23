@@ -1,7 +1,12 @@
 import * as core from '@actions/core';
 import { exportBuilds } from './godot';
 import { createRelease } from './release';
-import { SHOULD_CREATE_RELEASE, ARCHIVE_EXPORT_OUTPUT, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
+import {
+  SHOULD_CREATE_RELEASE,
+  ARCHIVE_EXPORT_OUTPUT,
+  RELATIVE_EXPORT_PATH,
+  USE_PRESET_EXPORT_PATH,
+} from './constants';
 import { zipBuildResults, moveBuildsToExportDirectory } from './file';
 
 async function main(): Promise<number> {

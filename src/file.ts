@@ -37,7 +37,9 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
 async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArchived?: boolean): Promise<void> {
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
-    const fullExportPath = path.resolve(USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
+    const fullExportPath = path.resolve(
+      USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH,
+    );
     core.startGroup(`Moving exports to ${fullExportPath}`);
 
     await io.mkdirP(fullExportPath);
