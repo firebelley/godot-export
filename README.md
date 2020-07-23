@@ -87,7 +87,7 @@ jobs:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
         godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_linux_headless_64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2stable_mono_export_templates.tpz
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_export_templates.tpz
         relative_project_path: ./
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
