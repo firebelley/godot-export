@@ -151,7 +151,7 @@ async function doExport(): Promise<BuildResult[]> {
 
     let executablePath;
     if (preset.export_path) {
-      executablePath = path.join(buildDir, path.basename(preset.export_path));
+      executablePath = path.join(RELATIVE_PROJECT_PATH, path.basename(preset.export_path));
     }
 
     if (!executablePath) {
