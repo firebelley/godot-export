@@ -3,7 +3,7 @@ import path from 'path';
 import * as io from '@actions/io';
 import { exec } from '@actions/exec';
 import * as fs from 'fs';
-import { GODOT_WORKING_PATH, RELATIVE_EXPORT_PATH } from './constants';
+import { GODOT_WORKING_PATH, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
 import * as core from '@actions/core';
 
 async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
@@ -35,13 +35,15 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
 }
 
 async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArchived?: boolean): Promise<void> {
-  const fullExportPath = path.resolve(RELATIVE_EXPORT_PATH);
-  core.startGroup(`Moving exports to ${fullExportPath}`);
-
-  await io.mkdirP(fullExportPath);
-
+  core.startGroup(`Moving exports`);
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
+    const fullExportPath = path.resolve(
+      USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH,
+    );
+
+    await io.mkdirP(fullExportPath);
+
     let promise: Promise<void>;
     if (moveArchived) {
       if (!buildResult.archivePath) {
