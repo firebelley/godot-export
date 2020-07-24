@@ -38,12 +38,8 @@ inputs:
     default: false
     required: false
   use_preset_export_path:
-    description: If set to true, exports will be moved to directory defined in "export_presets.cfg" relative to the root of the Git repository. Prioritized over "relative_export_path".
-    default: false
-    required: false
-  relative_export_path:
-    description: If provided, exports will be moved to this directory relative to the root of the Git repository.
-    default: ''
+    description: If exports will be moved to the directory defined in "export_presets.cfg" relative to the root of the Git repository.
+    default: true
     required: false
   update_windows_icons:
     description: If Windows executable icons should be updated with the preset's .ico file.

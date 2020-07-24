@@ -49,10 +49,8 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - If release notes should be automatically generated based on commit history. The generated notes will be added as the body of the release.
   - **Note**: This input is only used when `create_release` is `true`.
   - **Note**: When using the GitHub checkout action, ensure you are fetching the entire project history by including `fetch-depth: 0`. See the example workflow configuration for more context.
-- `use_preset_export_path` default `false`
-  - If set to true, exports will be moved to directory defined in `export_presets.cfg` relative to the root of the Git repository. Prioritized over `relative_export_path`.
-- `relative_export_path` default `''`
-  - If provided, exports will be moved to this directory relative to the root of the Git repository.
+- `use_preset_export_path` default `true`
+  - If exports will be moved to the directory defined in `export_presets.cfg` relative to the root of the Git repository.
 - `update_windows_icons` default `false`
   - If Windows executable icons should be updated with the preset's `.ico` file.
   - **Note**: This process installs Wine and will need a small amount of additional run time. In my tests, this setting increased run time by approximately 30 seconds.
