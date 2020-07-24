@@ -3,7 +3,7 @@ import path from 'path';
 import * as io from '@actions/io';
 import { exec } from '@actions/exec';
 import * as fs from 'fs';
-import { GODOT_WORKING_PATH, USE_PRESET_EXPORT_PATH } from './constants';
+import { GODOT_WORKING_PATH } from './constants';
 import * as core from '@actions/core';
 
 async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {

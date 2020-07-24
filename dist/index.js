@@ -11917,7 +11917,6 @@ const BASE_VERSION = Object(core.getInput)('base_version');
 const GENERATE_RELEASE_NOTES = Object(core.getInput)('generate_release_notes') === 'true';
 const GODOT_DOWNLOAD_URL = Object(core.getInput)('godot_executable_download_url');
 const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templates_download_url');
-const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_export_path');
 const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
 const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
 const UPDATE_WINDOWS_ICONS = Object(core.getInput)('update_windows_icons') === 'true';
@@ -12251,7 +12250,7 @@ function moveBuildsToExportDirectory(buildResults, moveArchived) {
         Object(core.startGroup)(`Moving exports`);
         const promises = [];
         for (const buildResult of buildResults) {
-            const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
+            const fullExportPath = external_path_default().resolve(external_path_default().dirname(buildResult.preset.export_path));
             yield Object(io.mkdirP)(fullExportPath);
             let promise;
             if (moveArchived) {
@@ -12456,7 +12455,7 @@ function main() {
         if (ARCHIVE_EXPORT_OUTPUT) {
             yield zipBuildResults(buildResults);
         }
-        if (RELATIVE_EXPORT_PATH || USE_PRESET_EXPORT_PATH) {
+        if (USE_PRESET_EXPORT_PATH) {
             yield moveBuildsToExportDirectory(buildResults, ARCHIVE_EXPORT_OUTPUT);
         }
         if (SHOULD_CREATE_RELEASE) {
