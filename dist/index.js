@@ -12248,10 +12248,10 @@ function zipBuildResult(buildResult) {
 }
 function moveBuildsToExportDirectory(buildResults, moveArchived) {
     return file_awaiter(this, void 0, void 0, function* () {
+        Object(core.startGroup)(`Moving exports`);
         const promises = [];
         for (const buildResult of buildResults) {
             const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
-            Object(core.startGroup)(`Moving exports to ${fullExportPath}`);
             yield Object(io.mkdirP)(fullExportPath);
             let promise;
             if (moveArchived) {
