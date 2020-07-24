@@ -8,7 +8,6 @@ const BASE_VERSION = core.getInput('base_version');
 const GENERATE_RELEASE_NOTES = core.getInput('generate_release_notes') === 'true';
 const GODOT_DOWNLOAD_URL = core.getInput('godot_executable_download_url');
 const GODOT_TEMPLATES_DOWNLOAD_URL = core.getInput('godot_export_templates_download_url');
-const RELATIVE_EXPORT_PATH = core.getInput('relative_export_path');
 const RELATIVE_PROJECT_PATH = core.getInput('relative_project_path');
 const SHOULD_CREATE_RELEASE = core.getInput('create_release') === 'true';
 const UPDATE_WINDOWS_ICONS = core.getInput('update_windows_icons') === 'true';
@@ -26,7 +25,6 @@ export {
   GODOT_DOWNLOAD_URL,
   GODOT_TEMPLATES_DOWNLOAD_URL,
   GODOT_WORKING_PATH,
-  RELATIVE_EXPORT_PATH,
   RELATIVE_PROJECT_PATH,
   SHOULD_CREATE_RELEASE,
   UPDATE_WINDOWS_ICONS,
