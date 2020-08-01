@@ -13,6 +13,7 @@ const RELATIVE_PROJECT_PATH = core.getInput('relative_project_path');
 const SHOULD_CREATE_RELEASE = core.getInput('create_release') === 'true';
 const UPDATE_WINDOWS_ICONS = core.getInput('update_windows_icons') === 'true';
 const USE_PRESET_EXPORT_PATH = core.getInput('use_preset_export_path') === 'true';
+const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 
 const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = path.resolve(path.join(os.homedir(), '/.config/godot'));
@@ -31,4 +32,5 @@ export {
   SHOULD_CREATE_RELEASE,
   UPDATE_WINDOWS_ICONS,
   USE_PRESET_EXPORT_PATH,
+  EXPORT_DEBUG,
 };
