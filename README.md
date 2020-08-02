@@ -34,6 +34,8 @@ Since this action creates releases and uploads the zip file assets, you will nee
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
 
 #### Optional Inputs
+- `export_debug` defaults `false`
+  - If `true`, godot will export with debugging tools.
 - `archive_export_output` default `false`
   - If `true`, exports will be archived.
   - **Note**: When `create_release` is true then exports uploaded to the release may be archived regardless of this setting.

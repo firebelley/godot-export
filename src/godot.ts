@@ -14,6 +14,7 @@ import {
   GODOT_WORKING_PATH,
   RELATIVE_PROJECT_PATH,
   UPDATE_WINDOWS_ICONS,
+  EXPORT_DEBUG,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -160,7 +161,8 @@ async function doExport(): Promise<BuildResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const result = await exec('godot', [projectPath, '--export', preset.name, executablePath, '--verbose']);
+    const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+    const result = await exec('godot', [projectPath, exportFlag, preset.name, executablePath, '--verbose']);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }

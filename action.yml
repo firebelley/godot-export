@@ -49,6 +49,10 @@ inputs:
     description: If Windows executable icons should be updated with the preset's .ico file.
     default: false
     required: false
+  export_debug:
+    description: If should export with debugging tools.
+    default: false
+    required: false
 
 runs:
   using: 'node12'
