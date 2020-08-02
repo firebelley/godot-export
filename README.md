@@ -86,7 +86,7 @@ jobs:
         fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.3.0
+      uses: firebelley/godot-export@v2.4.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -138,7 +138,7 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.3.0
+      uses: firebelley/godot-export@v2.4.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
