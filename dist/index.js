@@ -13012,8 +13012,8 @@ async function doExport() {
         const sanitizedName = sanitize_filename_default()(preset.name);
         const buildDir = Object(external_path_.join)(GODOT_WORKING_PATH, 'builds', sanitizedName);
         let executablePath;
-        if (preset.exportPath) {
-            executablePath = Object(external_path_.join)(buildDir, Object(external_path_.basename)(preset.exportPath));
+        if (preset.export_path) {
+            executablePath = Object(external_path_.join)(buildDir, Object(external_path_.basename)(preset.export_path));
         }
         if (!executablePath) {
             Object(core.warning)(`No file path set for preset "${preset.name}". Skipping export!`);
@@ -13158,7 +13158,7 @@ async function zipBuildResult(buildResult) {
     const zipPath = external_path_default().join(distPath, `${buildResult.sanitizedName}.zip`);
     // mac exports a zip by default, so just move the file
     if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
-        const baseName = external_path_default().basename(buildResult.preset.exportPath);
+        const baseName = external_path_default().basename(buildResult.preset.export_path);
         const macPath = external_path_default().join(buildResult.directory, baseName);
         await Object(io.cp)(macPath, zipPath);
     }
@@ -13171,7 +13171,7 @@ async function moveBuildsToExportDirectory(buildResults, moveArchived) {
     Object(core.startGroup)(`Moving exports`);
     const promises = [];
     for (const buildResult of buildResults) {
-        const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.exportPath) : RELATIVE_EXPORT_PATH);
+        const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
         await Object(io.mkdirP)(fullExportPath);
         let promise;
         if (moveArchived) {
