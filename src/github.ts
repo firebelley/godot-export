@@ -1,7 +1,8 @@
-import * as github from '@actions/github';
+import { getOctokit } from '@actions/github';
+import { GitHub } from '@actions/github/lib/utils';
 
-function getGitHubClient(): github.GitHub {
-  return new github.GitHub(process.env.GITHUB_TOKEN ?? '');
+function getGitHubClient(): InstanceType<typeof GitHub> {
+  return getOctokit(process.env.GITHUB_TOKEN ?? '');
 }
 
 function getRepositoryInfo(): { owner: string; repository: string } {
