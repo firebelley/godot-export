@@ -8,6 +8,7 @@ import { ExecOptions } from '@actions/exec/lib/interfaces';
 import path from 'path';
 import * as fs from 'fs';
 import { zipBuildResults } from './file';
+import { OctokitResponse, ReposCreateReleaseResponseData } from '@octokit/types';
 
 async function createRelease(buildResults: BuildResult[]): Promise<void> {
   if (buildResults.some(x => !x.archivePath)) {
@@ -30,16 +31,18 @@ async function createGitHubRelease(buildResults: BuildResult[]): Promise<void> {
   const body = GENERATE_RELEASE_NOTES ? await getReleaseBody() : undefined;
   const response = await getGitHubClient().repos.createRelease({
     owner: repoInfo.owner,
-    tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
+    // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+    tag_name: versionStr,
     repo: repoInfo.repository,
     name: versionStr,
-    target_commitish: process.env.GITHUB_SHA, // eslint-disable-line @typescript-eslint/camelcase
+    // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+    target_commitish: process.env.GITHUB_SHA,
     body,
   });
 
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
-    promises.push(upload(response.data.upload_url, buildResult));
+    promises.push(upload(response, buildResult));
   }
 
   await Promise.all(promises);
@@ -123,7 +126,10 @@ async function getReleaseBody(): Promise<string> {
   return formattedChanges.join('\n');
 }
 
-async function upload(uploadUrl: string, buildResult: BuildResult): Promise<void> {
+async function upload(
+  response: OctokitResponse<ReposCreateReleaseResponseData>,
+  buildResult: BuildResult,
+): Promise<void> {
   if (!buildResult.archivePath) {
     const message = 'Attempted to upload a non-existent archive.';
     core.setFailed(message);
@@ -138,11 +144,16 @@ async function upload(uploadUrl: string, buildResult: BuildResult): Promise<void
   core.info(`Uploading ${fileToUpload}`);
 
   const content = fs.readFileSync(fileToUpload);
+  const repoInfo = getRepositoryInfo();
   await getGitHubClient().repos.uploadReleaseAsset({
     data: content,
     headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
     name: path.basename(fileToUpload),
-    url: uploadUrl,
+    url: response.data.upload_url,
+    owner: repoInfo.owner,
+    repo: repoInfo.repository,
+    // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+    release_id: response.data.id,
   });
 }
 
