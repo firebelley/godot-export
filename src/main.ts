@@ -31,7 +31,9 @@ async function main(): Promise<number> {
   return 0;
 }
 
-main().catch((error: Error) => {
-  core.setFailed(error.message);
+try {
+  await main();
+} catch (e) {
+  core.setFailed(e.message);
   process.exit(1);
-});
+}

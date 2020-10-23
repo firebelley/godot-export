@@ -30,10 +30,12 @@ async function createGitHubRelease(buildResults: BuildResult[]): Promise<void> {
   const body = GENERATE_RELEASE_NOTES ? await getReleaseBody() : undefined;
   const response = await getGitHubClient().repos.createRelease({
     owner: repoInfo.owner,
-    tag_name: versionStr, // eslint-disable-line @typescript-eslint/camelcase
+    // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+    tag_name: versionStr,
     repo: repoInfo.repository,
     name: versionStr,
-    target_commitish: process.env.GITHUB_SHA, // eslint-disable-line @typescript-eslint/camelcase
+    // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+    target_commitish: process.env.GITHUB_SHA,
     body,
   });
 

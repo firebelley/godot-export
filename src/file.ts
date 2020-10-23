@@ -24,7 +24,7 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
 
   // mac exports a zip by default, so just move the file
   if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
-    const baseName = path.basename(buildResult.preset.export_path);
+    const baseName = path.basename(buildResult.preset.exportPath);
     const macPath = path.join(buildResult.directory, baseName);
     await io.cp(macPath, zipPath);
   } else if (!fs.existsSync(zipPath)) {
@@ -39,7 +39,7 @@ async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArch
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
     const fullExportPath = path.resolve(
-      USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH,
+      USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.exportPath) : RELATIVE_EXPORT_PATH,
     );
 
     await io.mkdirP(fullExportPath);

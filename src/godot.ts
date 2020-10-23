@@ -151,8 +151,8 @@ async function doExport(): Promise<BuildResult[]> {
     const buildDir = path.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
 
     let executablePath;
-    if (preset.export_path) {
-      executablePath = path.join(buildDir, path.basename(preset.export_path));
+    if (preset.exportPath) {
+      executablePath = path.join(buildDir, path.basename(preset.exportPath));
     }
 
     if (!executablePath) {

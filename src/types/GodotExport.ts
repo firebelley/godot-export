@@ -4,7 +4,7 @@ export interface ExportPresets {
 
 export interface ExportPreset {
   name: string;
-  export_path: string;
+  exportPath: string;
   platform: string;
 }
 
