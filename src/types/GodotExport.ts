@@ -4,6 +4,7 @@ export interface ExportPresets {
 
 export interface ExportPreset {
   name: string;
+  // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
   export_path: string;
   platform: string;
 }
