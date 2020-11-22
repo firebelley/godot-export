@@ -13091,7 +13091,7 @@ async function addEditorSettings() {
     const editorSettingsDist = Object(external_path_.join)(__dirname, editorSettings);
     await Object(io.mkdirP)(GODOT_CONFIG_PATH);
     const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
-    await Object(io.cp)(editorSettingsDist, editorSettingsPath);
+    await Object(io.cp)(editorSettingsDist, editorSettingsPath, { force: false });
     Object(core.info)(`Wrote editor settings to ${editorSettingsPath}`);
 }
 function writeIconSettings() {
