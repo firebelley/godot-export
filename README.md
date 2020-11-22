@@ -86,7 +86,7 @@ jobs:
         fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.6.0
+      uses: firebelley/godot-export@v2.6.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -138,7 +138,7 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.6.0
+      uses: firebelley/godot-export@v2.6.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -150,3 +150,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+### Using custom editor settings
+Some Godot configurations are editor-based and not project-based. This includes things like Android paths. This repository provides a [base editor settings](./dist/editor_settings-3.tres) that will be used by default when exporting your games. However, you can supply a custom editor settings configuration by simply copying a a custom editor settings file to `~/.config/godot/editor_settings-3.tres` _before_ this action runs. This action will not overwrite an existing `editor_settings-3.tres` file.

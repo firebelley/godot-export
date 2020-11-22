@@ -243,7 +243,7 @@ async function addEditorSettings(): Promise<void> {
   await io.mkdirP(GODOT_CONFIG_PATH);
 
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
-  await io.cp(editorSettingsDist, editorSettingsPath);
+  await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
   core.info(`Wrote editor settings to ${editorSettingsPath}`);
 }
 
