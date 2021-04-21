@@ -104,9 +104,10 @@ jobs:
 ```
 
 ## Mono Builds
+Mono builds do not require additional configuration. However, if you want to change the build tool that is used (currently defaults to `dotnet cli`) then you need to [supply your own editor settings](#custom-editor-settings) with the line `mono/builds/build_tool`.
 
 ## Android Builds
-For Android builds, use the [setup-android](https://github.com/android-actions/setup-android) action before this one. [The default editor settings](./dist/editor_settings-3.tres) used by this action already provides a default path to for the Android SDK. If your path is different, [supply your own editor settings file](#custom-editor-settings).
+For Android builds, use the [setup-android](https://github.com/android-actions/setup-android) action before this one in your workflow. [The default editor settings file](./dist/editor_settings-3.tres) used by this action already provides a default path to the Android SDK. If your path is different then [supply your own editor settings file](#custom-editor-settings).
 
 ## Custom Editor Settings
 Some Godot configurations are editor-based and not project-based. This includes things like Android paths. This repository provides a [base editor settings](./dist/editor_settings-3.tres) that will be used by default when exporting your games. However, you can supply a custom editor settings configuration by simply copying your custom editor settings file to `~/.config/godot/editor_settings-3.tres` _before_ this action runs. This action will not overwrite an existing `editor_settings-3.tres` file.
