@@ -10,6 +10,8 @@ A workflow action to automatically export your Godot games. Supports standard an
   - [Android Builds](#android-builds)
 - [Custom Editor Settings](#custom-editor-settings)
 - [Tips](#tips)
+  - [Using tag pushes](#using-tag-as-base_version)
+  - [Supply custom editor settings](#supplying-a-custom-editor-settings-file)
 
 ## How it Works
 
@@ -92,25 +94,25 @@ jobs:
         fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.6.1
+      uses: firebelley/godot-export@v2.7.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
-        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_linux_headless_64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_export_templates.tpz
+        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_linux_headless_64.zip
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_export_templates.tpz
         relative_project_path: ./
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Mono Builds
-Mono builds do not require additional configuration. However, if you want to change the build tool that is used (currently defaults to `dotnet cli`) then you need to [supply your own editor settings](#custom-editor-settings) with the line `mono/builds/build_tool`.
+Mono builds do not require additional configuration. However, if you want to change the build tool that is used (currently defaults to `dotnet cli`) then you need to [supply your own editor settings](#custom-editor-settings) with the line `mono/builds/build_tool`. The value of this setting should be a number between `0` and `3`. This value corresponds to the build tool dropdown in the editor settings window at `Editor Settings -> Mono -> Builds -> Build Tool`. You can look at your local `editor_settings-3.tres` to see what this value should be if you want to match the build tool used during local development.
 
 ## Android Builds
 For Android builds, use the [setup-android](https://github.com/android-actions/setup-android) action before this one in your workflow. [The default editor settings file](./dist/editor_settings-3.tres) used by this action already provides a default path to the Android SDK. If your path is different then [supply your own editor settings file](#custom-editor-settings).
 
 ## Custom Editor Settings
-Some Godot configurations are editor-based and not project-based. This includes things like Android paths. This repository provides a [base editor settings](./dist/editor_settings-3.tres) that will be used by default when exporting your games. However, you can supply a custom editor settings configuration by simply copying your custom editor settings file to `~/.config/godot/editor_settings-3.tres` _before_ this action runs. This action will not overwrite an existing `editor_settings-3.tres` file.
+Some Godot configurations are editor-based and not project-based. This includes items like Android paths. This repository provides a [base editor settings](./dist/editor_settings-3.tres) that will be used by default when exporting your games. However, you can supply a custom editor settings configuration file by simply copying your custom editor settings file to `~/.config/godot/editor_settings-3.tres` _before_ this action runs. This action will not overwrite an existing `editor_settings-3.tres` file.
 
 ## Tips
 
@@ -148,12 +150,12 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.6.1
+      uses: firebelley/godot-export@v2.7.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
-        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_linux_headless_64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.2.2/mono/Godot_v3.2.2-stable_mono_export_templates.tpz
+        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_linux_headless_64.zip
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_export_templates.tpz
         relative_project_path: ./
         create_release: true
         base_version:  ${{ steps.tag_version.outputs.TAG_VERSION}} 
@@ -161,3 +163,15 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Supplying a custom editor settings file
+Include the following step before this action. For example:
+```yml
+# ...above this line is the workflow job setup
+- name: use custom editor settings
+  run: |
+    mkdir -p ~/.config/godot
+    cp ~/path/to/my/editor_settings-3.tres ~/.config/godot/
+- name: export game
+  uses: firebelley/godot-export@v2.7.0
+  # ...the rest of the action config goes here
+```
