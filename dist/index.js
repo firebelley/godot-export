@@ -13045,8 +13045,7 @@ async function configureWindowsExport() {
     Object(core.endGroup)();
 }
 async function installWine() {
-    await Object(exec.exec)('sudo', ['apt-get', 'update']);
-    await Object(exec.exec)('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
+    await Object(exec.exec)('sudo', ['apt', 'install', 'wine64']);
     await Object(exec.exec)('wine64', ['--version']);
 }
 function findGodotExecutablePath(basePath) {
