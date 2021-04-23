@@ -191,8 +191,7 @@ async function configureWindowsExport(): Promise<void> {
 }
 
 async function installWine(): Promise<void> {
-  await exec('sudo', ['apt-get', 'update']);
-  await exec('sudo', ['apt-get', 'install', 'wine1.6-amd64']);
+  await exec('sudo', ['apt', 'install', 'wine64']);
   await exec('wine64', ['--version']);
 }
 
