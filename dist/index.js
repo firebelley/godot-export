@@ -12998,7 +12998,7 @@ async function getGodotVersion() {
     };
     await Object(exec.exec)('godot', ['--version'], options);
     version = version.trim();
-    version = version.replace('.official', '');
+    version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
     if (!version) {
         throw new Error('Godot version could not be determined.');
     }
