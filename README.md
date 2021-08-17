@@ -94,7 +94,7 @@ jobs:
         fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.8.0
+      uses: firebelley/godot-export@v2.8.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -150,7 +150,7 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.8.0
+      uses: firebelley/godot-export@v2.8.1
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -172,6 +172,6 @@ Include the following step before this action. For example:
     mkdir -p ~/.config/godot
     cp ~/path/to/my/editor_settings-3.tres ~/.config/godot/
 - name: export game
-  uses: firebelley/godot-export@v2.8.0
+  uses: firebelley/godot-export@v2.8.1
   # ...the rest of the action config goes here
 ```
