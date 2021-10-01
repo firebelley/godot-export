@@ -8,7 +8,7 @@ import { ExecOptions } from '@actions/exec/lib/interfaces';
 import path from 'path';
 import * as fs from 'fs';
 import { zipBuildResults } from './file';
-import { OctokitResponse, ReposCreateReleaseResponseData } from '@octokit/types';
+import { OctokitResponse } from '@octokit/types';
 
 async function createRelease(buildResults: BuildResult[]): Promise<void> {
   if (buildResults.some(x => !x.archivePath)) {
@@ -29,7 +29,7 @@ async function createGitHubRelease(buildResults: BuildResult[]): Promise<void> {
   const repoInfo = getRepositoryInfo();
 
   const body = GENERATE_RELEASE_NOTES ? await getReleaseBody() : undefined;
-  const response = await getGitHubClient().repos.createRelease({
+  const response = await getGitHubClient().rest.repos.createRelease({
     owner: repoInfo.owner,
     // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
     tag_name: versionStr,
@@ -77,13 +77,13 @@ async function getNewVersion(): Promise<semver.SemVer | null | undefined> {
 }
 
 async function getLatestReleaseTagName(): Promise<string | undefined> {
-  let release;
   try {
     const repoInfo = getRepositoryInfo();
-    release = await getGitHubClient().repos.getLatestRelease({
+    const release = await getGitHubClient().rest.repos.getLatestRelease({
       owner: repoInfo.owner,
       repo: repoInfo.repository,
     });
+    return release.data.tag_name;
   } catch (e) {
     // throws error if no release exists
     // rather than using 2x api calls to see if releases exist and get latest
@@ -91,7 +91,7 @@ async function getLatestReleaseTagName(): Promise<string | undefined> {
     core.info('No latest release found');
   }
 
-  return release?.data?.tag_name;
+  return undefined;
 }
 
 async function getReleaseBody(): Promise<string> {
@@ -127,7 +127,8 @@ async function getReleaseBody(): Promise<string> {
 }
 
 async function upload(
-  response: OctokitResponse<ReposCreateReleaseResponseData>,
+  // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
+  response: OctokitResponse<{ upload_url: string; id: number }>,
   buildResult: BuildResult,
 ): Promise<void> {
   if (!buildResult.archivePath) {
@@ -145,9 +146,12 @@ async function upload(
 
   const content = fs.readFileSync(fileToUpload);
   const repoInfo = getRepositoryInfo();
-  await getGitHubClient().repos.uploadReleaseAsset({
+  await getGitHubClient().rest.repos.uploadReleaseAsset({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     data: content,
-    headers: { 'content-type': 'application/zip', 'content-length': content.byteLength },
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    headers: { 'Content-Type': 'application/zip', 'Content-Length': content.byteLength },
     name: path.basename(fileToUpload),
     url: response.data.upload_url,
     owner: repoInfo.owner,

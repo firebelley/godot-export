@@ -45,9 +45,9 @@ inputs:
     description: If provided, exports will be moved to this directory relative to the root of the Git repository.
     default: ''
     required: false
-  update_windows_icons:
-    description: If Windows executable icons should be updated with the preset's .ico file.
-    default: false
+  wine_path:
+    description: The absolute path to the wine binary. If specified, Godot will use this to run rcedit to update Windows exe icons.
+    default: ''
     required: false
   export_debug:
     description: If should export with debugging tools.
