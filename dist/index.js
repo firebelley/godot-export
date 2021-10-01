@@ -12889,7 +12889,7 @@ const GODOT_TEMPLATES_DOWNLOAD_URL = Object(core.getInput)('godot_export_templat
 const RELATIVE_EXPORT_PATH = Object(core.getInput)('relative_export_path');
 const RELATIVE_PROJECT_PATH = Object(core.getInput)('relative_project_path');
 const SHOULD_CREATE_RELEASE = Object(core.getInput)('create_release') === 'true';
-const UPDATE_WINDOWS_ICONS = Object(core.getInput)('update_windows_icons') === 'true';
+const WINE_PATH = Object(core.getInput)('wine_path');
 const USE_PRESET_EXPORT_PATH = Object(core.getInput)('use_preset_export_path') === 'true';
 const EXPORT_DEBUG = Object(core.getInput)('export_debug') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(Object(external_os_.homedir)(), '/.local/share/godot'));
@@ -12919,8 +12919,8 @@ async function exportBuilds() {
     Object(core.startGroup)('Adding Editor Settings');
     await addEditorSettings();
     Object(core.endGroup)();
-    if (UPDATE_WINDOWS_ICONS) {
-        await configureWindowsExport();
+    if (WINE_PATH) {
+        configureWindowsExport();
     }
     Object(core.startGroup)('Export binaries');
     const results = await doExport();
@@ -13036,17 +13036,19 @@ async function doExport() {
     }
     return buildResults;
 }
-async function configureWindowsExport() {
-    Object(core.startGroup)('Installing Wine');
-    await installWine();
+function configureWindowsExport() {
+    Object(core.startGroup)('Appending wine editor settings');
+    const rceditPath = Object(external_path_.join)(__dirname, 'rcedit-x64.exe');
+    Object(core.info)(`Writing rcedit path to editor settings ${rceditPath}`);
+    Object(core.info)(`Writing wine path to editor settings ${WINE_PATH}`);
+    const editorSettings = 'editor_settings-3.tres';
+    const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
+    const stream = Object(external_fs_.createWriteStream)(editorSettingsPath, { flags: 'a' });
+    stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
+    stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
+    stream.close();
+    Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
     Object(core.endGroup)();
-    Object(core.startGroup)('Appending editor settings');
-    writeIconSettings();
-    Object(core.endGroup)();
-}
-async function installWine() {
-    await Object(exec.exec)('sudo', ['apt', 'install', 'wine64']);
-    await Object(exec.exec)('wine64', ['--version']);
 }
 function findGodotExecutablePath(basePath) {
     const paths = Object(external_fs_.readdirSync)(basePath);
@@ -13092,19 +13094,6 @@ async function addEditorSettings() {
     const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
     await Object(io.cp)(editorSettingsDist, editorSettingsPath, { force: false });
     Object(core.info)(`Wrote editor settings to ${editorSettingsPath}`);
-}
-function writeIconSettings() {
-    const rceditPath = Object(external_path_.join)(__dirname, 'rcedit-x64.exe');
-    const winePath = '/usr/bin/wine64';
-    Object(core.info)(`Writing rcedit path to editor settings ${rceditPath}`);
-    Object(core.info)(`Writing wine path to editor settings ${winePath}`);
-    const editorSettings = 'editor_settings-3.tres';
-    const editorSettingsPath = Object(external_path_.join)(GODOT_CONFIG_PATH, editorSettings);
-    const stream = Object(external_fs_.createWriteStream)(editorSettingsPath, { flags: 'a' });
-    stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
-    stream.write(`export/windows/wine = "${winePath}"\n`);
-    stream.close();
-    Object(core.info)(`Wrote settings to ${editorSettingsPath}`);
 }
 
 
