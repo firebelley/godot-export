@@ -60,9 +60,8 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
   - If set to true, exports will be moved to directory defined in `export_presets.cfg` relative to the root of the Git repository. Prioritized over `relative_export_path`.
 - `relative_export_path` default `''`
   - If provided, exports will be moved to this directory relative to the root of the Git repository.
-- `update_windows_icons` default `false`
-  - If Windows executable icons should be updated with the preset's `.ico` file.
-  - **Note**: This process installs Wine and will need a small amount of additional run time. In my tests, this setting increased run time by approximately 30 seconds.
+- `wine_path` default `''`
+  - The absolute path to the wine binary. If specified, Godot will use this to run rcedit to update Windows exe icons. See the [setup Windows icons](#setup-windows-icons) example configuration.
 
 ### Environment Variables
 Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-configuration). This environment variable is not needed if you set `create_release` to `false`.
@@ -94,7 +93,7 @@ jobs:
         fetch-depth: 0
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.8.1
+      uses: firebelley/godot-export@v3.0.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -150,7 +149,7 @@ jobs:
         echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v2.8.1
+      uses: firebelley/godot-export@v3.0.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -172,6 +171,25 @@ Include the following step before this action. For example:
     mkdir -p ~/.config/godot
     cp ~/path/to/my/editor_settings-3.tres ~/.config/godot/
 - name: export game
-  uses: firebelley/godot-export@v2.8.1
+  uses: firebelley/godot-export@v3.0.0
   # ...the rest of the action config goes here
 ```
+
+### Setup Windows Icons
+In order to configure this action to update your game's Windows exe icon, include the following block before this action. Example:
+```yml
+- name: install wine
+  id: wine_install
+  run: |
+    sudo apt install wine64
+    echo ::set-output name=WINE_PATH::$(which wine64)
+```
+And then supply this `WINE_PATH` output to the `wine_path` input for this action:
+```yml
+- name: export game
+  uses: firebelley/godot-export@v3.0.0
+  with:
+    # ... any other input configuration goes here in accordance with the documentation
+    # 
+    # read the wine path here that was an output of the wine_install step
+    wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
