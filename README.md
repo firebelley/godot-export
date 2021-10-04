@@ -66,6 +66,11 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 ### Environment Variables
 Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-configuration). This environment variable is not needed if you set `create_release` to `false`.
 
+### Import (.import) Files must be Committed
+The godot editor creates a `<assetName.ext>.import` file when you introduce an asset to your project. Ensure these are committed to GIT so they import correctly. See [The Godot Import Process](https://docs.godotengine.org/en/stable/getting_started/workflow/assets/import_process.html#files-generated).
+
+You DO NOT need to store the /.import/ directory in GIT. However, you DO need to make an empty directory for `.import`, see the example. Otherwise there will be build warnings in the action and built game is likely to complain assets were not imported.
+
 ### Example Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow could be defined in `.github/workflows/main.yml`. For more information about defining workflows see [the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
 
@@ -91,6 +96,9 @@ jobs:
       # Ensure that you get the entire project history
       with:
         fetch-depth: 0
+    - name: Create a .import folder
+      # This should exist along side your project file, similar to relative_project_path
+      run: mkdir ${{github.workspace}}/.import
     - name: export game
       # Use latest version (see releases for all versions)
       uses: firebelley/godot-export@v3.0.0
