@@ -15,6 +15,7 @@ import {
   RELATIVE_PROJECT_PATH,
   WINE_PATH,
   EXPORT_DEBUG,
+  GODOT_VERBOSE,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -29,11 +30,11 @@ async function exportBuilds(): Promise<BuildResult[]> {
     return [];
   }
 
-  core.startGroup('Download Godot');
+  core.startGroup('🕹️ Download Godot');
   await downloadGodot();
   core.endGroup();
 
-  core.startGroup('Adding Editor Settings');
+  core.startGroup('🔍 Adding Editor Settings');
   await addEditorSettings();
   core.endGroup();
 
@@ -41,7 +42,7 @@ async function exportBuilds(): Promise<BuildResult[]> {
     configureWindowsExport();
   }
 
-  core.startGroup('Export binaries');
+  core.startGroup('✨ Export binaries');
   const results = await doExport();
   core.endGroup();
 
@@ -162,7 +163,11 @@ async function doExport(): Promise<BuildResult[]> {
 
     await io.mkdirP(buildDir);
     const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-    const result = await exec('godot', [projectPath, exportFlag, preset.name, executablePath, '--verbose']);
+    const args = [projectPath, exportFlag, preset.name, executablePath];
+    if (GODOT_VERBOSE) {
+      args.push('--verbose');
+    }
+    const result = await exec('godot', args);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }

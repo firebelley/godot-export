@@ -34,40 +34,32 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 - `godot_executable_download_url`
   - The **Linux Headless** version of Godot that you want to export your project with. For example, to use the current stable of version of Godot your value will be `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_linux_headless.64.zip`. If you do not use the Linux Headless version exporting will fail.
 - `godot_export_templates_download_url`
-  - The link to the `.tpz` archive of export templates. Can be found at `https://downloads.tuxfamily.org/godotengine`. The export templates must be for the same version of Godot that you are using in `godot_executable_download_url`. For example, the `godot_export_templates_download_url` that matches the `godot_executable_download_url` version is `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_export_templates.tpz`
+  - The link to the `.tpz` archive of export templates. Can be found at `https://downloads.tuxfamily.org/godotengine`. The export templates must be for the same version of Godot that you are using in `godot_executable_download_url`. For example, the `godot_export_templates_download_url` that matches the `godot_executable_download_url` version is `https://downloads.tuxfamily.org/godotengine/3.1.2/Godot_v3.1.2-stable_export_templates.tpz`.
 - `relative_project_path`
   - The relative path to the directory containing your `project.godot` file. If your `project.godot` is at the root of your repository then this value should be `./`. Do _not_ include `project.godot` as part of this path.
 
 #### Optional Inputs
 - `export_debug` defaults `false`
-  - If `true`, godot will export with debugging tools.
-- `archive_export_output` default `false`
-  - If `true`, exports will be archived.
-  - **Note**: When `create_release` is true then exports uploaded to the release may be archived regardless of this setting.
-- `archive_single_release_output` default `true`
-  - If exports that result in a single file output should be archived when uploading to the release. Setting this to `false` is useful for exports that use the "Embed PCK" option, as the output executable can be directly uploaded to the release.
-  - **Note**: This input is only used when `create_release` is `true`.
-- `base_version` default `0.0.1`
-    - The version which new releases start at. The first release will be this version. After that, releases will automatically be 1 patch version ahead of the version of the latest release. To increment minor and major versions simply set the `base_version` to reflect your desired major and minor versions. When the `base_version` is set to a higher version than the last release version, the `base_version` will be used.
-    - **Note**: This input is only used when `create_release` is `true`.
-- `create_release` default `true`
-  - If releases should be automatically created.
-- `generate_release_notes` default `false`
-  - If release notes should be automatically generated based on commit history. The generated notes will be added as the body of the release.
-  - **Note**: This input is only used when `create_release` is `true`.
-  - **Note**: When using the GitHub checkout action, ensure you are fetching the entire project history by including `fetch-depth: 0`. See the example workflow configuration for more context.
-- `use_preset_export_path` default `false`
-  - If set to true, exports will be moved to directory defined in `export_presets.cfg` relative to the root of the Git repository. Prioritized over `relative_export_path`.
+  - If `true`, godot will export in debug mode.
+- `archive_output` default `false`
+  - If `true`, exported files will be archived into a `.zip` file.
 - `relative_export_path` default `''`
   - If provided, exports will be moved to this directory relative to the root of the Git repository.
+  - **NOTE**: This setting is overridden by `use_preset_export_path`
+- `use_preset_export_path` default `false`
+  - If set to true, exports will be moved to directory defined in `export_presets.cfg` relative to the root of the Git repository. Prioritized over `relative_export_path`.
 - `wine_path` default `''`
   - The absolute path to the wine binary. If specified, Godot will use this to run rcedit to update Windows exe icons. See the [setup Windows icons](#setup-windows-icons) example configuration.
+- `verbose` default `false`
+  - If `true` will use the `--verbose` flag when exporting from Godot
 
 ### Environment Variables
 Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-configuration). This environment variable is not needed if you set `create_release` to `false`.
 
 ### Example Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow could be defined in `.github/workflows/main.yml`. For more information about defining workflows see [the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
+
+This workflow will export your game and create a release with the resulting files.
 
 ```yml
 # Whenever a push is made to the master branch then run the job
