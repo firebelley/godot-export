@@ -12,14 +12,11 @@ A workflow action to automatically export your Godot games. Supports standard an
 - [Tips](#tips)
   - [Using tag pushes](#using-tag-as-base_version)
   - [Supply custom editor settings](#supplying-a-custom-editor-settings-file)
+  - [Setup Windows Icons](#setup-windows-icons)
 
 ## How it Works
 
-### Automatic Exports
-This action automatically reads your `export_presets.cfg` file to determine which builds to make. Whenever this action runs each of your defined exports will run. The resulting executables will be posted as zip files attached to the created release.
-
-### Automatic Release
-This action creates a release tagged with a [Semantic Version](https://semver.org/). The zip files containing the export results will be attached to this release. More info about releases can be found below.
+This action automatically reads your `export_presets.cfg` file to determine which builds to make. Whenever this action runs each of your defined exports will run. The resulting executables can then be optionally attached to a release. See [the example configuration](#example-configuration).
 
 ## Setting Up Export Presets
 Define at least 1 export preset by going to `Project -> Export` in the Godot editor and creating a configuration. Set the file name in the "Export Path" box. This is how the action knows how to name your binary. Notice how the below image has "win.exe" in the "Export Path" for my windows export. Your executables can be named however you like, as long as they include the appropriate extension `.exe`, `.x86_64`, etc.
