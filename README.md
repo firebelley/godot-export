@@ -40,9 +40,9 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 
 #### Optional Inputs
 - `export_debug` defaults `false`
-  - If `true`, godot will export in debug mode.
+  - If `true`, godot will export debug builds.
 - `archive_output` default `false`
-  - If `true`, exported files will be archived into a `.zip` file.
+  - If `true`, exports will be archived into a `.zip` file.
 - `relative_export_path` default `''`
   - If provided, exports will be moved to this directory relative to the root of the Git repository.
   - **NOTE**: This setting is overridden by `use_preset_export_path`
@@ -55,6 +55,9 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 
 ### Environment Variables
 Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-configuration). This environment variable is not needed if you set `create_release` to `false`.
+
+### Other Notes
+If no optional parameters are specified, unarchived exports will be located in `/home/runner/.local/share/godot/builds`. If `archive_ouput` is `true` then archives will by default be located in `/home/runner/.local/share/godot/dist`. If you set `relative_export_path` or `use_preset_export_path` then builds and archives will be placed in the path you configured.
 
 ### Example Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow could be defined in `.github/workflows/main.yml`. For more information about defining workflows see [the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
@@ -103,6 +106,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    # Note that "/home/runner/.local/share/godot/dist" is the directory containing exported files by default.
+    # This should be a glob path to the directory containing your exports. See the release action documentation for more information.
+    # OUTPUT_PATH is used in the "create release" step below
+    - name: Set Output Search Path
+      run: echo "OUTPUT_PATH=$HOME/.local/share/godot/dist/*" >> $GITHUB_ENV
+
     - name: create release
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
       # https://github.com/softprops/action-gh-release
@@ -111,8 +120,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         generate_release_notes: true
         tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-        # Note that "~/.local/share/godot/dist" is the directory containing exported files by default.
-        files: ~/.local/share/godot/dist/*
+        files: ${{ env.OUTPUT_PATH }}
 ```
 
 ## Custom Editor Settings
