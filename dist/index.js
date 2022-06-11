@@ -4517,7 +4517,7 @@ async function addEditorSettings() {
 
 
 async function zipBuildResults(buildResults) {
-    core.startGroup('Zipping binaries');
+    core.startGroup('⚒️ Zipping binaries');
     const promises = [];
     for (const buildResult of buildResults) {
         promises.push(zipBuildResult(buildResult));

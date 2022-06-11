@@ -7,7 +7,7 @@ import { GODOT_WORKING_PATH, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from
 import * as core from '@actions/core';
 
 async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
-  core.startGroup('Zipping binaries');
+  core.startGroup('⚒️ Zipping binaries');
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
     promises.push(zipBuildResult(buildResult));

@@ -59,14 +59,14 @@ Since this action creates releases and uploads the zip file assets, you will nee
 ### Example Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow could be defined in `.github/workflows/main.yml`. For more information about defining workflows see [the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
 
-This workflow will export your game, archive the files, and create a release containing the archives.
+This workflow will export your game when a tag is pushed, archive the files, and create a release containing the archives.
 
 ```yml
 # Whenever a push is made to the master branch then run the job
 on: 
   push:
-    branches:
-      - master
+    tags:
+      - "v*"
 
 jobs:
   # job id, can be anything
@@ -74,18 +74,25 @@ jobs:
     # Always use ubuntu-latest for this action
     runs-on: ubuntu-latest
     # Job name, can be anything
-    name: Export Game Job
+    name: Export Game
     steps:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v2.3.1
+      uses: actions/checkout@v3.0.2
       # Ensure that you get the entire project history
       with:
         fetch-depth: 0
+  
+    # Automatically stores the tag name for later use
+    - name: get tag from version
+        id: tag_version
+        run: |
+          echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
+  
     - name: export game
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v3.0.0
+      uses: firebelley/godot-export@v4.0.0
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
@@ -95,74 +102,30 @@ jobs:
         archive_output: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: create release
-      # This release action has worked well for me. However, you can most likely use any release action of your choosing
+      # This release action has worked well for me. However, you can most likely use any release action of your choosing.
+      # https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v0.1.14
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generate_release_notes: true
-        # Note that "~/.local/share/godot/builds" is the directory containing exported files by default
-        files: |
-          ~/.local/share/godot/builds/**/*
+        tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
+        # Note that "~/.local/share/godot/dist" is the directory containing exported files by default.
+        files: ~/.local/share/godot/dist/*
 ```
-
-## Mono Builds
-Mono builds do not require additional configuration. However, if you want to change the build tool that is used (currently defaults to `dotnet cli`) then you need to [supply your own editor settings](#custom-editor-settings) with the line `mono/builds/build_tool`. The value of this setting should be a number between `0` and `3`. This value corresponds to the build tool dropdown in the editor settings window at `Editor Settings -> Mono -> Builds -> Build Tool`. You can look at your local `editor_settings-3.tres` to see what this value should be if you want to match the build tool used during local development.
-
-## Android Builds
-For Android builds, use the [setup-android](https://github.com/android-actions/setup-android) action before this one in your workflow. [The default editor settings file](./dist/editor_settings-3.tres) used by this action already provides a default path to the Android SDK. If your path is different then [supply your own editor settings file](#custom-editor-settings).
 
 ## Custom Editor Settings
 Some Godot configurations are editor-based and not project-based. This includes items like Android paths. This repository provides a [base editor settings](./dist/editor_settings-3.tres) that will be used by default when exporting your games. However, you can supply a custom editor settings configuration file by simply copying your custom editor settings file to `~/.config/godot/editor_settings-3.tres` _before_ this action runs. This action will not overwrite an existing `editor_settings-3.tres` file.
 
+## Mono Builds
+Mono builds do not require additional configuration. However, if you want to change the build tool that is used (currently defaults to `dotnet cli`) then you need to [supply your own editor settings](#custom-editor-settings) with the line `mono/builds/build_tool`. This value corresponds to the build tool dropdown in the editor settings window at `Editor Settings -> Mono -> Builds -> Build Tool`. You can look at your local `editor_settings-3.tres` to see what this value should be if you want to match the build tool used during local development.
+
+## Android Builds
+For Android builds, use the [setup-android](https://github.com/android-actions/setup-android) action before this one in your workflow. [The default editor settings file](./dist/editor_settings-3.tres) used by this action already provides a default path to the Android SDK. If your path is different then [supply your own editor settings file](#custom-editor-settings).
+
+
 ## Tips
-
-### Using tag as base_version
-You can use git tags to set the release version.
-For example, using `git tag v1.0.0` and then `git push --tags` results in base-version 1.0.0 when using the following workflow.
-
-```yml
-# Whenever tag in the form of `v1.0.0` is pushed then run the job
-
-on: 
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  # job id, can be anything
-  export_game:
-    # Always use ubuntu-latest for this action
-    runs-on: ubuntu-latest
-    # Job name, can be anything
-    name: Export Game Job
-    steps:
-      # Always include the checkout step so that 
-      # your project is available for Godot to export
-    - name: checkout
-      uses: actions/checkout@v2.3.1
-      # Ensure that you get the entire project history
-      with:
-        fetch-depth: 0
-      # separate step to extract the version from the tag name
-    - name: get tag from version
-      id: tag_version
-      run: |
-        echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
-    - name: export game
-      # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v3.0.0
-      with:
-        # Defining all the required inputs
-        # I used the mono version of Godot in this example
-        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_linux_headless_64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_export_templates.tpz
-        relative_project_path: ./
-        create_release: true
-        base_version:  ${{ steps.tag_version.outputs.TAG_VERSION}} 
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
 
 ### Supplying a custom editor settings file
 Include the following step before this action. For example:
@@ -173,7 +136,7 @@ Include the following step before this action. For example:
     mkdir -p ~/.config/godot
     cp ~/path/to/my/editor_settings-3.tres ~/.config/godot/
 - name: export game
-  uses: firebelley/godot-export@v3.0.0
+  uses: firebelley/godot-export@v4.0.0
   # ...the rest of the action config goes here
 ```
 
@@ -189,9 +152,10 @@ In order to configure this action to update your game's Windows exe icon, includ
 And then supply this `WINE_PATH` output to the `wine_path` input for this action:
 ```yml
 - name: export game
-  uses: firebelley/godot-export@v3.0.0
+  uses: firebelley/godot-export@v4.0.0
   with:
     # ... any other input configuration goes here in accordance with the documentation
     # 
     # read the wine path here that was an output of the wine_install step
     wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
+```
