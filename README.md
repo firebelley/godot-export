@@ -53,9 +53,6 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 - `verbose` default `false`
   - If `true` will use the `--verbose` flag when exporting from Godot
 
-### Environment Variables
-Since this action creates releases and uploads the zip file assets, you will need to supply the `GITHUB_TOKEN` environment variable. For an example on how to do this, see the below [example workflow configuration](#example-configuration). This environment variable is not needed if you set `create_release` to `false`.
-
 ### Other Notes
 If no optional parameters are specified, unarchived exports will be located in `/home/runner/.local/share/godot/builds`. If `archive_ouput` is `true` then archives will by default be located in `/home/runner/.local/share/godot/dist`. If you set `relative_export_path` or `use_preset_export_path` then builds and archives will be placed in the path you configured.
 
@@ -103,8 +100,6 @@ jobs:
         godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.4.4/Godot_v3.4.4-stable_export_templates.tpz
         relative_project_path: ./
         archive_output: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Note that "/home/runner/.local/share/godot/dist" is the directory containing exported files by default.
     # This should be a glob path to the directory containing your exports. See the release action documentation for more information.
@@ -135,7 +130,7 @@ For Android builds, use the [setup-android](https://github.com/android-actions/s
 
 ## Tips
 
-### Supplying a custom editor settings file
+### Supplying a Custom Editor Settings File
 Include the following step before this action. For example:
 ```yml
 # ...above this line is the workflow job setup
