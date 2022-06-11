@@ -59,7 +59,7 @@ Since this action creates releases and uploads the zip file assets, you will nee
 ### Example Configuration
 Below is a sample workflow configuration file utilizing this action. This example workflow could be defined in `.github/workflows/main.yml`. For more information about defining workflows see [the workflow docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
 
-This workflow will export your game and create a release with the resulting files.
+This workflow will export your game, archive the files, and create a release containing the archives.
 
 ```yml
 # Whenever a push is made to the master branch then run the job
@@ -89,11 +89,21 @@ jobs:
       with:
         # Defining all the required inputs
         # I used the mono version of Godot in this example
-        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_linux_headless_64.zip
-        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.3/rc9/mono/Godot_v3.3-rc9_mono_export_templates.tpz
+        godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.4.4/Godot_v3.4.4-stable_win64.exe.zip
+        godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.4.4/Godot_v3.4.4-stable_export_templates.tpz
         relative_project_path: ./
+        archive_output: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: create release
+      # This release action has worked well for me. However, you can most likely use any release action of your choosing
+      uses: softprops/action-gh-release@v0.1.14
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        generate_release_notes: true
+        # Note that "~/.local/share/godot/builds" is the directory containing exported files by default
+        files: |
+          ~/.local/share/godot/builds/**/*
 ```
 
 ## Mono Builds

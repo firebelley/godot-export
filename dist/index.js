@@ -4415,7 +4415,7 @@ async function getGodotVersion() {
 async function doExport() {
     const buildResults = [];
     const projectPath = external_path_.resolve(external_path_.join(RELATIVE_PROJECT_PATH, 'project.godot'));
-    core.info(`Using project file at ${projectPath}`);
+    core.info(`🎯 Using project file at ${projectPath}`);
     for (const preset of getExportPresets()) {
         const sanitizedName = sanitize_filename_default()(preset.name);
         const buildDir = external_path_.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
@@ -4449,7 +4449,7 @@ async function doExport() {
     return buildResults;
 }
 function configureWindowsExport() {
-    core.startGroup('Appending wine editor settings');
+    core.startGroup('📝 Appending wine editor settings');
     const rceditPath = external_path_.join(__dirname, 'rcedit-x64.exe');
     core.info(`Writing rcedit path to editor settings ${rceditPath}`);
     core.info(`Writing wine path to editor settings ${WINE_PATH}`);
