@@ -4302,6 +4302,10 @@ const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
+const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
+const GODOT_ARCHIVE_PATH = external_path_default().join(GODOT_WORKING_PATH, 'archives');
+core.setOutput('buildDirectory', GODOT_BUILD_PATH);
+core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
 
 
 ;// CONCATENATED MODULE: ./src/godot.ts
@@ -4414,11 +4418,11 @@ async function getGodotVersion() {
 }
 async function doExport() {
     const buildResults = [];
-    const projectPath = external_path_.resolve(external_path_.join(RELATIVE_PROJECT_PATH, 'project.godot'));
+    const projectPath = __nccwpck_require__.ab + "godot-export/" + RELATIVE_PROJECT_PATH + '/project.godot';
     core.info(`🎯 Using project file at ${projectPath}`);
     for (const preset of getExportPresets()) {
         const sanitizedName = sanitize_filename_default()(preset.name);
-        const buildDir = external_path_.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
+        const buildDir = external_path_.join(GODOT_BUILD_PATH, sanitizedName);
         let executablePath;
         if (preset.export_path) {
             executablePath = external_path_.join(buildDir, external_path_.basename(preset.export_path));
@@ -4526,10 +4530,8 @@ async function zipBuildResults(buildResults) {
     core.endGroup();
 }
 async function zipBuildResult(buildResult) {
-    const distPath = external_path_default().join(GODOT_WORKING_PATH, 'dist');
-    await io.mkdirP(distPath);
-    core.setOutput('files', distPath);
-    const zipPath = external_path_default().join(distPath, `${buildResult.sanitizedName}.zip`);
+    await io.mkdirP(GODOT_ARCHIVE_PATH);
+    const zipPath = external_path_default().join(GODOT_ARCHIVE_PATH, `${buildResult.sanitizedName}.zip`);
     // mac exports a zip by default, so just move the file
     if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
         const baseName = external_path_default().basename(buildResult.preset.export_path);
@@ -4542,7 +4544,7 @@ async function zipBuildResult(buildResult) {
     buildResult.archivePath = zipPath;
 }
 async function moveBuildsToExportDirectory(buildResults, moveArchived) {
-    core.startGroup(`Moving exports`);
+    core.startGroup(`➡️ Moving exports`);
     const promises = [];
     for (const buildResult of buildResults) {
         const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
@@ -4554,13 +4556,13 @@ async function moveBuildsToExportDirectory(buildResults, moveArchived) {
                 continue;
             }
             const newArchivePath = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.archivePath));
-            core.info(`Moving ${buildResult.archivePath} to ${newArchivePath}`);
-            promise = io.mv(buildResult.archivePath, newArchivePath);
+            core.info(`Copying ${buildResult.archivePath} to ${newArchivePath}`);
+            promise = io.cp(buildResult.archivePath, newArchivePath);
             buildResult.archivePath = newArchivePath;
         }
         else {
-            core.info(`Moving ${buildResult.directory} to ${fullExportPath}`);
-            promise = io.mv(buildResult.directory, fullExportPath);
+            core.info(`Copying ${buildResult.directory} to ${fullExportPath}`);
+            promise = io.cp(buildResult.directory, fullExportPath, { recursive: true });
             buildResult.directory = external_path_default().join(fullExportPath, external_path_default().basename(buildResult.directory));
             buildResult.executablePath = external_path_default().join(buildResult.directory, external_path_default().basename(buildResult.executablePath));
         }

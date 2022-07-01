@@ -39,8 +39,10 @@ inputs:
     required: false
 
 outputs:
-  files:
-    description: The directory containing the exported files.
+  buildDirectory:
+    description: The directory containing exports prior to archiving (if applicable).
+  archiveDirectory:
+    desription: The directory containing archived exports if "archive_output" is set.
 
 runs:
   using: 'node16'

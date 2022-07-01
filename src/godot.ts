@@ -16,6 +16,7 @@ import {
   WINE_PATH,
   EXPORT_DEBUG,
   GODOT_VERBOSE,
+  GODOT_BUILD_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -149,7 +150,7 @@ async function doExport(): Promise<BuildResult[]> {
 
   for (const preset of getExportPresets()) {
     const sanitizedName = sanitize(preset.name);
-    const buildDir = path.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
+    const buildDir = path.join(GODOT_BUILD_PATH, sanitizedName);
 
     let executablePath;
     if (preset.export_path) {

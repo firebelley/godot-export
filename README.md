@@ -87,8 +87,8 @@ jobs:
         run: |
           echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
   
-    - id: export
-      name: export game
+    - name: export game
+      id: export
       # Use latest version (see releases for all versions)
       uses: firebelley/godot-export@v4.0.0
       with:
@@ -106,7 +106,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         generate_release_notes: true
         tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-        files: ${{ steps.export.outputs.files }}/*
+        files: ${{ steps.export.outputs.archiveDirectory }}/*
 ```
 
 ## Custom Editor Settings
