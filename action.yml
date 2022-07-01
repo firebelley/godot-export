@@ -38,6 +38,10 @@ inputs:
     default: false
     required: false
 
+outputs:
+  files:
+    description: The directory containing the exported files.
+
 runs:
   using: 'node16'
   main: 'dist/index.js'

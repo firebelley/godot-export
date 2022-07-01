@@ -19,6 +19,7 @@ async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
 async function zipBuildResult(buildResult: BuildResult): Promise<void> {
   const distPath = path.join(GODOT_WORKING_PATH, 'dist');
   await io.mkdirP(distPath);
+  core.setOutput('files', distPath);
 
   const zipPath = path.join(distPath, `${buildResult.sanitizedName}.zip`);
 
