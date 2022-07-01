@@ -4304,8 +4304,6 @@ const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = external_path_default().join(GODOT_WORKING_PATH, 'archives');
-core.setOutput('buildDirectory', GODOT_BUILD_PATH);
-core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
 
 
 ;// CONCATENATED MODULE: ./src/godot.ts
@@ -4418,7 +4416,7 @@ async function getGodotVersion() {
 }
 async function doExport() {
     const buildResults = [];
-    const projectPath = __nccwpck_require__.ab + "godot-export/" + RELATIVE_PROJECT_PATH + '/project.godot';
+    const projectPath = external_path_.resolve(external_path_.join(RELATIVE_PROJECT_PATH, 'project.godot'));
     core.info(`🎯 Using project file at ${projectPath}`);
     for (const preset of getExportPresets()) {
         const sanitizedName = sanitize_filename_default()(preset.name);
@@ -4590,6 +4588,8 @@ async function main() {
     if (RELATIVE_EXPORT_PATH || USE_PRESET_EXPORT_PATH) {
         await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
     }
+    core.setOutput('buildDirectory', GODOT_BUILD_PATH);
+    core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
     return 0;
 }
 // eslint-disable-next-line github/no-then

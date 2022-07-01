@@ -1,6 +1,12 @@
 import * as core from '@actions/core';
 import { exportBuilds } from './godot';
-import { ARCHIVE_OUTPUT, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
+import {
+  ARCHIVE_OUTPUT,
+  GODOT_ARCHIVE_PATH,
+  GODOT_BUILD_PATH,
+  RELATIVE_EXPORT_PATH,
+  USE_PRESET_EXPORT_PATH,
+} from './constants';
 import { zipBuildResults, moveBuildsToExportDirectory } from './file';
 
 async function main(): Promise<number> {
@@ -18,6 +24,8 @@ async function main(): Promise<number> {
     await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
   }
 
+  core.setOutput('buildDirectory', GODOT_BUILD_PATH);
+  core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
   return 0;
 }
 

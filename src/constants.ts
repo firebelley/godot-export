@@ -18,9 +18,6 @@ const GODOT_CONFIG_PATH = path.resolve(path.join(os.homedir(), '/.config/godot')
 const GODOT_BUILD_PATH = path.join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = path.join(GODOT_WORKING_PATH, 'archives');
 
-core.setOutput('buildDirectory', GODOT_BUILD_PATH);
-core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
-
 export {
   ARCHIVE_OUTPUT,
   EXPORT_DEBUG,
