@@ -4576,7 +4576,6 @@ async function moveBuildsToExportDirectory(buildResults, moveArchived) {
 
 
 
-
 async function main() {
     const buildResults = await exportBuilds();
     if (!buildResults.length) {
@@ -4589,7 +4588,7 @@ async function main() {
     if (RELATIVE_EXPORT_PATH || USE_PRESET_EXPORT_PATH) {
         await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
     }
-    core.setOutput('buildDirectory', RELATIVE_EXPORT_PATH ? external_path_default().resolve(RELATIVE_EXPORT_PATH) : GODOT_BUILD_PATH);
+    core.setOutput('buildDirectory', GODOT_BUILD_PATH);
     core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
     return 0;
 }
