@@ -4,7 +4,7 @@
   "description": "Exports Godot games.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "yarn lint && ncc build ./src/main.ts -o dist",
+    "build": "yarn lint && ncc build ./src/main.ts -o dist && rm -rf dist/godot-export",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
