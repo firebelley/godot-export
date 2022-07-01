@@ -8,6 +8,7 @@ import {
   USE_PRESET_EXPORT_PATH,
 } from './constants';
 import { zipBuildResults, moveBuildsToExportDirectory } from './file';
+import path from 'path';
 
 async function main(): Promise<number> {
   const buildResults = await exportBuilds();
@@ -24,7 +25,7 @@ async function main(): Promise<number> {
     await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
   }
 
-  core.setOutput('buildDirectory', GODOT_BUILD_PATH);
+  core.setOutput('buildDirectory', RELATIVE_EXPORT_PATH ? path.resolve(RELATIVE_EXPORT_PATH) : GODOT_BUILD_PATH);
   core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
   return 0;
 }
