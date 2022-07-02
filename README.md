@@ -12,6 +12,7 @@ A workflow action to automatically export your Godot games. Supports standard an
 - [Tips](#tips)
   - [Supply custom editor settings](#supplying-a-custom-editor-settings-file)
   - [Setup Windows Icons](#setup-windows-icons)
+- [Example Projects](#example-projects)
 
 ## How it Works
 
@@ -143,3 +144,6 @@ In order to configure this action to update your game's Windows exe icon, includ
     # ...supply your other options here
     wine_path: ${{ steps.wine_install.outputs.WINE_PATH }} # set the wine path here which is the output of the wine_install step
 ```
+
+### Example Projects
+See the [example projects](./examples/README.md) for more info.
