@@ -4416,7 +4416,7 @@ async function getGodotVersion() {
 }
 async function doExport() {
     const buildResults = [];
-    const projectPath = external_path_.resolve(external_path_.join(RELATIVE_PROJECT_PATH, 'project.godot'));
+    const projectPath = __nccwpck_require__.ab + "godot-export/" + RELATIVE_PROJECT_PATH + '/project.godot';
     core.info(`🎯 Using project file at ${projectPath}`);
     for (const preset of getExportPresets()) {
         const sanitizedName = sanitize_filename_default()(preset.name);
@@ -4588,8 +4588,8 @@ async function main() {
     if (RELATIVE_EXPORT_PATH || USE_PRESET_EXPORT_PATH) {
         await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
     }
-    core.setOutput('buildDirectory', GODOT_BUILD_PATH);
-    core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
+    core.setOutput('build_directory', GODOT_BUILD_PATH);
+    core.setOutput('archive_directory', GODOT_ARCHIVE_PATH);
     return 0;
 }
 // eslint-disable-next-line github/no-then
