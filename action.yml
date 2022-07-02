@@ -7,13 +7,13 @@ branding:
 inputs:
   # required inputs
   godot_executable_download_url:
-    description: The download url of the 64 bit Linux Headless Godot executable.
+    description: The download url of the Linux Headless Godot executable.
     required: true
   godot_export_templates_download_url:
     description: The url of the export templates corresponding to the Godot executable version.
     required: true
   relative_project_path:
-    description: The relative path containing the "project.godot" file.
+    description: The path relative to the root of the git repository that contains the "project.godot" file.
     required: true
 
   # optional inputs
@@ -39,9 +39,9 @@ inputs:
     required: false
 
 outputs:
-  buildDirectory:
+  build_directory:
     description: The directory containing exports prior to archiving (if applicable).
-  archiveDirectory:
+  archive_directory:
     description: The directory containing archived exports if "archive_output" is set.
 
 runs:

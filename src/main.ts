@@ -24,8 +24,8 @@ async function main(): Promise<number> {
     await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
   }
 
-  core.setOutput('buildDirectory', GODOT_BUILD_PATH);
-  core.setOutput('archiveDirectory', GODOT_ARCHIVE_PATH);
+  core.setOutput('build_directory', GODOT_BUILD_PATH);
+  core.setOutput('archive_directory', GODOT_ARCHIVE_PATH);
   return 0;
 }
 
