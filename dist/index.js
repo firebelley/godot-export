@@ -4300,6 +4300,7 @@ const WINE_PATH = core.getInput('wine_path');
 const USE_PRESET_EXPORT_PATH = core.getInput('use_preset_export_path') === 'true';
 const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
+const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
@@ -4538,9 +4539,7 @@ async function zipBuildResult(buildResult) {
         await io.cp(macPath, zipPath);
     }
     else if (!external_fs_.existsSync(zipPath)) {
-        // TODO: only for testing
-        // await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
-        await (0,exec.exec)('7z', ['a', zipPath, `${buildResult.directory}`]);
+        await (0,exec.exec)('7z', ['a', zipPath, `${buildResult.directory}${ARCHIVE_ROOT_FOLDER ? '' : '/*'}`]);
     }
     buildResult.archivePath = zipPath;
 }
