@@ -197,10 +197,10 @@ function configureWindowsExport(): void {
   const stream = fs.createWriteStream(editorSettingsPath, { flags: 'a' });
   stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
   stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
-  stream.close();
-
-  // TODO: remove this log
-  core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
+  stream.close(() => {
+    // TODO: remove this log
+    core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
+  });
 
   core.info(`Wrote settings to ${editorSettingsPath}`);
   core.endGroup();
