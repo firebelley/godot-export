@@ -17,6 +17,7 @@ import {
   EXPORT_DEBUG,
   GODOT_VERBOSE,
   GODOT_BUILD_PATH,
+  GODOT_PROJECT_FILE_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -145,8 +146,7 @@ async function getGodotVersion(): Promise<string> {
 
 async function doExport(): Promise<BuildResult[]> {
   const buildResults: BuildResult[] = [];
-  const projectPath = path.resolve(path.join(RELATIVE_PROJECT_PATH, 'project.godot'));
-  core.info(`🎯 Using project file at ${projectPath}`);
+  core.info(`🎯 Using project file at ${GODOT_PROJECT_FILE_PATH}`);
 
   for (const preset of getExportPresets()) {
     const sanitizedName = sanitize(preset.name);
@@ -164,7 +164,7 @@ async function doExport(): Promise<BuildResult[]> {
 
     await io.mkdirP(buildDir);
     const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-    const args = [projectPath, exportFlag, preset.name, executablePath];
+    const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
     if (GODOT_VERBOSE) {
       args.push('--verbose');
     }
@@ -187,17 +187,18 @@ async function doExport(): Promise<BuildResult[]> {
 }
 
 function configureWindowsExport(): void {
-  core.startGroup('📝 Appending wine editor settings');
+  core.startGroup('📝 Appending Wine editor settings');
   const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
   core.info(`Writing rcedit path to editor settings ${rceditPath}`);
   core.info(`Writing wine path to editor settings ${WINE_PATH}`);
 
   const editorSettings = 'editor_settings-3.tres';
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
-  const stream = fs.createWriteStream(editorSettingsPath, { flags: 'a' });
-  stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
-  stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
-  stream.close();
+  fs.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
+  fs.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
+
+  // TODO: remove this
+  core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
   core.info(`Wrote settings to ${editorSettingsPath}`);
   core.endGroup();
 }

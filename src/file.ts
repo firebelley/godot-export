@@ -3,7 +3,13 @@ import path from 'path';
 import * as io from '@actions/io';
 import { exec } from '@actions/exec';
 import * as fs from 'fs';
-import { GODOT_ARCHIVE_PATH, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
+import {
+  ARCHIVE_ROOT_FOLDER,
+  GODOT_ARCHIVE_PATH,
+  GODOT_PROJECT_PATH,
+  RELATIVE_EXPORT_PATH,
+  USE_PRESET_EXPORT_PATH,
+} from './constants';
 import * as core from '@actions/core';
 
 async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
@@ -27,7 +33,7 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
     const macPath = path.join(buildResult.directory, baseName);
     await io.cp(macPath, zipPath);
   } else if (!fs.existsSync(zipPath)) {
-    await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+    await exec('7z', ['a', zipPath, `${buildResult.directory}${ARCHIVE_ROOT_FOLDER ? '' : '/*'}`]);
   }
 
   buildResult.archivePath = zipPath;
@@ -38,7 +44,9 @@ async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArch
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
     const fullExportPath = path.resolve(
-      USE_PRESET_EXPORT_PATH ? path.dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH,
+      USE_PRESET_EXPORT_PATH
+        ? path.join(GODOT_PROJECT_PATH, path.dirname(buildResult.preset.export_path))
+        : RELATIVE_EXPORT_PATH,
     );
 
     await io.mkdirP(fullExportPath);
