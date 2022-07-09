@@ -17,6 +17,7 @@ import {
   EXPORT_DEBUG,
   GODOT_VERBOSE,
   GODOT_BUILD_PATH,
+  GODOT_PROJECT_FILE_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -145,8 +146,7 @@ async function getGodotVersion(): Promise<string> {
 
 async function doExport(): Promise<BuildResult[]> {
   const buildResults: BuildResult[] = [];
-  const projectPath = path.resolve(path.join(RELATIVE_PROJECT_PATH, 'project.godot'));
-  core.info(`🎯 Using project file at ${projectPath}`);
+  core.info(`🎯 Using project file at ${GODOT_PROJECT_FILE_PATH}`);
 
   for (const preset of getExportPresets()) {
     const sanitizedName = sanitize(preset.name);
@@ -164,7 +164,7 @@ async function doExport(): Promise<BuildResult[]> {
 
     await io.mkdirP(buildDir);
     const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-    const args = [projectPath, exportFlag, preset.name, executablePath];
+    const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
     if (GODOT_VERBOSE) {
       args.push('--verbose');
     }

@@ -26,7 +26,7 @@ inputs:
     default: ''
     required: false
   use_preset_export_path:
-    description: If set to true, exports will be moved to directory defined in "export_presets.cfg" relative to the root of the Git repository. Prioritized over "relative_export_path".
+    description: If set to true, exports will be moved to directory defined in "export_presets.cfg" relative to "relative_project_path". Prioritized over "relative_export_path".
     default: false
     required: false
   wine_path:

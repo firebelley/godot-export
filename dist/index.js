@@ -4304,6 +4304,8 @@ const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = external_path_default().join(GODOT_WORKING_PATH, 'archives');
+const GODOT_PROJECT_PATH = external_path_default().resolve(external_path_default().join(RELATIVE_PROJECT_PATH));
+const GODOT_PROJECT_FILE_PATH = __nccwpck_require__.ab + "godot-export/" + GODOT_PROJECT_PATH + '/project.godot';
 
 
 ;// CONCATENATED MODULE: ./src/godot.ts
@@ -4416,8 +4418,7 @@ async function getGodotVersion() {
 }
 async function doExport() {
     const buildResults = [];
-    const projectPath = __nccwpck_require__.ab + "godot-export/" + RELATIVE_PROJECT_PATH + '/project.godot';
-    core.info(`🎯 Using project file at ${projectPath}`);
+    core.info(`🎯 Using project file at ${GODOT_PROJECT_FILE_PATH}`);
     for (const preset of getExportPresets()) {
         const sanitizedName = sanitize_filename_default()(preset.name);
         const buildDir = external_path_.join(GODOT_BUILD_PATH, sanitizedName);
@@ -4431,7 +4432,7 @@ async function doExport() {
         }
         await io.mkdirP(buildDir);
         const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-        const args = [projectPath, exportFlag, preset.name, executablePath];
+        const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
         if (GODOT_VERBOSE) {
             args.push('--verbose');
         }
@@ -4545,7 +4546,9 @@ async function moveBuildsToExportDirectory(buildResults, moveArchived) {
     core.startGroup(`➡️ Moving exports`);
     const promises = [];
     for (const buildResult of buildResults) {
-        const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH ? external_path_default().dirname(buildResult.preset.export_path) : RELATIVE_EXPORT_PATH);
+        const fullExportPath = external_path_default().resolve(USE_PRESET_EXPORT_PATH
+            ? external_path_default().join(GODOT_PROJECT_PATH, external_path_default().dirname(buildResult.preset.export_path))
+            : RELATIVE_EXPORT_PATH);
         await io.mkdirP(fullExportPath);
         let promise;
         if (moveArchived) {
