@@ -124,6 +124,7 @@ Include the following step before this action. For example:
   run: |
     mkdir -p ~/.config/godot
     cp ~/path/to/my/editor_settings-3.tres ~/.config/godot/
+# Note that you can use ${{ github.workspace }} to get the default location of your checked-out repository
 # Use firebelley/godot-export sometime after the above step
 ```
 
