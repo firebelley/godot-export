@@ -27,7 +27,9 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
     const macPath = path.join(buildResult.directory, baseName);
     await io.cp(macPath, zipPath);
   } else if (!fs.existsSync(zipPath)) {
-    await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+    // TODO: only for testing
+    // await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+    await exec('7z', ['a', zipPath, `${buildResult.directory}`]);
   }
 
   buildResult.archivePath = zipPath;

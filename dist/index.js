@@ -4452,7 +4452,7 @@ async function doExport() {
     return buildResults;
 }
 function configureWindowsExport() {
-    core.startGroup('📝 Appending wine editor settings');
+    core.startGroup('📝 Appending Wine editor settings');
     const rceditPath = external_path_.join(__dirname, 'rcedit-x64.exe');
     core.info(`Writing rcedit path to editor settings ${rceditPath}`);
     core.info(`Writing wine path to editor settings ${WINE_PATH}`);
@@ -4462,6 +4462,8 @@ function configureWindowsExport() {
     stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
     stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
     stream.close();
+    // TODO: remove this log
+    core.info(external_fs_.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
     core.info(`Wrote settings to ${editorSettingsPath}`);
     core.endGroup();
 }
@@ -4538,7 +4540,9 @@ async function zipBuildResult(buildResult) {
         await io.cp(macPath, zipPath);
     }
     else if (!external_fs_.existsSync(zipPath)) {
-        await (0,exec.exec)('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+        // TODO: only for testing
+        // await exec('7z', ['a', zipPath, `${buildResult.directory}/*`]);
+        await (0,exec.exec)('7z', ['a', zipPath, `${buildResult.directory}`]);
     }
     buildResult.archivePath = zipPath;
 }

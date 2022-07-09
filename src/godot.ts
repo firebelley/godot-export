@@ -187,7 +187,7 @@ async function doExport(): Promise<BuildResult[]> {
 }
 
 function configureWindowsExport(): void {
-  core.startGroup('📝 Appending wine editor settings');
+  core.startGroup('📝 Appending Wine editor settings');
   const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
   core.info(`Writing rcedit path to editor settings ${rceditPath}`);
   core.info(`Writing wine path to editor settings ${WINE_PATH}`);
@@ -198,6 +198,10 @@ function configureWindowsExport(): void {
   stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
   stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
   stream.close();
+
+  // TODO: remove this log
+  core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
+
   core.info(`Wrote settings to ${editorSettingsPath}`);
   core.endGroup();
 }
