@@ -7,53 +7,43 @@ branding:
 inputs:
   # required inputs
   godot_executable_download_url:
-    description: The download url of the 64 bit Linux Headless Godot executable.
+    description: The download url of the Linux Headless Godot executable.
     required: true
   godot_export_templates_download_url:
     description: The url of the export templates corresponding to the Godot executable version.
     required: true
   relative_project_path:
-    description: The relative path containing the "project.godot" file.
+    description: The path relative to the root of the git repository that contains the "project.godot" file.
     required: true
 
   # optional inputs
-  archive_export_output:
-    description: If exports should be archived.
+  archive_output:
+    description: If "true", exported files will be archived into a ".zip" file.
     default: false
     required: false
-  archive_single_release_output:
-    description: If exports that result in single files should be archived.
-    default: true
-    required: false
-  base_version:
-    description: The version which new releases start at.
-    default: 0.0.1
-    required: false
-  create_release:
-    description: If releases should be automatically created.
-    default: true
-    required: false
-  generate_release_notes:
-    description: If release notes should be automatically generated based on commit history.
-    default: false
+  relative_export_path:
+    description: If provided, exports will be moved to this directory relative to the root of the Git repository. This setting is overridden by "use_preset_export_path".
+    default: ''
     required: false
   use_preset_export_path:
     description: If set to true, exports will be moved to directory defined in "export_presets.cfg" relative to the root of the Git repository. Prioritized over "relative_export_path".
     default: false
-    required: false
-  relative_export_path:
-    description: If provided, exports will be moved to this directory relative to the root of the Git repository.
-    default: ''
     required: false
   wine_path:
     description: The absolute path to the wine binary. If specified, Godot will use this to run rcedit to update Windows exe icons.
     default: ''
     required: false
   export_debug:
-    description: If should export with debugging tools.
+    description: If "true" Godot will export in debug mode.
     default: false
     required: false
 
+outputs:
+  build_directory:
+    description: The directory containing exports prior to archiving (if applicable).
+  archive_directory:
+    description: The directory containing archived exports if "archive_output" is set.
+
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'

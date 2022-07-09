@@ -1,9 +1,9 @@
 import * as core from '@actions/core';
 import { exportBuilds } from './godot';
-import { createRelease } from './release';
 import {
-  SHOULD_CREATE_RELEASE,
-  ARCHIVE_EXPORT_OUTPUT,
+  ARCHIVE_OUTPUT,
+  GODOT_ARCHIVE_PATH,
+  GODOT_BUILD_PATH,
   RELATIVE_EXPORT_PATH,
   USE_PRESET_EXPORT_PATH,
 } from './constants';
@@ -16,18 +16,16 @@ async function main(): Promise<number> {
     return 1;
   }
 
-  if (ARCHIVE_EXPORT_OUTPUT) {
+  if (ARCHIVE_OUTPUT) {
     await zipBuildResults(buildResults);
   }
 
   if (RELATIVE_EXPORT_PATH || USE_PRESET_EXPORT_PATH) {
-    await moveBuildsToExportDirectory(buildResults, ARCHIVE_EXPORT_OUTPUT);
+    await moveBuildsToExportDirectory(buildResults, ARCHIVE_OUTPUT);
   }
 
-  if (SHOULD_CREATE_RELEASE) {
-    await createRelease(buildResults);
-  }
-
+  core.setOutput('build_directory', GODOT_BUILD_PATH);
+  core.setOutput('archive_directory', GODOT_ARCHIVE_PATH);
   return 0;
 }
 

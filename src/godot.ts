@@ -15,6 +15,8 @@ import {
   RELATIVE_PROJECT_PATH,
   WINE_PATH,
   EXPORT_DEBUG,
+  GODOT_VERBOSE,
+  GODOT_BUILD_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -29,11 +31,11 @@ async function exportBuilds(): Promise<BuildResult[]> {
     return [];
   }
 
-  core.startGroup('Download Godot');
+  core.startGroup('🕹️ Download Godot');
   await downloadGodot();
   core.endGroup();
 
-  core.startGroup('Adding Editor Settings');
+  core.startGroup('🔍 Adding Editor Settings');
   await addEditorSettings();
   core.endGroup();
 
@@ -41,7 +43,7 @@ async function exportBuilds(): Promise<BuildResult[]> {
     configureWindowsExport();
   }
 
-  core.startGroup('Export binaries');
+  core.startGroup('✨ Export binaries');
   const results = await doExport();
   core.endGroup();
 
@@ -144,11 +146,11 @@ async function getGodotVersion(): Promise<string> {
 async function doExport(): Promise<BuildResult[]> {
   const buildResults: BuildResult[] = [];
   const projectPath = path.resolve(path.join(RELATIVE_PROJECT_PATH, 'project.godot'));
-  core.info(`Using project file at ${projectPath}`);
+  core.info(`🎯 Using project file at ${projectPath}`);
 
   for (const preset of getExportPresets()) {
     const sanitizedName = sanitize(preset.name);
-    const buildDir = path.join(GODOT_WORKING_PATH, 'builds', sanitizedName);
+    const buildDir = path.join(GODOT_BUILD_PATH, sanitizedName);
 
     let executablePath;
     if (preset.export_path) {
@@ -162,7 +164,11 @@ async function doExport(): Promise<BuildResult[]> {
 
     await io.mkdirP(buildDir);
     const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-    const result = await exec('godot', [projectPath, exportFlag, preset.name, executablePath, '--verbose']);
+    const args = [projectPath, exportFlag, preset.name, executablePath];
+    if (GODOT_VERBOSE) {
+      args.push('--verbose');
+    }
+    const result = await exec('godot', args);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }
@@ -181,7 +187,7 @@ async function doExport(): Promise<BuildResult[]> {
 }
 
 function configureWindowsExport(): void {
-  core.startGroup('Appending wine editor settings');
+  core.startGroup('📝 Appending wine editor settings');
   const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
   core.info(`Writing rcedit path to editor settings ${rceditPath}`);
   core.info(`Writing wine path to editor settings ${WINE_PATH}`);

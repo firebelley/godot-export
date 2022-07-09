@@ -3,11 +3,11 @@ import path from 'path';
 import * as io from '@actions/io';
 import { exec } from '@actions/exec';
 import * as fs from 'fs';
-import { GODOT_WORKING_PATH, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
+import { GODOT_ARCHIVE_PATH, RELATIVE_EXPORT_PATH, USE_PRESET_EXPORT_PATH } from './constants';
 import * as core from '@actions/core';
 
 async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
-  core.startGroup('Zipping binaries');
+  core.startGroup('⚒️ Zipping binaries');
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
     promises.push(zipBuildResult(buildResult));
@@ -17,10 +17,9 @@ async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
 }
 
 async function zipBuildResult(buildResult: BuildResult): Promise<void> {
-  const distPath = path.join(GODOT_WORKING_PATH, 'dist');
-  await io.mkdirP(distPath);
+  await io.mkdirP(GODOT_ARCHIVE_PATH);
 
-  const zipPath = path.join(distPath, `${buildResult.sanitizedName}.zip`);
+  const zipPath = path.join(GODOT_ARCHIVE_PATH, `${buildResult.sanitizedName}.zip`);
 
   // mac exports a zip by default, so just move the file
   if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
@@ -35,7 +34,7 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
 }
 
 async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArchived?: boolean): Promise<void> {
-  core.startGroup(`Moving exports`);
+  core.startGroup(`➡️ Moving exports`);
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
     const fullExportPath = path.resolve(
@@ -51,12 +50,12 @@ async function moveBuildsToExportDirectory(buildResults: BuildResult[], moveArch
         continue;
       }
       const newArchivePath = path.join(fullExportPath, path.basename(buildResult.archivePath));
-      core.info(`Moving ${buildResult.archivePath} to ${newArchivePath}`);
-      promise = io.mv(buildResult.archivePath, newArchivePath);
+      core.info(`Copying ${buildResult.archivePath} to ${newArchivePath}`);
+      promise = io.cp(buildResult.archivePath, newArchivePath);
       buildResult.archivePath = newArchivePath;
     } else {
-      core.info(`Moving ${buildResult.directory} to ${fullExportPath}`);
-      promise = io.mv(buildResult.directory, fullExportPath);
+      core.info(`Copying ${buildResult.directory} to ${fullExportPath}`);
+      promise = io.cp(buildResult.directory, fullExportPath, { recursive: true });
       buildResult.directory = path.join(fullExportPath, path.basename(buildResult.directory));
       buildResult.executablePath = path.join(buildResult.directory, path.basename(buildResult.executablePath));
     }

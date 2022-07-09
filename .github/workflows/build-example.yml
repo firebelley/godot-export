@@ -1,0 +1,40 @@
+on:
+  push:
+    tags:
+      - "v*-test"
+
+jobs:
+  export_game:
+    runs-on: ubuntu-latest
+    name: Export Game Job
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.0.2
+        with:
+          fetch-depth: 0
+      - name: get tag from version
+        id: tag_version
+        run: |
+          echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
+      - name: install wine
+        id: wine_install
+        run: |
+          sudo apt install wine64
+          echo ::set-output name=WINE_PATH::$(which wine64)
+      - name: export game
+        id: export
+        uses: firebelley/godot-export@v4.0.0
+        with:
+          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.5/rc5/Godot_v3.5-rc5_linux_headless.64.zip
+          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.5/rc5/Godot_v3.5-rc5_export_templates.tpz
+          relative_project_path: ./examples/project # build the standard project
+          relative_export_path: ./my/build/destination # move export output to this directory relative to git root
+          archive_output: true
+          wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
+      - name: create release
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
+          files: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
