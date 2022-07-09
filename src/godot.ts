@@ -194,14 +194,11 @@ function configureWindowsExport(): void {
 
   const editorSettings = 'editor_settings-3.tres';
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
-  const stream = fs.createWriteStream(editorSettingsPath, { flags: 'a' });
-  stream.write(`export/windows/rcedit = "${rceditPath}"\n`);
-  stream.write(`export/windows/wine = "${WINE_PATH}"\n`);
-  stream.close(() => {
-    // TODO: remove this log
-    core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
-  });
+  fs.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
+  fs.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
 
+  // TODO: remove this
+  core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
   core.info(`Wrote settings to ${editorSettingsPath}`);
   core.endGroup();
 }
