@@ -62,22 +62,14 @@ function hasExportPresets(): boolean {
 
 async function downloadGodot(): Promise<void> {
   await setupWorkingPath();
-  await Promise.all([setupTemplates(), setupExecutable()]);
+  await Promise.all([downloadTemplates(), downloadExecutable()]);
+  await prepareExecutable();
+  await prepareTemplates();
 }
 
 async function setupWorkingPath(): Promise<void> {
   await io.mkdirP(GODOT_WORKING_PATH);
   core.info(`Working path created ${GODOT_WORKING_PATH}`);
-}
-
-async function setupTemplates(): Promise<void> {
-  await downloadTemplates();
-  await prepareTemplates();
-}
-
-async function setupExecutable(): Promise<void> {
-  await downloadExecutable();
-  await prepareExecutable();
 }
 
 async function downloadTemplates(): Promise<void> {

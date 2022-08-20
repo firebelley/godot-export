@@ -4351,19 +4351,13 @@ function hasExportPresets() {
 }
 async function downloadGodot() {
     await setupWorkingPath();
-    await Promise.all([setupTemplates(), setupExecutable()]);
+    await Promise.all([downloadTemplates(), downloadExecutable()]);
+    await prepareExecutable();
+    await prepareTemplates();
 }
 async function setupWorkingPath() {
     await io.mkdirP(GODOT_WORKING_PATH);
     core.info(`Working path created ${GODOT_WORKING_PATH}`);
-}
-async function setupTemplates() {
-    await downloadTemplates();
-    await prepareTemplates();
-}
-async function setupExecutable() {
-    await downloadExecutable();
-    await prepareExecutable();
 }
 async function downloadTemplates() {
     core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
