@@ -18,6 +18,7 @@ import {
   GODOT_VERBOSE,
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
+  USE_GODOT_4,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -64,7 +65,8 @@ async function downloadGodot(): Promise<void> {
   await setupWorkingPath();
   await Promise.all([downloadTemplates(), downloadExecutable()]);
   await prepareExecutable();
-  await prepareTemplates();
+  if (USE_GODOT_4) await prepareTemplates4();
+  else await prepareTemplates();
 }
 
 async function setupWorkingPath(): Promise<void> {
@@ -114,6 +116,19 @@ async function prepareTemplates(): Promise<void> {
   await exec('mv', [tmpPath, path.join(templatesPath, godotVersion)]);
 }
 
+async function prepareTemplates4(): Promise<void> {
+  const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+  const templatesPath = path.join(GODOT_WORKING_PATH, 'templates');
+  const godotVersion = await getGodotVersion();
+  const godotVersionPath = path.join(GODOT_WORKING_PATH, godotVersion);
+  const exportTemplatesPath = path.join(GODOT_WORKING_PATH, 'export_templates');
+
+  await exec('unzip', [templateFile, '-d', GODOT_WORKING_PATH]);
+  await io.mkdirP(exportTemplatesPath);
+  await exec('mv', [templatesPath, godotVersionPath]);
+  await exec('mv', [godotVersionPath, exportTemplatesPath]);
+}
+
 async function getGodotVersion(): Promise<string> {
   let version = '';
   const options: ExecOptions = {
@@ -157,6 +172,7 @@ async function doExport(): Promise<BuildResult[]> {
     await io.mkdirP(buildDir);
     const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
     const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
+    if (USE_GODOT_4) args.splice(1, 0, '--headless');
     if (GODOT_VERBOSE) {
       args.push('--verbose');
     }
@@ -201,7 +217,7 @@ function findGodotExecutablePath(basePath: string): string | undefined {
   for (const subPath of paths) {
     const fullPath = path.join(basePath, subPath);
     const stats = fs.statSync(fullPath);
-    if (stats.isFile() && path.extname(fullPath) === '.64') {
+    if (stats.isFile() && (path.extname(fullPath) === '.64' || path.extname(fullPath) === '.x86_64')) {
       return fullPath;
     } else {
       dirs.push(fullPath);
