@@ -80,8 +80,8 @@ jobs:
   
     # Automatically stores the tag name for later use
     - name: get tag from version
-        id: tag_version
-        run: |
+      id: tag_version
+      run: |
           echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
   
     - name: export game
