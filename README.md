@@ -102,7 +102,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
-        tag: ${{ steps.tag_version.outputs.TAG_VERSION }}
+        tag: v${{ steps.tag_version.outputs.TAG_VERSION }} # Note that the 'v' in front was necessary to get this action attach artifacts to the tag
         artifacts: ${{ steps.export.outputs.archive_directory }}/*
 ```
 
