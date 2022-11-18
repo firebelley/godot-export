@@ -18,8 +18,8 @@ To test the godot 4 example, change the workflow by using the following build st
   id: export
   uses: firebelley/godot-export@master
   with:
-      godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/beta1/Godot_v4.0-beta1_linux.x86_64.zip
-      godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.0/beta1/Godot_v4.0-beta1_export_templates.tpz
+      godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/beta5/Godot_v4.0-beta5_linux.x86_64.zip
+      godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.0/beta5/Godot_v4.0-beta5_export_templates.tpz
       relative_project_path: ./examples/project-godot-4 # build the godot 4 project
       relative_export_path: ./my/build/destination # move export output to this directory relative to git root
       archive_output: true

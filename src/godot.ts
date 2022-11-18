@@ -171,7 +171,12 @@ async function doExport(): Promise<BuildResult[]> {
     }
 
     await io.mkdirP(buildDir);
-    const exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+    let exportFlag;
+    if (USE_GODOT_4) {
+      exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
+    } else {
+      exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+    }
     const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
     if (USE_GODOT_4) args.splice(1, 0, '--headless');
     if (GODOT_VERBOSE) {
