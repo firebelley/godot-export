@@ -82,7 +82,7 @@ jobs:
     - name: get tag from version
       id: tag_version
       run: |
-          echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
+          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
   
     - name: export game
       id: export
@@ -137,7 +137,7 @@ In order to configure this action to update your game's Windows exe icon, includ
   id: wine_install
   run: |
     sudo apt install wine64
-    echo ::set-output name=WINE_PATH::$(which wine64)
+    echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
 
 # Any other intermediate steps can go here
 
