@@ -96,14 +96,14 @@ jobs:
         archive_output: true
 
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
-      # https://github.com/softprops/action-gh-release
+      # https://github.com/ncipollo/release-action
     - name: create release
-      uses: softprops/action-gh-release@v0.1.14
+      uses: ncipollo/release-action@v1.11.2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        generate_release_notes: true
-        tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-        files: ${{ steps.export.outputs.archive_directory }}/*
+        generateReleaseNotes: true
+        tag: ${{ steps.tag_version.outputs.TAG_VERSION }}
+        artifacts: ${{ steps.export.outputs.archive_directory }}/*
 ```
 
 ## Custom Editor Settings

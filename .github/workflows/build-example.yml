@@ -32,9 +32,9 @@ jobs:
           archive_output: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
       - name: create release
-        uses: softprops/action-gh-release@v0.1.14
+        uses: ncipollo/release-action@v1.11.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-          tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-          files: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
+          generateReleaseNotes: true
+          tag: ${{ steps.tag_version.outputs.TAG_VERSION }}
+          artifacts: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
