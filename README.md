@@ -82,7 +82,7 @@ jobs:
     - name: get tag from version
       id: tag_version
       run: |
-          echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
+          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
   
     - name: export game
       id: export
@@ -96,14 +96,14 @@ jobs:
         archive_output: true
 
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
-      # https://github.com/softprops/action-gh-release
+      # https://github.com/ncipollo/release-action
     - name: create release
-      uses: softprops/action-gh-release@v0.1.14
+      uses: ncipollo/release-action@v1.11.2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        generate_release_notes: true
-        tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-        files: ${{ steps.export.outputs.archive_directory }}/*
+        generateReleaseNotes: true
+        tag: ${{ steps.tag_version.outputs.TAG_VERSION }}
+        artifacts: ${{ steps.export.outputs.archive_directory }}/*
 ```
 
 ## Custom Editor Settings
@@ -137,7 +137,7 @@ In order to configure this action to update your game's Windows exe icon, includ
   id: wine_install
   run: |
     sudo apt install wine64
-    echo ::set-output name=WINE_PATH::$(which wine64)
+    echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
 
 # Any other intermediate steps can go here
 

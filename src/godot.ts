@@ -24,6 +24,7 @@ import {
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
+const EDITOR_SETTINGS_FILENAME = USE_GODOT_4 ? 'editor_settings-4.tres' : 'editor_settings-3.tres';
 
 async function exportBuilds(): Promise<BuildResult[]> {
   if (!hasExportPresets()) {
@@ -200,8 +201,7 @@ function configureWindowsExport(): void {
   core.info(`Writing rcedit path to editor settings ${rceditPath}`);
   core.info(`Writing wine path to editor settings ${WINE_PATH}`);
 
-  const editorSettings = 'editor_settings-3.tres';
-  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
+  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
   fs.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
   fs.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
 
@@ -253,11 +253,10 @@ function getExportPresets(): ExportPreset[] {
 }
 
 async function addEditorSettings(): Promise<void> {
-  const editorSettings = 'editor_settings-3.tres';
-  const editorSettingsDist = path.join(__dirname, editorSettings);
+  const editorSettingsDist = path.join(__dirname, EDITOR_SETTINGS_FILENAME);
   await io.mkdirP(GODOT_CONFIG_PATH);
 
-  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, editorSettings);
+  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
   await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
   core.info(`Wrote editor settings to ${editorSettingsPath}`);
 }

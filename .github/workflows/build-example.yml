@@ -15,12 +15,12 @@ jobs:
       - name: get tag from version
         id: tag_version
         run: |
-          echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/tags/v}
+          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       - name: install wine
         id: wine_install
         run: |
           sudo apt install wine64
-          echo ::set-output name=WINE_PATH::$(which wine64)
+          echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
       - name: export game
         id: export
         uses: firebelley/godot-export@v4.2.0
@@ -32,9 +32,9 @@ jobs:
           archive_output: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
       - name: create release
-        uses: softprops/action-gh-release@v0.1.14
+        uses: ncipollo/release-action@v1.11.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-          tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
-          files: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
+          generateReleaseNotes: true
+          tag: ${{ steps.tag_version.outputs.TAG_VERSION }}
+          artifacts: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
