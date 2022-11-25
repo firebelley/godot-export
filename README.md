@@ -74,9 +74,6 @@ jobs:
       # your project is available for Godot to export
     - name: checkout
       uses: actions/checkout@v3.0.2
-      # Ensure that you get the entire project history
-      with:
-        fetch-depth: 0
   
     # Automatically stores the tag name for later use
     - name: get tag from version

@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3.0.2
-        with:
-          fetch-depth: 0
       - name: get tag from version
         id: tag_version
         run: |
