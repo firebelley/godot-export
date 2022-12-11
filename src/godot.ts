@@ -19,6 +19,7 @@ import {
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
   USE_GODOT_4,
+  INITIAL_IMPORT,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -44,6 +45,10 @@ async function exportBuilds(): Promise<BuildResult[]> {
 
   if (WINE_PATH) {
     configureWindowsExport();
+  }
+
+  if (INITIAL_IMPORT && USE_GODOT_4) {
+    await importProject();
   }
 
   core.startGroup('✨ Export binaries');
@@ -264,6 +269,13 @@ async function addEditorSettings(): Promise<void> {
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
   await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
   core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+
+/** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
+async function importProject(): Promise<void> {
+  core.startGroup('🎲 Import project');
+  await exec('godot', [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+  core.endGroup();
 }
 
 export { exportBuilds };

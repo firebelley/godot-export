@@ -5051,6 +5051,7 @@ const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_4 = core.getInput('use_godot_4') === 'true';
+const INITIAL_IMPORT = core.getInput('initial_import') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
@@ -5085,6 +5086,9 @@ async function exportBuilds() {
     core.endGroup();
     if (WINE_PATH) {
         configureWindowsExport();
+    }
+    if (INITIAL_IMPORT && USE_GODOT_4) {
+        await importProject();
     }
     core.startGroup('✨ Export binaries');
     const results = await doExport();
@@ -5275,6 +5279,12 @@ async function addEditorSettings() {
     const editorSettingsPath = external_path_.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
     await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
     core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+/** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
+async function importProject() {
+    core.startGroup('🎲 Import project');
+    await (0,exec.exec)('godot', [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+    core.endGroup();
 }
 
 

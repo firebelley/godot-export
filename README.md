@@ -41,6 +41,7 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 | `wine_path`                           | The absolute path to the wine binary. If specified, Godot will use this to run rcedit to update Windows exe icons. See the [setup Windows icons](#setup-windows-icons) example configuration.                                                                                        | `string`  | `''`    | No       |
 | `verbose`                             | Use the `--verbose` flag when exporting.                                                                                                                                                                                                                                             | `boolean` | `false` | No       |
 | `use_godot_4`                             | Build using godot 4 executable (NOTE: `godot_executable_download_url` and `godot_export_templates_download_url` still need to be configured to download the correct version. ) | `boolean` | `false` | No |
+| `initial_import`                             | Requires `use_godot_4 = true`. Import all assets before exporting. Useful if the `.godot` directory isn't tracked by git. | `boolean` | `false` | No |
 
 ### Action Outputs
 

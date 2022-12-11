@@ -49,6 +49,10 @@ inputs:
     description: "Build using godot 4 executable (NOTE: `godot_executable_download_url` and `godot_export_templates_download_url` still need to be configured to download the correct version."
     default: false
     required: false
+  initial_import:
+    description: "Requires `use_godot_4 = true`. Import all assets before exporting. Useful if the `.godot` directory isn't tracked by git."
+    default: false
+    required: false
 
 outputs:
   build_directory:
