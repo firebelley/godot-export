@@ -5086,6 +5086,9 @@ async function exportBuilds() {
     if (WINE_PATH) {
         configureWindowsExport();
     }
+    if (USE_GODOT_4) {
+        await importProject();
+    }
     core.startGroup('✨ Export binaries');
     const results = await doExport();
     core.endGroup();
@@ -5275,6 +5278,12 @@ async function addEditorSettings() {
     const editorSettingsPath = external_path_.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
     await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
     core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+/** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
+async function importProject() {
+    core.startGroup('🎲 Import project');
+    await (0,exec.exec)('godot', [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+    core.endGroup();
 }
 
 
