@@ -14,7 +14,6 @@ const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_4 = core.getInput('use_godot_4') === 'true';
-const INITIAL_IMPORT = core.getInput('initial_import') === 'true';
 
 const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = path.resolve(path.join(os.homedir(), '/.config/godot'));
@@ -42,5 +41,4 @@ export {
   USE_PRESET_EXPORT_PATH,
   WINE_PATH,
   USE_GODOT_4,
-  INITIAL_IMPORT,
 };

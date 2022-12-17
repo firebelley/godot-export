@@ -19,7 +19,6 @@ import {
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
   USE_GODOT_4,
-  INITIAL_IMPORT,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -47,7 +46,7 @@ async function exportBuilds(): Promise<BuildResult[]> {
     configureWindowsExport();
   }
 
-  if (INITIAL_IMPORT && USE_GODOT_4) {
+  if (USE_GODOT_4) {
     await importProject();
   }
 
