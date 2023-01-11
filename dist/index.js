@@ -5306,8 +5306,10 @@ async function zipBuildResults(buildResults) {
 async function zipBuildResult(buildResult) {
     await io.mkdirP(GODOT_ARCHIVE_PATH);
     const zipPath = external_path_default().join(GODOT_ARCHIVE_PATH, `${buildResult.sanitizedName}.zip`);
-    // mac exports a zip by default, so just move the file
-    if (buildResult.preset.platform.toLowerCase() === 'mac osx') {
+    const isMac = buildResult.preset.platform.toLowerCase() === 'mac osx';
+    const endsInDotApp = !!buildResult.preset.export_path.match('.app$');
+    // in case mac doesn't export a zip, move the file
+    if (isMac && !endsInDotApp) {
         const baseName = external_path_default().basename(buildResult.preset.export_path);
         const macPath = external_path_default().join(buildResult.directory, baseName);
         await io.cp(macPath, zipPath);
