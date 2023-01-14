@@ -19,6 +19,7 @@ import {
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
   USE_GODOT_4,
+  EXPORT_PACK_ONLY,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -179,7 +180,11 @@ async function doExport(): Promise<BuildResult[]> {
     if (USE_GODOT_4) {
       exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
     } else {
-      exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+      if (EXPORT_PACK_ONLY) {
+        exportFlag = '--export-pack';
+      } else {
+        exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+      }
     }
     const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
     if (USE_GODOT_4) args.splice(1, 0, '--headless');
