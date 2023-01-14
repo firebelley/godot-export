@@ -5194,6 +5194,9 @@ async function doExport() {
             core.warning(`No file path set for preset "${preset.name}". Skipping export!`);
             continue;
         }
+        if (EXPORT_PACK_ONLY) {
+            executablePath += '.pck';
+        }
         await io.mkdirP(buildDir);
         let exportFlag;
         if (USE_GODOT_4) {

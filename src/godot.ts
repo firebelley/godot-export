@@ -175,6 +175,10 @@ async function doExport(): Promise<BuildResult[]> {
       continue;
     }
 
+    if (EXPORT_PACK_ONLY) {
+      executablePath += '.pck';
+    }
+
     await io.mkdirP(buildDir);
     let exportFlag;
     if (USE_GODOT_4) {
