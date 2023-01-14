@@ -180,7 +180,6 @@ async function doExport(): Promise<BuildResult[]> {
     if (USE_GODOT_4) {
       exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
     } else {
-      
       core.info(`exporting mode: ${EXPORT_PACK_ONLY}`);
       if (EXPORT_PACK_ONLY) {
         exportFlag = '--export-pack';
