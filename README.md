@@ -69,6 +69,8 @@ jobs:
   export_game:
     # Always use ubuntu-latest for this action
     runs-on: ubuntu-latest
+    # Add permission for release creation. Can be made narrower according to your needs
+    permissions: write-all
     # Job name, can be anything
     name: Export Game
     steps:
@@ -86,7 +88,7 @@ jobs:
     - name: export game
       id: export
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v4.6.0
+      uses: firebelley/godot-export@v4.7.0
       with:
         # Defining all the required inputs
         godot_executable_download_url: https://github.com/godotengine/godot/releases/download/3.4.4-stable/Godot_v3.4.4-stable_linux_headless.64.zip
@@ -97,11 +99,11 @@ jobs:
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
       # https://github.com/ncipollo/release-action
     - name: create release
-      uses: ncipollo/release-action@v1.11.2
+      uses: ncipollo/release-action@v1.12.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
-        tag: v${{ steps.tag_version.outputs.TAG_VERSION }} # Note that the 'v' in front was necessary to get this action attach artifacts to the tag
+        tag: v${{ steps.tag_version.outputs.TAG_VERSION }} # Note that the 'v' in front was necessary to get this action attach to artifacts to the tag
         artifacts: ${{ steps.export.outputs.archive_directory }}/*
 ```
 
@@ -141,7 +143,7 @@ In order to configure this action to update your game's Windows exe icon, includ
 # Any other intermediate steps can go here
 
 - name: export game
-  uses: firebelley/godot-export@v4.6.0
+  uses: firebelley/godot-export@v4.7.0
   with:
     # ...supply your other options here
     wine_path: ${{ steps.wine_install.outputs.WINE_PATH }} # set the wine path here which is the output of the wine_install step
