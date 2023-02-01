@@ -5051,6 +5051,7 @@ const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_4 = core.getInput('use_godot_4') === 'true';
+const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
@@ -5193,13 +5194,22 @@ async function doExport() {
             core.warning(`No file path set for preset "${preset.name}". Skipping export!`);
             continue;
         }
+        if (EXPORT_PACK_ONLY) {
+            executablePath += '.pck';
+        }
         await io.mkdirP(buildDir);
         let exportFlag;
         if (USE_GODOT_4) {
             exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
         }
         else {
-            exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+            core.info(`exporting mode: ${EXPORT_PACK_ONLY}`);
+            if (EXPORT_PACK_ONLY) {
+                exportFlag = '--export-pack';
+            }
+            else {
+                exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
+            }
         }
         const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
         if (USE_GODOT_4)
