@@ -1,4 +1,4 @@
-[gd_resource type="EditorSettings" format=2]
+[gd_resource type="EditorSettings" format=3]
 
 [resource]
 export/android/android_sdk_path = "/usr/local/lib/android/sdk"
