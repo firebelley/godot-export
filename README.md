@@ -79,12 +79,6 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3.0.2
   
-    # Automatically stores the tag name for later use
-    - name: get tag from version
-      id: tag_version
-      run: |
-          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-  
     - name: export game
       id: export
       # Use latest version (see releases for all versions)
@@ -103,7 +97,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
-        tag: v${{ steps.tag_version.outputs.TAG_VERSION }} # Note that the 'v' in front was necessary to get this action attach to artifacts to the tag
+        tag: ${{ github.ref_name }}
         artifacts: ${{ steps.export.outputs.archive_directory }}/*
 ```
 

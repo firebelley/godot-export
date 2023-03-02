@@ -10,10 +10,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3.0.2
-      - name: get tag from version
-        id: tag_version
-        run: |
-          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       - name: install wine
         id: wine_install
         run: |
@@ -34,5 +30,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
-          tag: v${{ steps.tag_version.outputs.TAG_VERSION }}
+          tag: ${{ github.ref_name }}
           artifacts: ${{ steps.export.outputs.archive_directory }}/* # Added "/*" at the end is glob pattern match for this action
