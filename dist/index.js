@@ -5170,8 +5170,8 @@ async function getGodotVersion() {
     const options = {
         ignoreReturnCode: true,
         listeners: {
-            stdline: (data) => {
-                version += data;
+            stdout: (data) => {
+                version += data.toString('utf-8');
             },
         },
     };
