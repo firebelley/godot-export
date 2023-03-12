@@ -194,9 +194,8 @@ async function doExport(): Promise<BuildResult[]> {
     if (GODOT_VERBOSE) {
       args.push('--verbose');
     }
-    core.startGroup(`🖥️ Exporting preset ${preset.name}`);
+    core.info(`🖥️ Exporting preset ${preset.name}`);
     const result = await exec('godot', args);
-    core.endGroup();
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }
@@ -236,6 +235,7 @@ function findGodotExecutablePath(basePath: string): string | undefined {
   for (const subPath of paths) {
     const fullPath = path.join(basePath, subPath);
     const stats = fs.statSync(fullPath);
+    // || path.basename === 'Godot' && process.platform === 'darwin';
     if (stats.isFile() && (path.extname(fullPath) === '.64' || path.extname(fullPath) === '.x86_64')) {
       return fullPath;
     } else {
