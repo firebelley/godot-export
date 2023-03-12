@@ -61,5 +61,5 @@ outputs:
     description: The directory containing archived exports if "archive_output" is set.
 
 runs:
-  using: 'node18'
+  using: 'node16'
   main: 'dist/index.js'
