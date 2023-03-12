@@ -5052,7 +5052,7 @@ const USE_PRESET_EXPORT_PATH = core.getInput('use_preset_export_path') === 'true
 const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
 const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
-const USE_GODOT_4 = core.getInput('use_godot_4') === 'true';
+const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
 const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
@@ -5074,7 +5074,7 @@ const GODOT_PROJECT_FILE_PATH = external_path_default().join(GODOT_PROJECT_PATH,
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
-const EDITOR_SETTINGS_FILENAME = USE_GODOT_4 ? 'editor_settings-4.tres' : 'editor_settings-3.tres';
+const EDITOR_SETTINGS_FILENAME = USE_GODOT_3 ? 'editor_settings-3.tres' : 'editor_settings-4.tres';
 async function exportBuilds() {
     if (!hasExportPresets()) {
         core.setFailed('No export_presets.cfg found. Please ensure you have defined at least one export via the Godot editor.');
@@ -5088,9 +5088,6 @@ async function exportBuilds() {
     core.endGroup();
     if (WINE_PATH) {
         configureWindowsExport();
-    }
-    if (USE_GODOT_4) {
-        await importProject();
     }
     core.startGroup('✨ Export binaries');
     const results = await doExport();
@@ -5110,10 +5107,12 @@ async function downloadGodot() {
     await setupWorkingPath();
     await Promise.all([downloadTemplates(), downloadExecutable()]);
     await prepareExecutable();
-    if (USE_GODOT_4)
-        await prepareTemplates4();
-    else
+    if (USE_GODOT_3) {
+        await prepareTemplates3();
+    }
+    else {
         await prepareTemplates();
+    }
 }
 async function setupWorkingPath() {
     await io.mkdirP(GODOT_WORKING_PATH);
@@ -5143,7 +5142,7 @@ async function prepareExecutable() {
     core.addPath(external_path_.dirname(finalGodotPath));
     await (0,exec.exec)('chmod', ['+x', finalGodotPath]);
 }
-async function prepareTemplates() {
+async function prepareTemplates3() {
     const templateFile = external_path_.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
     const templatesPath = external_path_.join(GODOT_WORKING_PATH, 'templates');
     const tmpPath = external_path_.join(GODOT_WORKING_PATH, 'tmp');
@@ -5153,7 +5152,7 @@ async function prepareTemplates() {
     await io.mkdirP(templatesPath);
     await (0,exec.exec)('mv', [tmpPath, external_path_.join(templatesPath, godotVersion)]);
 }
-async function prepareTemplates4() {
+async function prepareTemplates() {
     const templateFile = external_path_.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
     const templatesPath = external_path_.join(GODOT_WORKING_PATH, 'templates');
     const godotVersion = await getGodotVersion();
@@ -5200,22 +5199,17 @@ async function doExport() {
             executablePath += '.pck';
         }
         await io.mkdirP(buildDir);
-        let exportFlag;
-        if (USE_GODOT_4) {
-            exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
+        let exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export-release';
+        if (EXPORT_PACK_ONLY) {
+            exportFlag = '--export-pack';
         }
-        else {
-            core.info(`exporting mode: ${EXPORT_PACK_ONLY}`);
-            if (EXPORT_PACK_ONLY) {
-                exportFlag = '--export-pack';
-            }
-            else {
-                exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
-            }
+        if (USE_GODOT_3 && !EXPORT_PACK_ONLY) {
+            exportFlag = EXPORT_DEBUG ? '--export-debug' : '--export';
         }
-        const args = [GODOT_PROJECT_FILE_PATH, exportFlag, preset.name, executablePath];
-        if (USE_GODOT_4)
-            args.splice(1, 0, '--headless');
+        let args = [GODOT_PROJECT_FILE_PATH, '--headless', exportFlag, preset.name, executablePath];
+        if (USE_GODOT_3) {
+            args = args.filter(x => x !== '--headless');
+        }
         if (GODOT_VERBOSE) {
             args.push('--verbose');
         }
@@ -5290,12 +5284,6 @@ async function addEditorSettings() {
     const editorSettingsPath = external_path_.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
     await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
     core.info(`Wrote editor settings to ${editorSettingsPath}`);
-}
-/** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
-async function importProject() {
-    core.startGroup('🎲 Import project');
-    await (0,exec.exec)('godot', [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
-    core.endGroup();
 }
 
 
