@@ -148,12 +148,10 @@ async function getGodotVersion(): Promise<string> {
   };
 
   await exec(godotExecutablePath, ['--version'], options);
-  core.info(`🔴 Version output ${version}`);
-  const versionLines = version.split(/\r?\n/);
+  const versionLines = version.split(/\r?\n|\r|\n/g);
   version = versionLines.pop() || 'unknown';
   version = version.trim();
   version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
-  core.info(`🔴 Determined version ${version}`);
 
   if (!version) {
     throw new Error('Godot version could not be determined.');
