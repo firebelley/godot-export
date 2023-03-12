@@ -5075,6 +5075,7 @@ const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
 const EDITOR_SETTINGS_FILENAME = USE_GODOT_3 ? 'editor_settings-3.tres' : 'editor_settings-4.tres';
+let godotExecutablePath;
 async function exportBuilds() {
     if (!hasExportPresets()) {
         core.setFailed('No export_presets.cfg found. Please ensure you have defined at least one export via the Godot editor.');
@@ -5137,10 +5138,11 @@ async function prepareExecutable() {
         throw new Error('Could not find Godot executable');
     }
     core.info(`Found executable at ${executablePath}`);
-    const finalGodotPath = external_path_.join(external_path_.dirname(executablePath), 'godot');
-    await (0,exec.exec)('mv', [executablePath, finalGodotPath]);
-    core.addPath(external_path_.dirname(finalGodotPath));
-    await (0,exec.exec)('chmod', ['+x', finalGodotPath]);
+    // const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
+    // await exec('mv', [executablePath, finalGodotPath]);
+    // core.addPath(path.dirname(executablePath));
+    await (0,exec.exec)('chmod', ['+x', executablePath]);
+    godotExecutablePath = executablePath;
 }
 async function prepareTemplates3() {
     const templateFile = external_path_.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
@@ -5173,7 +5175,7 @@ async function getGodotVersion() {
             },
         },
     };
-    await (0,exec.exec)('godot', ['--version'], options);
+    await (0,exec.exec)(godotExecutablePath, ['--version'], options);
     version = version.trim();
     version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
     if (!version) {
@@ -5214,7 +5216,7 @@ async function doExport() {
             args.push('--verbose');
         }
         core.info(`🖥️ Exporting preset ${preset.name}`);
-        const result = await (0,exec.exec)('godot', args);
+        const result = await (0,exec.exec)(godotExecutablePath, args);
         if (result !== 0) {
             throw new Error('1 or more exports failed');
         }
@@ -5249,8 +5251,14 @@ function findGodotExecutablePath(basePath) {
         const fullPath = external_path_.join(basePath, subPath);
         const stats = external_fs_.statSync(fullPath);
         // || path.basename === 'Godot' && process.platform === 'darwin';
-        if (stats.isFile() && (external_path_.extname(fullPath) === '.64' || external_path_.extname(fullPath) === '.x86_64')) {
+        const isLinux = stats.isFile() && (external_path_.extname(fullPath) === '.64' || external_path_.extname(fullPath) === '.x86_64');
+        const isMac = stats.isDirectory() && external_path_.extname(fullPath) === '.app' && process.platform === 'darwin';
+        if (isLinux) {
             return fullPath;
+        }
+        else if (isMac) {
+            // https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
+            return external_path_.join(fullPath, 'Contents/MacOS/Godot');
         }
         else {
             dirs.push(fullPath);

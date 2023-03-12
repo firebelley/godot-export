@@ -27,6 +27,8 @@ const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
 const EDITOR_SETTINGS_FILENAME = USE_GODOT_3 ? 'editor_settings-3.tres' : 'editor_settings-4.tres';
 
+let godotExecutablePath: string;
+
 async function exportBuilds(): Promise<BuildResult[]> {
   if (!hasExportPresets()) {
     core.setFailed(
@@ -103,10 +105,11 @@ async function prepareExecutable(): Promise<void> {
   }
   core.info(`Found executable at ${executablePath}`);
 
-  const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
-  await exec('mv', [executablePath, finalGodotPath]);
-  core.addPath(path.dirname(finalGodotPath));
-  await exec('chmod', ['+x', finalGodotPath]);
+  // const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
+  // await exec('mv', [executablePath, finalGodotPath]);
+  // core.addPath(path.dirname(executablePath));
+  await exec('chmod', ['+x', executablePath]);
+  godotExecutablePath = executablePath;
 }
 
 async function prepareTemplates3(): Promise<void> {
@@ -145,7 +148,7 @@ async function getGodotVersion(): Promise<string> {
     },
   };
 
-  await exec('godot', ['--version'], options);
+  await exec(godotExecutablePath, ['--version'], options);
   version = version.trim();
   version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
 
@@ -195,7 +198,7 @@ async function doExport(): Promise<BuildResult[]> {
       args.push('--verbose');
     }
     core.info(`🖥️ Exporting preset ${preset.name}`);
-    const result = await exec('godot', args);
+    const result = await exec(godotExecutablePath, args);
     if (result !== 0) {
       throw new Error('1 or more exports failed');
     }
@@ -236,8 +239,13 @@ function findGodotExecutablePath(basePath: string): string | undefined {
     const fullPath = path.join(basePath, subPath);
     const stats = fs.statSync(fullPath);
     // || path.basename === 'Godot' && process.platform === 'darwin';
-    if (stats.isFile() && (path.extname(fullPath) === '.64' || path.extname(fullPath) === '.x86_64')) {
+    const isLinux = stats.isFile() && (path.extname(fullPath) === '.64' || path.extname(fullPath) === '.x86_64');
+    const isMac = stats.isDirectory() && path.extname(fullPath) === '.app' && process.platform === 'darwin';
+    if (isLinux) {
       return fullPath;
+    } else if (isMac) {
+      // https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
+      return path.join(fullPath, 'Contents/MacOS/Godot');
     } else {
       dirs.push(fullPath);
     }
