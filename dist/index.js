@@ -5180,7 +5180,7 @@ async function getGodotVersion() {
     //     },
     //   },
     // };
-    let version = external_child_process_default().execSync([godotExecutablePath, '--version'].join(' ')).toString();
+    let version = external_child_process_default().execSync([godotExecutablePath, '--version'].join(' '), { encoding: 'utf-8' }).toString();
     // await exec(godotExecutablePath, ['--version'], options);
     core.info(`🔴 Version output ${version}`);
     version = version.trim();

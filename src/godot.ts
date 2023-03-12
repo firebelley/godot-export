@@ -149,7 +149,7 @@ async function getGodotVersion(): Promise<string> {
   //   },
   // };
 
-  let version = childProcess.execSync([godotExecutablePath, '--version'].join(' ')).toString();
+  let version = childProcess.execSync([godotExecutablePath, '--version'].join(' '), { encoding: 'utf-8' }).toString();
   // await exec(godotExecutablePath, ['--version'], options);
   core.info(`🔴 Version output ${version}`);
   version = version.trim();
