@@ -5062,9 +5062,6 @@ const GODOT_PROJECT_PATH = external_path_default().resolve(external_path_default
 const GODOT_PROJECT_FILE_PATH = external_path_default().join(GODOT_PROJECT_PATH, 'project.godot');
 
 
-// EXTERNAL MODULE: external "child_process"
-var external_child_process_ = __nccwpck_require__(2081);
-var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
 ;// CONCATENATED MODULE: ./src/godot.ts
 
 
@@ -5072,8 +5069,6 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 
 
 
-
-// import { ExecOptions } from '@actions/exec/lib/interfaces';
 
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -5171,18 +5166,19 @@ async function prepareTemplates() {
     await (0,exec.exec)('mv', [godotVersionPath, exportTemplatesPath]);
 }
 async function getGodotVersion() {
-    // let version = '';
-    // const options: ExecOptions = {
-    //   ignoreReturnCode: true,
-    //   listeners: {
-    //     stdout: (data: Buffer) => {
-    //       version += data.toString('utf-8');
-    //     },
-    //   },
-    // };
-    let version = external_child_process_default().execSync([godotExecutablePath, '--version'].join(' '), { encoding: 'utf-8' }).toString();
-    // await exec(godotExecutablePath, ['--version'], options);
+    let version = '';
+    const options = {
+        ignoreReturnCode: true,
+        listeners: {
+            stdout: (data) => {
+                version += data.toString('utf-8');
+            },
+        },
+    };
+    await (0,exec.exec)(godotExecutablePath, ['--version'], options);
     core.info(`🔴 Version output ${version}`);
+    const versionLines = version.split(/\r?\n/);
+    version = versionLines.pop() || 'unknown';
     version = version.trim();
     version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
     core.info(`🔴 Determined version ${version}`);

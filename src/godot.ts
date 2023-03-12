@@ -1,4 +1,4 @@
-import { exec } from '@actions/exec';
+import { exec, ExecOptions } from '@actions/exec';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import * as ini from 'ini';
 import { ExportPresets, ExportPreset, BuildResult } from './types/GodotExport';
 import sanitize from 'sanitize-filename';
-// import { ExecOptions } from '@actions/exec/lib/interfaces';
 import {
   GODOT_CONFIG_PATH,
   GODOT_DOWNLOAD_URL,
@@ -21,7 +20,6 @@ import {
   EXPORT_PACK_ONLY,
   USE_GODOT_3,
 } from './constants';
-import childProcess from 'child_process';
 
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
@@ -139,19 +137,20 @@ async function prepareTemplates(): Promise<void> {
 }
 
 async function getGodotVersion(): Promise<string> {
-  // let version = '';
-  // const options: ExecOptions = {
-  //   ignoreReturnCode: true,
-  //   listeners: {
-  //     stdout: (data: Buffer) => {
-  //       version += data.toString('utf-8');
-  //     },
-  //   },
-  // };
+  let version = '';
+  const options: ExecOptions = {
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        version += data.toString('utf-8');
+      },
+    },
+  };
 
-  let version = childProcess.execSync([godotExecutablePath, '--version'].join(' '), { encoding: 'utf-8' }).toString();
-  // await exec(godotExecutablePath, ['--version'], options);
+  await exec(godotExecutablePath, ['--version'], options);
   core.info(`🔴 Version output ${version}`);
+  const versionLines = version.split(/\r?\n/);
+  version = versionLines.pop() || 'unknown';
   version = version.trim();
   version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
   core.info(`🔴 Determined version ${version}`);
