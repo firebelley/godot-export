@@ -5054,7 +5054,10 @@ const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
-const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), process.platform === 'darwin' ? 'Library/Application\\ Support/Godot' : '/.local/share/godot'));
+const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.local/share/godot'));
+const GODOT_EXPORT_TEMPLATES_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), process.platform === 'darwin'
+    ? 'Library/Application Support/Godot/export_templates'
+    : '/.local/share/godot/export_templates'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = external_path_default().join(GODOT_WORKING_PATH, 'archives');
@@ -5159,11 +5162,10 @@ async function prepareTemplates() {
     const templatesPath = external_path_.join(GODOT_WORKING_PATH, 'templates');
     const godotVersion = await getGodotVersion();
     const godotVersionPath = external_path_.join(GODOT_WORKING_PATH, godotVersion);
-    const exportTemplatesPath = external_path_.join(GODOT_WORKING_PATH, 'export_templates');
     await (0,exec.exec)('unzip', [templateFile, '-d', GODOT_WORKING_PATH]);
-    await io.mkdirP(exportTemplatesPath);
+    await io.mkdirP(GODOT_EXPORT_TEMPLATES_PATH);
     await (0,exec.exec)('mv', [templatesPath, godotVersionPath]);
-    await (0,exec.exec)('mv', [godotVersionPath, exportTemplatesPath]);
+    await (0,exec.exec)('mv', [godotVersionPath, GODOT_EXPORT_TEMPLATES_PATH]);
 }
 async function getGodotVersion() {
     let version = '';

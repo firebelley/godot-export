@@ -16,10 +16,13 @@ const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
 
-const GODOT_WORKING_PATH = path.resolve(
+const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
+const GODOT_EXPORT_TEMPLATES_PATH = path.resolve(
   path.join(
     os.homedir(),
-    process.platform === 'darwin' ? 'Library/Application\\ Support/Godot' : '/.local/share/godot',
+    process.platform === 'darwin'
+      ? 'Library/Application Support/Godot/export_templates'
+      : '/.local/share/godot/export_templates',
   ),
 );
 const GODOT_CONFIG_PATH = path.resolve(path.join(os.homedir(), '/.config/godot'));
@@ -38,6 +41,7 @@ export {
   GODOT_BUILD_PATH,
   GODOT_CONFIG_PATH,
   GODOT_DOWNLOAD_URL,
+  GODOT_EXPORT_TEMPLATES_PATH,
   GODOT_PROJECT_FILE_PATH,
   GODOT_PROJECT_PATH,
   GODOT_TEMPLATES_DOWNLOAD_URL,

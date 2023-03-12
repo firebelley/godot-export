@@ -19,6 +19,7 @@ import {
   GODOT_PROJECT_FILE_PATH,
   EXPORT_PACK_ONLY,
   USE_GODOT_3,
+  GODOT_EXPORT_TEMPLATES_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -128,12 +129,11 @@ async function prepareTemplates(): Promise<void> {
   const templatesPath = path.join(GODOT_WORKING_PATH, 'templates');
   const godotVersion = await getGodotVersion();
   const godotVersionPath = path.join(GODOT_WORKING_PATH, godotVersion);
-  const exportTemplatesPath = path.join(GODOT_WORKING_PATH, 'export_templates');
 
   await exec('unzip', [templateFile, '-d', GODOT_WORKING_PATH]);
-  await io.mkdirP(exportTemplatesPath);
+  await io.mkdirP(GODOT_EXPORT_TEMPLATES_PATH);
   await exec('mv', [templatesPath, godotVersionPath]);
-  await exec('mv', [godotVersionPath, exportTemplatesPath]);
+  await exec('mv', [godotVersionPath, GODOT_EXPORT_TEMPLATES_PATH]);
 }
 
 async function getGodotVersion(): Promise<string> {
