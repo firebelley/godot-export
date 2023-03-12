@@ -50,7 +50,7 @@ inputs:
     default: false
     required: false
   export_as_pack:
-    description: "Export project files as a .pck file"
+    description: Export project files as a .pck file.
     default: false
     required: false
 

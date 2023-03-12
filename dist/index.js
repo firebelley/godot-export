@@ -5213,7 +5213,9 @@ async function doExport() {
         if (GODOT_VERBOSE) {
             args.push('--verbose');
         }
+        core.startGroup(`🖥️ Exporting preset ${preset.name}`);
         const result = await (0,exec.exec)('godot', args);
+        core.endGroup();
         if (result !== 0) {
             throw new Error('1 or more exports failed');
         }
