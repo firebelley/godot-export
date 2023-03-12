@@ -5180,7 +5180,6 @@ async function getGodotVersion() {
     await (0,exec.exec)(godotExecutablePath, ['--version'], options);
     let versionLines = version.split(/\r?\n|\r|\n/g);
     versionLines = versionLines.filter(x => !!x.trim());
-    core.info(`Version lines: ${versionLines.join(',')}`);
     version = versionLines.pop() || 'unknown';
     version = version.trim();
     version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
