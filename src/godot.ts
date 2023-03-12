@@ -142,8 +142,8 @@ async function getGodotVersion(): Promise<string> {
   const options: ExecOptions = {
     ignoreReturnCode: true,
     listeners: {
-      stdout: (data: Buffer) => {
-        version += data.toString();
+      stdline: (data: string) => {
+        version += data;
       },
     },
   };
