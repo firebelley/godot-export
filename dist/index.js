@@ -5054,7 +5054,7 @@ const GODOT_VERBOSE = core.getInput('verbose') === 'true';
 const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
-const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), process.platform === 'darwin' ? 'Library/Application Support/Godot' : '/.local/share/godot'));
+const GODOT_WORKING_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), process.platform === 'darwin' ? 'Library/Application\\ Support/Godot' : '/.local/share/godot'));
 const GODOT_CONFIG_PATH = external_path_default().resolve(external_path_default().join(external_os_.homedir(), '/.config/godot'));
 const GODOT_BUILD_PATH = external_path_default().join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = external_path_default().join(GODOT_WORKING_PATH, 'archives');
