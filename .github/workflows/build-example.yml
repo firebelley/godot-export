@@ -19,9 +19,9 @@ jobs:
         id: export
         uses: firebelley/godot-export@v5.0.0
         with:
-          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/3.5/rc5/Godot_v3.5-rc5_linux_headless.64.zip
-          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/3.5/rc5/Godot_v3.5-rc5_export_templates.tpz
-          relative_project_path: ./examples/project # build the standard project
+          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_export_templates.tpz
+          relative_project_path: ./examples/project-godot-4 # build the standard project
           relative_export_path: ./my/build/destination # move export output to this directory relative to git root
           archive_output: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
