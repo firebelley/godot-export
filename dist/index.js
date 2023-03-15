@@ -5244,7 +5244,6 @@ function configureWindowsExport() {
     const editorSettingsPath = external_path_.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
     external_fs_.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
     external_fs_.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
-    // TODO: remove this
     core.info(external_fs_.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
     core.info(`Wrote settings to ${editorSettingsPath}`);
     core.endGroup();

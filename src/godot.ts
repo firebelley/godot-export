@@ -105,9 +105,6 @@ async function prepareExecutable(): Promise<void> {
   }
   core.info(`Found executable at ${executablePath}`);
 
-  // const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
-  // await exec('mv', [executablePath, finalGodotPath]);
-  // core.addPath(path.dirname(executablePath));
   await exec('chmod', ['+x', executablePath]);
   godotExecutablePath = executablePath;
 }
@@ -228,7 +225,6 @@ function configureWindowsExport(): void {
   fs.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
   fs.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
 
-  // TODO: remove this
   core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
   core.info(`Wrote settings to ${editorSettingsPath}`);
   core.endGroup();
