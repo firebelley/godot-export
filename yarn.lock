@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@actions/io/-/io-1.0.1.tgz#81a9418fe2bbdef2d2717a8e9f85188b9c565aca"
   integrity sha512-rhq+tfZukbtaus7xyUtwKfuiCRXd1hWSfmJNEpFgBQJ4woqPEpsBw04awicjwz9tyG2/MVhAEMfVn664Cri5zA==
 
-"@actions/io@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@actions/io/-/io-1.1.2.tgz#766ac09674a289ce0f1550ffe0a6eac9261a8ea9"
-  integrity sha512-d+RwPlMp+2qmBfeLYPLXuSRykDIFEwdTA0MMxzS9kh4kvP1ftrc/9fzy6pX6qAjthdXruHQ6/6kjT/DNo5ALuw==
+"@actions/io@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@actions/io/-/io-1.1.3.tgz#4cdb6254da7962b07473ff5c335f3da485d94d71"
+  integrity sha512-wi9JjgKLYS7U/z8PPbco+PvTb/nRWjeoFlJ1Qer83k/3C5PHQi28hiVdeE2kHXmIL99mQFawx8qt/JPjZilJ8Q==
 
 "@babel/runtime@^7.20.7":
   version "7.20.13"
@@ -137,10 +137,10 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/node@^17.0.42":
-  version "17.0.42"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.42.tgz#d7e8f22700efc94d125103075c074396b5f41f9b"
-  integrity sha512-Q5BPGyGKcvQgAMbsr7qEGN/kIPN6zZecYYABeTDBizOsau+2NMdSVTar9UQw21A2+JyA2KRNDYaYrPB0Rpk2oQ==
+"@types/node@^18.16.2":
+  version "18.16.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.16.2.tgz#2f610ea71034b3971c312192377f8a7178eb57f1"
+  integrity sha512-GQW/JL/5Fz/0I8RpeBG9lKp0+aNcXEaVL71c0D2Q0QHDTFvlYKT7an0onCUXj85anv7b4/WesqdfchLc0jtsCg==
 
 "@types/semver@^7.3.12":
   version "7.3.13"
@@ -1299,10 +1299,10 @@ inherits@2:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
-ini@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-3.0.1.tgz#c76ec81007875bc44d544ff7a11a55d12294102d"
-  integrity sha512-it4HyVAUTKBc6m8e1iXWvXSTdndF7HbdN713+kvLrymxTaU4AUBWrJ4vEooP+V7fexnVD3LKcBshjGGPefSMUQ==
+ini@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-4.1.0.tgz#3bca65a0ae224f07f8f8b3392d8c94a7f1bb007b"
+  integrity sha512-HLR38RSF2iulAzc3I/sma4CoYxQP844rPYCNfzGDOHqa/YqVlwuuZgBx6M50/X8dKgzk0cm1qRg3+47mK2N+cQ==
 
 internal-slot@^1.0.3:
   version "1.0.3"
