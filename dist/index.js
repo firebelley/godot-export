@@ -3031,11 +3031,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rename = exports.readlink = exports.readdir = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
+exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
-_a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+_a = fs.promises
+// export const {open} = 'fs'
+, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+// export const {open} = 'fs'
 exports.IS_WINDOWS = process.platform === 'win32';
+// See https://github.com/nodejs/node/blob/d0153aee367422d0858105abec186da4dff0a0c5/deps/uv/include/uv/win.h#L691
+exports.UV_FS_O_EXLOCK = 0x10000000;
+exports.READONLY = fs.constants.O_RDONLY;
 function exists(fsPath) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -3216,12 +3222,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
 const assert_1 = __nccwpck_require__(9491);
-const childProcess = __importStar(__nccwpck_require__(2081));
 const path = __importStar(__nccwpck_require__(1017));
-const util_1 = __nccwpck_require__(3837);
 const ioUtil = __importStar(__nccwpck_require__(1962));
-const exec = util_1.promisify(childProcess.exec);
-const execFile = util_1.promisify(childProcess.execFile);
 /**
  * Copies a file or folder.
  * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
@@ -3302,61 +3304,23 @@ exports.mv = mv;
 function rmRF(inputPath) {
     return __awaiter(this, void 0, void 0, function* () {
         if (ioUtil.IS_WINDOWS) {
-            // Node doesn't provide a delete operation, only an unlink function. This means that if the file is being used by another
-            // program (e.g. antivirus), it won't be deleted. To address this, we shell out the work to rd/del.
             // Check for invalid characters
             // https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file
             if (/[*"<>|]/.test(inputPath)) {
                 throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
             }
-            try {
-                const cmdPath = ioUtil.getCmdPath();
-                if (yield ioUtil.isDirectory(inputPath, true)) {
-                    yield exec(`${cmdPath} /s /c "rd /s /q "%inputPath%""`, {
-                        env: { inputPath }
-                    });
-                }
-                else {
-                    yield exec(`${cmdPath} /s /c "del /f /a "%inputPath%""`, {
-                        env: { inputPath }
-                    });
-                }
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-            // Shelling out fails to remove a symlink folder with missing source, this unlink catches that
-            try {
-                yield ioUtil.unlink(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
         }
-        else {
-            let isDir = false;
-            try {
-                isDir = yield ioUtil.isDirectory(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-                return;
-            }
-            if (isDir) {
-                yield execFile(`rm`, [`-rf`, `${inputPath}`]);
-            }
-            else {
-                yield ioUtil.unlink(inputPath);
-            }
+        try {
+            // note if path does not exist, error is silent
+            yield ioUtil.rm(inputPath, {
+                force: true,
+                maxRetries: 3,
+                recursive: true,
+                retryDelay: 300
+            });
+        }
+        catch (err) {
+            throw new Error(`File was unable to be removed ${err}`);
         }
     });
 }
@@ -3533,50 +3497,71 @@ function copyFile(srcFile, destFile, force) {
 
 const { hasOwnProperty } = Object.prototype
 
-/* istanbul ignore next */
-const eol = typeof process !== 'undefined' &&
-  process.platform === 'win32' ? '\r\n' : '\n'
-
-const encode = (obj, opt) => {
-  const children = []
-  let out = ''
-
+const encode = (obj, opt = {}) => {
   if (typeof opt === 'string') {
-    opt = {
-      section: opt,
-      whitespace: false,
-    }
-  } else {
-    opt = opt || Object.create(null)
-    opt.whitespace = opt.whitespace === true
+    opt = { section: opt }
+  }
+  opt.align = opt.align === true
+  opt.newline = opt.newline === true
+  opt.sort = opt.sort === true
+  opt.whitespace = opt.whitespace === true || opt.align === true
+  /* istanbul ignore next */
+  opt.platform = opt.platform || process?.platform
+  opt.bracketedArray = opt.bracketedArray !== false
+
+  /* istanbul ignore next */
+  const eol = opt.platform === 'win32' ? '\r\n' : '\n'
+  const separator = opt.whitespace ? ' = ' : '='
+  const children = []
+
+  const keys = opt.sort ? Object.keys(obj).sort() : Object.keys(obj)
+
+  let padToChars = 0
+  // If aligning on the separator, then padToChars is determined as follows:
+  // 1. Get the keys
+  // 2. Exclude keys pointing to objects unless the value is null or an array
+  // 3. Add `[]` to array keys
+  // 4. Ensure non empty set of keys
+  // 5. Reduce the set to the longest `safe` key
+  // 6. Get the `safe` length
+  if (opt.align) {
+    padToChars = safe(
+      (
+        keys
+          .filter(k => obj[k] === null || Array.isArray(obj[k]) || typeof obj[k] !== 'object')
+          .map(k => Array.isArray(obj[k]) ? `${k}[]` : k)
+      )
+        .concat([''])
+        .reduce((a, b) => safe(a).length >= safe(b).length ? a : b)
+    ).length
   }
 
-  const separator = opt.whitespace ? ' = ' : '='
+  let out = ''
+  const arraySuffix = opt.bracketedArray ? '[]' : ''
 
-  for (const k of Object.keys(obj)) {
+  for (const k of keys) {
     const val = obj[k]
     if (val && Array.isArray(val)) {
       for (const item of val) {
-        out += safe(k + '[]') + separator + safe(item) + eol
+        out += safe(`${k}${arraySuffix}`).padEnd(padToChars, ' ') + separator + safe(item) + eol
       }
     } else if (val && typeof val === 'object') {
       children.push(k)
     } else {
-      out += safe(k) + separator + safe(val) + eol
+      out += safe(k).padEnd(padToChars, ' ') + separator + safe(val) + eol
     }
   }
 
   if (opt.section && out.length) {
-    out = '[' + safe(opt.section) + ']' + eol + out
+    out = '[' + safe(opt.section) + ']' + (opt.newline ? eol + eol : eol) + out
   }
 
   for (const k of children) {
-    const nk = dotSplit(k).join('\\.')
+    const nk = splitSections(k, '.').join('\\.')
     const section = (opt.section ? opt.section + '.' : '') + nk
-    const { whitespace } = opt
     const child = encode(obj[k], {
+      ...opt,
       section,
-      whitespace,
     })
     if (out.length && child.length) {
       out += eol
@@ -3588,24 +3573,44 @@ const encode = (obj, opt) => {
   return out
 }
 
-const dotSplit = str =>
-  str.replace(/\1/g, '\u0002LITERAL\\1LITERAL\u0002')
-    .replace(/\\\./g, '\u0001')
-    .split(/\./)
-    .map(part =>
-      part.replace(/\1/g, '\\.')
-        .replace(/\2LITERAL\\1LITERAL\2/g, '\u0001'))
+function splitSections (str, separator) {
+  var lastMatchIndex = 0
+  var lastSeparatorIndex = 0
+  var nextIndex = 0
+  var sections = []
 
-const decode = str => {
+  do {
+    nextIndex = str.indexOf(separator, lastMatchIndex)
+
+    if (nextIndex !== -1) {
+      lastMatchIndex = nextIndex + separator.length
+
+      if (nextIndex > 0 && str[nextIndex - 1] === '\\') {
+        continue
+      }
+
+      sections.push(str.slice(lastSeparatorIndex, nextIndex))
+      lastSeparatorIndex = nextIndex + separator.length
+    }
+  } while (nextIndex !== -1)
+
+  sections.push(str.slice(lastSeparatorIndex))
+
+  return sections
+}
+
+const decode = (str, opt = {}) => {
+  opt.bracketedArray = opt.bracketedArray !== false
   const out = Object.create(null)
   let p = out
   let section = null
-  //          section     |key      = value
-  const re = /^\[([^\]]*)\]$|^([^=]+)(=(.*))?$/i
+  //          section          |key      = value
+  const re = /^\[([^\]]*)\]\s*$|^([^=]+)(=(.*))?$/i
   const lines = str.split(/[\r\n]+/g)
+  const duplicates = {}
 
   for (const line of lines) {
-    if (!line || line.match(/^\s*[;#]/)) {
+    if (!line || line.match(/^\s*[;#]/) || line.match(/^\s*$/)) {
       continue
     }
     const match = line.match(re)
@@ -3624,7 +3629,13 @@ const decode = str => {
       continue
     }
     const keyRaw = unsafe(match[2])
-    const isArray = keyRaw.length > 2 && keyRaw.slice(-2) === '[]'
+    let isArray
+    if (opt.bracketedArray) {
+      isArray = keyRaw.length > 2 && keyRaw.slice(-2) === '[]'
+    } else {
+      duplicates[keyRaw] = (duplicates?.[keyRaw] || 0) + 1
+      isArray = duplicates[keyRaw] > 1
+    }
     const key = isArray ? keyRaw.slice(0, -2) : keyRaw
     if (key === '__proto__') {
       continue
@@ -3665,7 +3676,7 @@ const decode = str => {
 
     // see if the parent section is also an object.
     // if so, add it to that, and mark this one for deletion
-    const parts = dotSplit(k)
+    const parts = splitSections(k, '.')
     p = out
     const l = parts.pop()
     const nl = l.replace(/\\\./g, '.')
@@ -5093,6 +5104,9 @@ async function exportBuilds() {
     if (WINE_PATH) {
         configureWindowsExport();
     }
+    if (!USE_GODOT_3) {
+        await importProject();
+    }
     core.startGroup('✨ Export binaries');
     const results = await doExport();
     core.endGroup();
@@ -5141,9 +5155,6 @@ async function prepareExecutable() {
         throw new Error('Could not find Godot executable');
     }
     core.info(`Found executable at ${executablePath}`);
-    // const finalGodotPath = path.join(path.dirname(executablePath), 'godot');
-    // await exec('mv', [executablePath, finalGodotPath]);
-    // core.addPath(path.dirname(executablePath));
     await (0,exec.exec)('chmod', ['+x', executablePath]);
     godotExecutablePath = executablePath;
 }
@@ -5298,6 +5309,12 @@ async function addEditorSettings() {
     const editorSettingsPath = external_path_.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
     await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
     core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+/** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
+async function importProject() {
+    core.startGroup('🎲 Import project');
+    await (0,exec.exec)(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+    core.endGroup();
 }
 
 

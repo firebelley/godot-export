@@ -82,7 +82,7 @@ jobs:
     - name: export game
       id: export
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v5.0.0
+      uses: firebelley/godot-export@v5.1.0
       with:
         # Defining all the required inputs
         godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_linux.x86_64.zip
@@ -137,7 +137,7 @@ In order to configure this action to update your game's Windows exe icon, includ
 # Any other intermediate steps can go here
 
 - name: export game
-  uses: firebelley/godot-export@v5.0.0
+  uses: firebelley/godot-export@v5.1.0
   with:
     # ...supply your other options here
     wine_path: ${{ steps.wine_install.outputs.WINE_PATH }} # set the wine path here which is the output of the wine_install step
