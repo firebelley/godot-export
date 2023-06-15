@@ -21,9 +21,8 @@ import {
   EXPORT_PACK_ONLY,
   USE_GODOT_3,
   GODOT_EXPORT_TEMPLATES_PATH,
+  CACHE_ACTIVE,
 } from './constants';
-
-const CACHE_ACTIVE = true;
 
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
