@@ -1,5 +1,6 @@
 import { exec, ExecOptions } from '@actions/exec';
 import * as core from '@actions/core';
+import * as cache from '@actions/cache';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -86,17 +87,31 @@ async function setupWorkingPath(): Promise<void> {
 }
 
 async function downloadTemplates(): Promise<void> {
-  core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
-
-  const file = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
-  await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', file]);
+  const templatesPath = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
+  const cacheKey = `godot-templates-${GODOT_TEMPLATES_DOWNLOAD_URL}`;
+  const restoreKey = `godot-templates-`;
+  const cacheHit = await cache.restoreCache([templatesPath], cacheKey, [restoreKey]);
+  if (!cacheHit) {
+    core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
+    await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', templatesPath]);
+    await cache.saveCache([templatesPath], cacheKey);
+  } else {
+    core.info(`Restored cached Godot export templates from ${cacheHit}`);
+  }
 }
 
 async function downloadExecutable(): Promise<void> {
-  core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
-
-  const file = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
-  await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', file]);
+  const executablePath = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
+  const cacheKey = `godot-executable-${GODOT_DOWNLOAD_URL}`;
+  const restoreKey = `godot-executable-`;
+  const cacheHit = await cache.restoreCache([executablePath], cacheKey, [restoreKey]);
+  if (!cacheHit) {
+    core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
+    await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', executablePath]);
+    await cache.saveCache([executablePath], cacheKey);
+  } else {
+    core.info(`Restored cached Godot executable from ${cacheHit}`);
+  }
 }
 
 async function prepareExecutable(): Promise<void> {
