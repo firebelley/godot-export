@@ -1,6 +1,6 @@
 import { exec, ExecOptions } from '@actions/exec';
 import * as core from '@actions/core';
-import * as cache from '@actions/cache';
+import { isFeatureAvailable, restoreCache, saveCache } from '@actions/cache';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -22,6 +22,8 @@ import {
   USE_GODOT_3,
   GODOT_EXPORT_TEMPLATES_PATH,
 } from './constants';
+
+const CACHE_ACTIVE = true;
 
 const GODOT_EXECUTABLE = 'godot_executable';
 const GODOT_ZIP = 'godot.zip';
@@ -90,13 +92,17 @@ async function downloadTemplates(): Promise<void> {
   const templatesPath = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
   const cacheKey = `godot-templates-${GODOT_TEMPLATES_DOWNLOAD_URL}`;
   const restoreKey = `godot-templates-`;
-  const cacheHit = await cache.restoreCache([templatesPath], cacheKey, [restoreKey]);
-  if (!cacheHit) {
-    core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
-    await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', templatesPath]);
-    await cache.saveCache([templatesPath], cacheKey);
-  } else {
-    core.info(`Restored cached Godot export templates from ${cacheHit}`);
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    const cacheHit = await restoreCache([templatesPath], cacheKey, [restoreKey]);
+    if (cacheHit) {
+      core.info(`Restored cached Godot export templates from ${cacheHit}`);
+      return;
+    }
+  }
+  core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
+  await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', templatesPath]);
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    await saveCache([templatesPath], cacheKey);
   }
 }
 
@@ -104,14 +110,42 @@ async function downloadExecutable(): Promise<void> {
   const executablePath = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
   const cacheKey = `godot-executable-${GODOT_DOWNLOAD_URL}`;
   const restoreKey = `godot-executable-`;
-  const cacheHit = await cache.restoreCache([executablePath], cacheKey, [restoreKey]);
-  if (!cacheHit) {
-    core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
-    await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', executablePath]);
-    await cache.saveCache([executablePath], cacheKey);
-  } else {
-    core.info(`Restored cached Godot executable from ${cacheHit}`);
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    const cacheHit = await restoreCache([executablePath], cacheKey, [restoreKey]);
+    if (cacheHit) {
+      core.info(`Restored cached Godot executable from ${cacheHit}`);
+      return;
+    }
   }
+  core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
+  await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', executablePath]);
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    await saveCache([executablePath], cacheKey);
+  }
+}
+
+function isGhes(): boolean {
+  const ghUrl = new URL(process.env['GITHUB_SERVER_URL'] || 'https://github.com');
+  return ghUrl.hostname.toUpperCase() !== 'GITHUB.COM';
+}
+
+/**
+ * Checks if the cache service is available for this runner.
+ * Taken from https://github.com/actions/setup-node/blob/main/src/cache-utils.ts
+ */
+function isCacheFeatureAvailable(): boolean {
+  if (isFeatureAvailable()) return true;
+
+  if (isGhes()) {
+    core.warning(
+      'Cache action is only supported on GHES version >= 3.5. If you are on version >=3.5 Please check with GHES admin if Actions cache service is enabled or not.',
+    );
+    return false;
+  }
+
+  core.warning('The runner was not able to contact the cache service. Caching will be skipped');
+
+  return false;
 }
 
 async function prepareExecutable(): Promise<void> {
