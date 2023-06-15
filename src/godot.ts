@@ -87,40 +87,38 @@ async function setupWorkingPath(): Promise<void> {
   core.info(`Working path created ${GODOT_WORKING_PATH}`);
 }
 
+async function downloadFile(
+  filePath: string,
+  downloadUrl: string,
+  cacheKey: string,
+  restoreKey: string,
+): Promise<void> {
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    const cacheHit = await restoreCache([filePath], cacheKey, [restoreKey]);
+    if (cacheHit) {
+      core.info(`Restored cached file from ${cacheHit}`);
+      return;
+    }
+  }
+  core.info(`Downloading file from ${downloadUrl}`);
+  await exec('wget', ['-nv', downloadUrl, '-O', filePath]);
+  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
+    await saveCache([filePath], cacheKey);
+  }
+}
+
 async function downloadTemplates(): Promise<void> {
   const templatesPath = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
   const cacheKey = `godot-templates-${GODOT_TEMPLATES_DOWNLOAD_URL}`;
   const restoreKey = `godot-templates-`;
-  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
-    const cacheHit = await restoreCache([templatesPath], cacheKey, [restoreKey]);
-    if (cacheHit) {
-      core.info(`Restored cached Godot export templates from ${cacheHit}`);
-      return;
-    }
-  }
-  core.info(`Downloading Godot export templates from ${GODOT_TEMPLATES_DOWNLOAD_URL}`);
-  await exec('wget', ['-nv', GODOT_TEMPLATES_DOWNLOAD_URL, '-O', templatesPath]);
-  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
-    await saveCache([templatesPath], cacheKey);
-  }
+  await downloadFile(templatesPath, GODOT_TEMPLATES_DOWNLOAD_URL, cacheKey, restoreKey);
 }
 
 async function downloadExecutable(): Promise<void> {
   const executablePath = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
   const cacheKey = `godot-executable-${GODOT_DOWNLOAD_URL}`;
   const restoreKey = `godot-executable-`;
-  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
-    const cacheHit = await restoreCache([executablePath], cacheKey, [restoreKey]);
-    if (cacheHit) {
-      core.info(`Restored cached Godot executable from ${cacheHit}`);
-      return;
-    }
-  }
-  core.info(`Downloading Godot executable from ${GODOT_DOWNLOAD_URL}`);
-  await exec('wget', ['-nv', GODOT_DOWNLOAD_URL, '-O', executablePath]);
-  if (CACHE_ACTIVE && isCacheFeatureAvailable()) {
-    await saveCache([executablePath], cacheKey);
-  }
+  await downloadFile(executablePath, GODOT_DOWNLOAD_URL, cacheKey, restoreKey);
 }
 
 function isGhes(): boolean {
