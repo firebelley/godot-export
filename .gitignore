@@ -1,5 +1,7 @@
 .vscode/
+.idea/
 node_modules/
+/yarn-error.log
 lib/
 .mono/
 .godot
