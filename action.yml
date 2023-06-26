@@ -27,7 +27,7 @@ inputs:
     required: false
   cache:
     description: If "true", the Godot executable and export templates will be cached in the GitHub Actions workspace.
-    default: true
+    default: false
     required: false
   relative_export_path:
     description: If provided, exports will be moved to this directory relative to the root of the Git repository. This setting is overridden by "use_preset_export_path".
