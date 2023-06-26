@@ -3,6 +3,7 @@ import path from 'path';
 import * as os from 'os';
 
 const ARCHIVE_OUTPUT = core.getInput('archive_output') === 'true';
+const CACHE_ACTIVE = core.getInput('cache') === 'true';
 const GENERATE_RELEASE_NOTES = core.getInput('generate_release_notes') === 'true';
 const GODOT_DOWNLOAD_URL = core.getInput('godot_executable_download_url');
 const GODOT_TEMPLATES_DOWNLOAD_URL = core.getInput('godot_export_templates_download_url');
@@ -34,6 +35,7 @@ const GODOT_PROJECT_FILE_PATH = path.join(GODOT_PROJECT_PATH, 'project.godot');
 export {
   ARCHIVE_OUTPUT,
   ARCHIVE_ROOT_FOLDER,
+  CACHE_ACTIVE,
   EXPORT_DEBUG,
   EXPORT_PACK_ONLY,
   GENERATE_RELEASE_NOTES,
