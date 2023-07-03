@@ -39,7 +39,7 @@ async function exportBuilds(): Promise<BuildResult[]> {
     return [];
   }
 
-  core.startGroup('🕹️ Download Godot');
+  core.startGroup('🕹️ Downloading Godot');
   await downloadGodot();
   core.endGroup();
 
@@ -55,7 +55,6 @@ async function exportBuilds(): Promise<BuildResult[]> {
     await importProject();
   }
 
-  core.startGroup('✨ Export binaries');
   const results = await doExport();
   core.endGroup();
 
@@ -208,11 +207,29 @@ async function getGodotVersion(): Promise<string> {
   return version;
 }
 
+/**
+ * Converts a number to an emoji number. For example, 123 becomes 1️⃣2️⃣3️⃣
+ */
+function getEmojiNumber(number: number): string {
+  const allEmojiNumbers = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
+  let emojiNumber = '';
+
+  for (const digit of number.toString()) {
+    emojiNumber += allEmojiNumbers[parseInt(digit)];
+  }
+
+  return emojiNumber;
+}
+
 async function doExport(): Promise<BuildResult[]> {
   const buildResults: BuildResult[] = [];
   core.info(`🎯 Using project file at ${GODOT_PROJECT_FILE_PATH}`);
 
+  let exportPresetIndex = 0;
+
   for (const preset of getExportPresets()) {
+    core.startGroup(`${getEmojiNumber(++exportPresetIndex)} Export binary for preset "${preset.name}"`);
+
     const sanitizedName = sanitize(preset.name);
     const buildDir = path.join(GODOT_BUILD_PATH, sanitizedName);
 
@@ -223,6 +240,7 @@ async function doExport(): Promise<BuildResult[]> {
 
     if (!executablePath) {
       core.warning(`No file path set for preset "${preset.name}". Skipping export!`);
+      core.endGroup();
       continue;
     }
 
@@ -246,9 +264,10 @@ async function doExport(): Promise<BuildResult[]> {
     if (GODOT_VERBOSE) {
       args.push('--verbose');
     }
-    core.info(`🖥️ Exporting preset ${preset.name}`);
+
     const result = await exec(godotExecutablePath, args);
     if (result !== 0) {
+      core.endGroup();
       throw new Error('1 or more exports failed');
     }
 
@@ -260,6 +279,8 @@ async function doExport(): Promise<BuildResult[]> {
       directoryEntryCount: directoryEntries.length,
       directory: buildDir,
     });
+
+    core.endGroup();
   }
 
   return buildResults;
