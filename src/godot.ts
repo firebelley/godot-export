@@ -84,7 +84,10 @@ async function downloadGodot(): Promise<void> {
   const downloadPromises = [downloadExecutable()];
 
   const templatesStatus = await checkTemplatesStatus();
-  if (templatesStatus !== 'up-to-date') downloadPromises.push(downloadTemplates());
+  if (templatesStatus !== 'up-to-date') {
+    core.info(`Godot templates status: ${templatesStatus}`);
+    downloadPromises.push(downloadTemplates());
+  }
 
   await Promise.all(downloadPromises);
   await prepareExecutable();
