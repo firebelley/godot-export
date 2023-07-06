@@ -385,17 +385,7 @@ function configureAndroidExport(): void {
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
   const linesToWrite: string[] = [];
 
-  core.info(`Writing Android SDK path to editor settings ${ANDROID_SDK_PATH}`);
   linesToWrite.push(`export/android/android_sdk_path = "${ANDROID_SDK_PATH}"\n`);
-
-  core.info(`Writing debug/release keystore settings to editor settings`);
-  linesToWrite.push(`export/android/debug_keystore = "${ANDROID_DEBUG_KEYSTORE_PATH}"\n`);
-  linesToWrite.push(`export/android/debug_keystore_user = "${ANDROID_DEBUG_KEYSTORE_USERNAME}"\n`);
-  linesToWrite.push(`export/android/debug_keystore_pass = "${ANDROID_DEBUG_KEYSTORE_PASSWORD}"\n`);
-  linesToWrite.push(`export/android/release_keystore = "${ANDROID_RELEASE_KEYSTORE_PATH}"\n`);
-  linesToWrite.push(`export/android/release_keystore_user = "${ANDROID_RELEASE_KEYSTORE_USERNAME}"\n`);
-  linesToWrite.push(`export/android/release_keystore_pass = "${ANDROID_RELEASE_KEYSTORE_PASSWORD}"\n`);
-
   fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
 
   // making the gradlew executable only on unix systems
@@ -413,7 +403,6 @@ function configureAndroidExport(): void {
     }
   }
 
-  // not printing this because it contains passwords
   core.info(linesToWrite.join(''));
   core.info(`Wrote Android settings to ${editorSettingsPath}`);
   core.endGroup();
