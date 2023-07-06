@@ -16,10 +16,12 @@ async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
   core.startGroup('⚒️ Zipping binaries');
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
-    promises.push((async function () {
-      await zipBuildResult(buildResult);
-      core.info(`📦 Zipped ${buildResult.preset.name} to ${buildResult.archivePath}`);
-    })());
+    promises.push(
+      (async function () {
+        await zipBuildResult(buildResult);
+        core.info(`📦 Zipped ${buildResult.preset.name} to ${buildResult.archivePath}`);
+      })(),
+    );
   }
   await Promise.all(promises);
   core.endGroup();
