@@ -80,34 +80,12 @@ function hasExportPresets(): boolean {
 async function downloadGodot(): Promise<void> {
   await setupWorkingPath();
 
-  // if our templates don't exist, we want to download them at the same time as the executable
-  const downloadPromises = [downloadExecutable()];
-
-  const templatesStatus = await checkTemplatesStatus();
-  if (templatesStatus !== 'up-to-date') {
-    core.info(`Godot templates status: ${templatesStatus}`);
-    downloadPromises.push(downloadTemplates());
-  }
-
-  await Promise.all(downloadPromises);
   await prepareExecutable();
-
-  // if templates are up-to-date, we have nothing to do here
-  if (templatesStatus === 'up-to-date') return;
-
-  // the extract step will fail if the templates folder already exists
-  if (templatesStatus === 'outdated' || templatesStatus === 'unknown') {
-    try {
-      fs.unlinkSync(path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_PATH));
-    } catch (e) {
-      core.error(`Failed to remove old templates: ${e}`);
-    }
-  }
 
   if (USE_GODOT_3) {
     await prepareTemplates3();
   } else {
-    await prepareTemplates();
+    await prepareTemplates4();
   }
 }
 
@@ -175,6 +153,8 @@ function isCacheFeatureAvailable(): boolean {
 }
 
 async function prepareExecutable(): Promise<void> {
+  await downloadExecutable();
+
   const zipFile = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
   const zipTo = path.join(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
   await exec('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
@@ -188,57 +168,58 @@ async function prepareExecutable(): Promise<void> {
   godotExecutablePath = executablePath;
 }
 
-/**
- * Checks if the templates have already been downloaded.
- * Only useful for self-hosted runners. On Cloud runners, the templates should always be missing.
- */
-async function checkTemplatesStatus(): Promise<'missing' | 'outdated' | 'up-to-date' | 'unknown'> {
-  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
-  if (fs.existsSync(templatesVersionFile)) {
-    const templatesVersion = fs.readFileSync(templatesVersionFile, 'utf8');
-    if (templatesVersion === GODOT_TEMPLATES_DOWNLOAD_URL) {
-      return 'up-to-date';
-    } else {
-      return 'outdated';
-    }
-  } else if (fs.existsSync(GODOT_TEMPLATES_PATH)) {
-    // templates folder exists but no version file
-    return 'unknown';
-  }
-
-  return 'missing';
-}
-
 async function prepareTemplates3(): Promise<void> {
   const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
   const tmpPath = path.join(GODOT_WORKING_PATH, 'tmp');
   const godotVersion = await getGodotVersion();
+  const godotVersionTemplatesPath = path.join(GODOT_TEMPLATES_PATH, godotVersion);
+
+  if (!fs.existsSync(godotVersionTemplatesPath)) {
+    core.info(`⬇️ Missing templates for Godot ${godotVersion}. Downloading...`);
+    await downloadTemplates();
+  } else {
+    core.info(`✅ Found templates for Godot ${godotVersion}.`);
+    return;
+  }
+
+  // need to remove the old templates first, otherwise we'll get a "file exists" error
+  await io.rmRF(godotVersionTemplatesPath);
 
   await exec('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
   await exec('mv', [GODOT_TEMPLATES_PATH, tmpPath]);
   await io.mkdirP(GODOT_TEMPLATES_PATH);
-  await exec('mv', [tmpPath, path.join(GODOT_TEMPLATES_PATH, godotVersion)]);
-
-  // store the downloaded template URL so we can check if the template has already been downloaded
-  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
-  fs.writeFileSync(templatesVersionFile, GODOT_TEMPLATES_DOWNLOAD_URL);
+  await exec('mv', [tmpPath, godotVersionTemplatesPath]);
 }
 
-async function prepareTemplates(): Promise<void> {
+async function prepareTemplates4(): Promise<void> {
   const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
   const godotVersion = await getGodotVersion();
-  const godotVersionPath = path.join(GODOT_WORKING_PATH, godotVersion);
+  const godotVersionTemplatesPath = path.join(GODOT_EXPORT_TEMPLATES_PATH, godotVersion);
 
-  await exec('unzip', [templateFile, '-d', GODOT_WORKING_PATH]);
-  await io.mkdirP(GODOT_EXPORT_TEMPLATES_PATH);
-  await exec('mv', [GODOT_TEMPLATES_PATH, godotVersionPath]);
-  await exec('mv', [godotVersionPath, GODOT_EXPORT_TEMPLATES_PATH]);
+  if (!fs.existsSync(godotVersionTemplatesPath)) {
+    core.info(`⬇️ Missing templates for Godot ${godotVersion}. Downloading...`);
+    await downloadTemplates();
+  } else {
+    core.info(`✅ Found templates for Godot ${godotVersion}.`);
+    return;
+  }
+
+  // need to remove the old templates first, otherwise we'll get a "file already exists" error
+  await io.rmRF(godotVersionTemplatesPath);
+
+  // just unzipping straight to the target directory
+  await io.mkdirP(godotVersionTemplatesPath);
+  await exec('unzip', [templateFile, '-d', godotVersionTemplatesPath]);
 
   // store the downloaded template URL so we can check if the template has already been downloaded
   const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
   fs.writeFileSync(templatesVersionFile, GODOT_TEMPLATES_DOWNLOAD_URL);
 }
 
+/**
+ * Extracts the Godot version from the executable. The version is a bit inconsistent, so pulling it from the executable is the most reliable way.
+ * @returns The Godot version as a string.
+ */
 async function getGodotVersion(): Promise<string> {
   let version = '';
   const options: ExecOptions = {
