@@ -56,6 +56,36 @@ inputs:
   export_as_pack:
     description: Export project files as a .pck file.
     default: false
+    required: false 
+    
+  # Android export settings
+  android_sdk_path:
+    description: The absolute path to the Android SDK. Used by the Godot Editor to export Android builds.
+    default: '/usr/local/lib/android/sdk'
+    required: false
+  android_keystore_debug_path:
+    description: The absolute path to the debug keystore. LEAVE PROJECT KEYSTORES BLANK IF YOU ARE USING THIS OPTION. 
+    default: ''
+    required: false
+  android_keystore_debug_username:
+    description: The username of the debug keystore. Also known as the 'alias'.
+    default: ''
+    required: false
+  android_keystore_debug_password:
+    description: The password of the debug keystore.
+    default: ''
+    required: false
+  android_keystore_release_path:
+    description: The absolute path to the release keystore. LEAVE PROJECT KEYSTORES BLANK IF YOU ARE USING THIS OPTION. 
+    default: ''
+    required: false
+  android_keystore_release_username:
+    description: The username of the release keystore. Also known as the 'alias'.
+    default: ''
+    required: false
+  android_keystore_release_password:
+    description: The password of the release keystore.
+    default: ''
     required: false
 
 outputs:

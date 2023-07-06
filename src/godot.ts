@@ -22,6 +22,13 @@ import {
   USE_GODOT_3,
   GODOT_EXPORT_TEMPLATES_PATH,
   CACHE_ACTIVE,
+  ANDROID_DEBUG_KEYSTORE_PATH,
+  ANDROID_DEBUG_KEYSTORE_USERNAME,
+  ANDROID_DEBUG_KEYSTORE_PASSWORD,
+  ANDROID_RELEASE_KEYSTORE_PATH,
+  ANDROID_RELEASE_KEYSTORE_USERNAME,
+  ANDROID_RELEASE_KEYSTORE_PASSWORD,
+  ANDROID_SDK_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -50,6 +57,8 @@ async function exportBuilds(): Promise<BuildResult[]> {
   if (WINE_PATH) {
     configureWindowsExport();
   }
+
+  configureAndroidExport();
 
   if (!USE_GODOT_3) {
     await importProject();
@@ -286,21 +295,6 @@ async function doExport(): Promise<BuildResult[]> {
   return buildResults;
 }
 
-function configureWindowsExport(): void {
-  core.startGroup('📝 Appending Wine editor settings');
-  const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
-  core.info(`Writing rcedit path to editor settings ${rceditPath}`);
-  core.info(`Writing wine path to editor settings ${WINE_PATH}`);
-
-  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
-  fs.writeFileSync(editorSettingsPath, `export/windows/rcedit = "${rceditPath}"\n`, { flag: 'a' });
-  fs.writeFileSync(editorSettingsPath, `export/windows/wine = "${WINE_PATH}"\n`, { flag: 'a' });
-
-  core.info(fs.readFileSync(editorSettingsPath, { encoding: 'utf-8' }).toString());
-  core.info(`Wrote settings to ${editorSettingsPath}`);
-  core.endGroup();
-}
-
 function findGodotExecutablePath(basePath: string): string | undefined {
   const paths = fs.readdirSync(basePath);
   const dirs: string[] = [];
@@ -355,6 +349,50 @@ async function addEditorSettings(): Promise<void> {
   const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
   await io.cp(editorSettingsDist, editorSettingsPath, { force: false });
   core.info(`Wrote editor settings to ${editorSettingsPath}`);
+}
+
+function configureWindowsExport(): void {
+  core.startGroup('📝 Appending Wine editor settings');
+  const rceditPath = path.join(__dirname, 'rcedit-x64.exe');
+  const linesToWrite: string[] = [];
+
+  core.info(`Writing rcedit path to editor settings ${rceditPath}`);
+  core.info(`Writing wine path to editor settings ${WINE_PATH}`);
+
+  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
+  linesToWrite.push(`export/windows/rcedit = "${rceditPath}"\n`);
+  linesToWrite.push(`export/windows/wine = "${WINE_PATH}"\n`);
+
+  fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
+
+  core.info(linesToWrite.join(''));
+  core.info(`Wrote settings to ${editorSettingsPath}`);
+  core.endGroup();
+}
+
+function configureAndroidExport(): void {
+  core.startGroup('📝 Appending Android editor settings');
+
+  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
+  const linesToWrite: string[] = [];
+
+  core.info(`Writing Android SDK path to editor settings ${ANDROID_SDK_PATH}`);
+  linesToWrite.push(`export/android/android_sdk_path = "${ANDROID_SDK_PATH}"\n`);
+
+  core.info(`Writing debug/release keystore settings to editor settings`);
+  linesToWrite.push(`export/android/debug_keystore = "${ANDROID_DEBUG_KEYSTORE_PATH}"\n`);
+  linesToWrite.push(`export/android/debug_keystore_user = "${ANDROID_DEBUG_KEYSTORE_USERNAME}"\n`);
+  linesToWrite.push(`export/android/debug_keystore_pass = "${ANDROID_DEBUG_KEYSTORE_PASSWORD}"\n`);
+  linesToWrite.push(`export/android/release_keystore = "${ANDROID_RELEASE_KEYSTORE_PATH}"\n`);
+  linesToWrite.push(`export/android/release_keystore_user = "${ANDROID_RELEASE_KEYSTORE_USERNAME}"\n`);
+  linesToWrite.push(`export/android/release_keystore_pass = "${ANDROID_RELEASE_KEYSTORE_PASSWORD}"\n`);
+
+  fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
+
+  // not printing this because it contains passwords
+  core.info(linesToWrite.join(''));
+  core.info(`Wrote Android settings to ${editorSettingsPath}`);
+  core.endGroup();
 }
 
 /** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */

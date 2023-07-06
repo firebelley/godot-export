@@ -17,6 +17,16 @@ const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
 
+const ANDROID_SDK_PATH = core.getInput('android_sdk_path');
+
+const ANDROID_DEBUG_KEYSTORE_PATH = path.resolve(core.getInput('android_keystore_debug_path'));
+const ANDROID_DEBUG_KEYSTORE_USERNAME = core.getInput('android_keystore_debug_username');
+const ANDROID_DEBUG_KEYSTORE_PASSWORD = core.getInput('android_keystore_debug_password');
+
+const ANDROID_RELEASE_KEYSTORE_PATH = path.resolve(core.getInput('android_keystore_release_path'));
+const ANDROID_RELEASE_KEYSTORE_USERNAME = core.getInput('android_keystore_release_username');
+const ANDROID_RELEASE_KEYSTORE_PASSWORD = core.getInput('android_keystore_release_password');
+
 const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const GODOT_EXPORT_TEMPLATES_PATH = path.resolve(
   path.join(
@@ -54,4 +64,11 @@ export {
   USE_GODOT_3,
   USE_PRESET_EXPORT_PATH,
   WINE_PATH,
+  ANDROID_SDK_PATH,
+  ANDROID_DEBUG_KEYSTORE_PATH,
+  ANDROID_DEBUG_KEYSTORE_USERNAME,
+  ANDROID_DEBUG_KEYSTORE_PASSWORD,
+  ANDROID_RELEASE_KEYSTORE_PATH,
+  ANDROID_RELEASE_KEYSTORE_USERNAME,
+  ANDROID_RELEASE_KEYSTORE_PASSWORD,
 };
