@@ -182,9 +182,6 @@ async function prepareTemplates3(): Promise<void> {
     return;
   }
 
-  // need to remove the old templates first, otherwise we'll get a "file exists" error
-  await io.rmRF(godotVersionTemplatesPath);
-
   await exec('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
   await exec('mv', [GODOT_TEMPLATES_PATH, tmpPath]);
   await io.mkdirP(GODOT_TEMPLATES_PATH);
@@ -203,9 +200,6 @@ async function prepareTemplates4(): Promise<void> {
     core.info(`✅ Found templates for Godot ${godotVersion}.`);
     return;
   }
-
-  // need to remove the old templates first, otherwise we'll get a "file already exists" error
-  await io.rmRF(godotVersionTemplatesPath);
 
   // just unzipping straight to the target directory
   await io.mkdirP(godotVersionTemplatesPath);
