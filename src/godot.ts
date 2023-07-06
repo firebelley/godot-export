@@ -341,7 +341,7 @@ function getExportPresets(): ExportPreset[] {
       if (PRESETS_TO_EXPORT == null || PRESETS_TO_EXPORT.includes(currentPreset.name)) {
         exportPresets.push(currentPreset);
       } else {
-        core.info(`Skipping export preset "${currentPreset.name}"`);
+        core.info(`🚫 Skipping export preset "${currentPreset.name}"`);
       }
     }
   } else {
