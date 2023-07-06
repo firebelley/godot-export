@@ -4,7 +4,7 @@ import * as os from 'os';
 
 const ARCHIVE_OUTPUT = core.getBooleanInput('archive_output');
 const CACHE_ACTIVE = core.getBooleanInput('cache');
-const GENERATE_RELEASE_NOTES = core.getBooleanInput('generate_release_notes');
+// const GENERATE_RELEASE_NOTES = core.getBooleanInput('generate_release_notes');
 const GODOT_DOWNLOAD_URL = core.getInput('godot_executable_download_url');
 const GODOT_TEMPLATES_DOWNLOAD_URL = core.getInput('godot_export_templates_download_url');
 const RELATIVE_EXPORT_PATH = core.getInput('relative_export_path');
@@ -67,7 +67,7 @@ export {
   EXPORT_DEBUG,
   EXPORT_PACK_ONLY,
   EXPORT_TARGETS,
-  GENERATE_RELEASE_NOTES,
+  // GENERATE_RELEASE_NOTES,
   GODOT_ARCHIVE_PATH,
   GODOT_BUILD_PATH,
   GODOT_CONFIG_PATH,
