@@ -57,6 +57,10 @@ inputs:
     description: Export project files as a .pck file.
     default: false
     required: false 
+  export_targets:
+    description: A comma-separated list of export targets. If not specified, all targets will be exported.
+    default: ''
+    required: false
     
   # Android export settings
   android_sdk_path:

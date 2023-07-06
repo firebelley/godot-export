@@ -15,6 +15,7 @@ import {
   RELATIVE_PROJECT_PATH,
   WINE_PATH,
   EXPORT_DEBUG,
+  EXPORT_TARGETS,
   GODOT_VERBOSE,
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
@@ -320,7 +321,7 @@ function findGodotExecutablePath(basePath: string): string | undefined {
 }
 
 function getExportPresets(): ExportPreset[] {
-  const exportPrests: ExportPreset[] = [];
+  const exportPresets: ExportPreset[] = [];
   const projectPath = path.resolve(RELATIVE_PROJECT_PATH);
 
   if (!hasExportPresets()) {
@@ -333,13 +334,18 @@ function getExportPresets(): ExportPreset[] {
 
   if (presets?.preset) {
     for (const key in presets.preset) {
-      exportPrests.push(presets.preset[key]);
+      const currentPreset = presets.preset[key];
+      if (EXPORT_TARGETS == null || EXPORT_TARGETS.includes(currentPreset.name)) {
+        exportPresets.push(currentPreset);
+      } else {
+        core.info(`Skipping export preset "${currentPreset.name}"`);
+      }
     }
   } else {
     core.warning(`No presets found in export_presets.cfg at ${projectPath}`);
   }
 
-  return exportPrests;
+  return exportPresets;
 }
 
 async function addEditorSettings(): Promise<void> {

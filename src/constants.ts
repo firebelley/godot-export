@@ -17,6 +17,24 @@ const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
 const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
 const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
 
+// Parse export targets
+const exportTargetsStr = core.getInput('export_targets').trim();
+let exportTargets: string[] | null = null;
+
+if (exportTargetsStr !== '') {
+  try {
+    // splitting by comma and trimming each target. Presets should not begin or end with a space.
+    exportTargets = exportTargetsStr.split(',').map(s => s.trim());
+    if (exportTargets.length === 0) {
+      exportTargets = null;
+    }
+  } catch (error) {
+    core.warning('Malformed export_targets input. Exporting all targets by default.');
+  }
+}
+
+const EXPORT_TARGETS = exportTargets;
+
 const ANDROID_SDK_PATH = core.getInput('android_sdk_path');
 
 const ANDROID_DEBUG_KEYSTORE_PATH = path.resolve(core.getInput('android_keystore_debug_path'));
@@ -48,6 +66,7 @@ export {
   CACHE_ACTIVE,
   EXPORT_DEBUG,
   EXPORT_PACK_ONLY,
+  EXPORT_TARGETS,
   GENERATE_RELEASE_NOTES,
   GODOT_ARCHIVE_PATH,
   GODOT_BUILD_PATH,
