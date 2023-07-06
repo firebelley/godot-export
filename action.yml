@@ -18,7 +18,7 @@ inputs:
 
   # optional inputs
   archive_output:
-    description: If "true", all exported files will be archived into a ".zip" file. Can also specify a comma seperated list of export targets to archive.
+    description: If "true", all exported files will be archived into a ".zip" file.
     default: false
     required: false
   archive_root_folder:
