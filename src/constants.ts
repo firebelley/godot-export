@@ -18,22 +18,22 @@ const USE_GODOT_3 = core.getBooleanInput('use_godot_3');
 const EXPORT_PACK_ONLY = core.getBooleanInput('export_as_pack');
 
 // Parse export targets
-const exportTargetsStr = core.getInput('export_targets').trim();
-let exportTargets: string[] | null = null;
+const exportPresetsStr = core.getInput('presets_to_export').trim();
+let exportPresets: string[] | null = null;
 
-if (exportTargetsStr !== '') {
+if (exportPresetsStr !== '') {
   try {
     // splitting by comma and trimming each target. Presets should not begin or end with a space.
-    exportTargets = exportTargetsStr.split(',').map(s => s.trim());
-    if (exportTargets.length === 0) {
-      exportTargets = null;
+    exportPresets = exportPresetsStr.split(',').map(s => s.trim());
+    if (exportPresetsStr.length === 0) {
+      exportPresets = null;
     }
   } catch (error) {
-    core.warning('Malformed export_targets input. Exporting all targets by default.');
+    core.warning('Malformed presets_to_export input. Exporting all presets by default.');
   }
 }
 
-const EXPORT_TARGETS = exportTargets;
+const PRESETS_TO_EXPORT = exportPresets;
 
 const ANDROID_SDK_PATH = core.getInput('android_sdk_path');
 
@@ -66,7 +66,7 @@ export {
   CACHE_ACTIVE,
   EXPORT_DEBUG,
   EXPORT_PACK_ONLY,
-  EXPORT_TARGETS,
+  PRESETS_TO_EXPORT,
   // GENERATE_RELEASE_NOTES,
   GODOT_ARCHIVE_PATH,
   GODOT_BUILD_PATH,

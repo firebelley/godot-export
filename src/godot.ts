@@ -15,7 +15,7 @@ import {
   RELATIVE_PROJECT_PATH,
   WINE_PATH,
   EXPORT_DEBUG,
-  EXPORT_TARGETS,
+  PRESETS_TO_EXPORT,
   GODOT_VERBOSE,
   GODOT_BUILD_PATH,
   GODOT_PROJECT_FILE_PATH,
@@ -336,7 +336,9 @@ function getExportPresets(): ExportPreset[] {
   if (presets?.preset) {
     for (const key in presets.preset) {
       const currentPreset = presets.preset[key];
-      if (EXPORT_TARGETS == null || EXPORT_TARGETS.includes(currentPreset.name)) {
+
+      // If no presets are specified, export all of them. Otherwise only specified presets are exported.
+      if (PRESETS_TO_EXPORT == null || PRESETS_TO_EXPORT.includes(currentPreset.name)) {
         exportPresets.push(currentPreset);
       } else {
         core.info(`Skipping export preset "${currentPreset.name}"`);
