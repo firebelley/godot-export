@@ -2,20 +2,20 @@ import * as core from '@actions/core';
 import path from 'path';
 import * as os from 'os';
 
-const ARCHIVE_OUTPUT = core.getInput('archive_output') === 'true';
-const CACHE_ACTIVE = core.getInput('cache') === 'true';
-const GENERATE_RELEASE_NOTES = core.getInput('generate_release_notes') === 'true';
+const ARCHIVE_OUTPUT = core.getBooleanInput('archive_output');
+const CACHE_ACTIVE = core.getBooleanInput('cache');
+const GENERATE_RELEASE_NOTES = core.getBooleanInput('generate_release_notes');
 const GODOT_DOWNLOAD_URL = core.getInput('godot_executable_download_url');
 const GODOT_TEMPLATES_DOWNLOAD_URL = core.getInput('godot_export_templates_download_url');
 const RELATIVE_EXPORT_PATH = core.getInput('relative_export_path');
 const RELATIVE_PROJECT_PATH = core.getInput('relative_project_path');
 const WINE_PATH = core.getInput('wine_path');
-const USE_PRESET_EXPORT_PATH = core.getInput('use_preset_export_path') === 'true';
-const EXPORT_DEBUG = core.getInput('export_debug') === 'true';
-const GODOT_VERBOSE = core.getInput('verbose') === 'true';
-const ARCHIVE_ROOT_FOLDER = core.getInput('archive_root_folder') === 'true';
-const USE_GODOT_3 = core.getInput('use_godot_3') === 'true';
-const EXPORT_PACK_ONLY = core.getInput('export_as_pack') === 'true';
+const USE_PRESET_EXPORT_PATH = core.getBooleanInput('use_preset_export_path');
+const EXPORT_DEBUG = core.getBooleanInput('export_debug');
+const GODOT_VERBOSE = core.getBooleanInput('verbose');
+const ARCHIVE_ROOT_FOLDER = core.getBooleanInput('archive_root_folder');
+const USE_GODOT_3 = core.getBooleanInput('use_godot_3');
+const EXPORT_PACK_ONLY = core.getBooleanInput('export_as_pack');
 
 // Parse export targets
 const exportTargetsStr = core.getInput('export_targets').trim();
