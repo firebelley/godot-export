@@ -30,6 +30,7 @@ import {
   ANDROID_RELEASE_KEYSTORE_USERNAME,
   ANDROID_RELEASE_KEYSTORE_PASSWORD,
   ANDROID_SDK_PATH,
+  GODOT_PROJECT_PATH,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -394,6 +395,21 @@ function configureAndroidExport(): void {
   linesToWrite.push(`export/android/release_keystore_pass = "${ANDROID_RELEASE_KEYSTORE_PASSWORD}"\n`);
 
   fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
+
+  // making the gradlew executable only on unix systems
+  // if the file is not executable, the build will typically fail in incredibly cryptic ways
+  if (process.platform !== 'win32') {
+    try {
+      if (fs.existsSync(path.join(GODOT_PROJECT_PATH, 'android/build/gradlew'))) {
+        fs.chmodSync(path.join(GODOT_PROJECT_PATH, 'android/build/gradlew'), '755');
+      }
+      core.info('Made gradlew executable.');
+    } catch (error) {
+      core.warning(
+        `Could not make gradlew executable. If you are getting cryptic build errors with your Android export, this may be the cause. ${error}`,
+      );
+    }
+  }
 
   // not printing this because it contains passwords
   core.info(linesToWrite.join(''));
