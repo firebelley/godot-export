@@ -32,6 +32,8 @@ const GODOT_ZIP = 'godot.zip';
 const GODOT_TEMPLATES_FILENAME = 'godot_templates.tpz';
 const EDITOR_SETTINGS_FILENAME = USE_GODOT_3 ? 'editor_settings-3.tres' : 'editor_settings-4.tres';
 
+const GODOT_TEMPLATES_PATH = path.join(GODOT_WORKING_PATH, 'templates');
+
 let godotExecutablePath: string;
 
 async function exportBuilds(): Promise<BuildResult[]> {
@@ -77,8 +79,28 @@ function hasExportPresets(): boolean {
 
 async function downloadGodot(): Promise<void> {
   await setupWorkingPath();
-  await Promise.all([downloadTemplates(), downloadExecutable()]);
+
+  // if our templates don't exist, we want to download them at the same time as the executable
+  const downloadPromises = [downloadExecutable()];
+
+  const templatesStatus = await checkTemplatesStatus();
+  if (templatesStatus !== 'up-to-date') downloadPromises.push(downloadTemplates());
+
+  await Promise.all(downloadPromises);
   await prepareExecutable();
+
+  // if templates are up-to-date, we have nothing to do here
+  if (templatesStatus === 'up-to-date') return;
+
+  // the extract step will fail if the templates folder already exists
+  if (templatesStatus === 'outdated' || templatesStatus === 'unknown') {
+    try {
+      fs.unlinkSync(path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_PATH));
+    } catch (e) {
+      core.error(`Failed to remove old templates: ${e}`);
+    }
+  }
+
   if (USE_GODOT_3) {
     await prepareTemplates3();
   } else {
@@ -163,28 +185,55 @@ async function prepareExecutable(): Promise<void> {
   godotExecutablePath = executablePath;
 }
 
+/**
+ * Checks if the templates have already been downloaded.
+ * Only useful for self-hosted runners. On Cloud runners, the templates should always be missing.
+ */
+async function checkTemplatesStatus(): Promise<'missing' | 'outdated' | 'up-to-date' | 'unknown'> {
+  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
+  if (fs.existsSync(templatesVersionFile)) {
+    const templatesVersion = fs.readFileSync(templatesVersionFile, 'utf8');
+    if (templatesVersion === GODOT_TEMPLATES_DOWNLOAD_URL) {
+      return 'up-to-date';
+    } else {
+      return 'outdated';
+    }
+  } else if (fs.existsSync(GODOT_TEMPLATES_PATH)) {
+    // templates folder exists but no version file
+    return 'unknown';
+  }
+
+  return 'missing';
+}
+
 async function prepareTemplates3(): Promise<void> {
   const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
-  const templatesPath = path.join(GODOT_WORKING_PATH, 'templates');
   const tmpPath = path.join(GODOT_WORKING_PATH, 'tmp');
   const godotVersion = await getGodotVersion();
 
   await exec('unzip', ['-q', templateFile, '-d', GODOT_WORKING_PATH]);
-  await exec('mv', [templatesPath, tmpPath]);
-  await io.mkdirP(templatesPath);
-  await exec('mv', [tmpPath, path.join(templatesPath, godotVersion)]);
+  await exec('mv', [GODOT_TEMPLATES_PATH, tmpPath]);
+  await io.mkdirP(GODOT_TEMPLATES_PATH);
+  await exec('mv', [tmpPath, path.join(GODOT_TEMPLATES_PATH, godotVersion)]);
+
+  // store the downloaded template URL so we can check if the template has already been downloaded
+  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
+  fs.writeFileSync(templatesVersionFile, GODOT_TEMPLATES_DOWNLOAD_URL);
 }
 
 async function prepareTemplates(): Promise<void> {
   const templateFile = path.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
-  const templatesPath = path.join(GODOT_WORKING_PATH, 'templates');
   const godotVersion = await getGodotVersion();
   const godotVersionPath = path.join(GODOT_WORKING_PATH, godotVersion);
 
   await exec('unzip', [templateFile, '-d', GODOT_WORKING_PATH]);
   await io.mkdirP(GODOT_EXPORT_TEMPLATES_PATH);
-  await exec('mv', [templatesPath, godotVersionPath]);
+  await exec('mv', [GODOT_TEMPLATES_PATH, godotVersionPath]);
   await exec('mv', [godotVersionPath, GODOT_EXPORT_TEMPLATES_PATH]);
+
+  // store the downloaded template URL so we can check if the template has already been downloaded
+  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
+  fs.writeFileSync(templatesVersionFile, GODOT_TEMPLATES_DOWNLOAD_URL);
 }
 
 async function getGodotVersion(): Promise<string> {
