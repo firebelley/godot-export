@@ -204,10 +204,6 @@ async function prepareTemplates4(): Promise<void> {
   // just unzipping straight to the target directory
   await io.mkdirP(godotVersionTemplatesPath);
   await exec('unzip', [templateFile, '-d', godotVersionTemplatesPath]);
-
-  // store the downloaded template URL so we can check if the template has already been downloaded
-  const templatesVersionFile = path.join(GODOT_TEMPLATES_PATH, 'templates_version');
-  fs.writeFileSync(templatesVersionFile, GODOT_TEMPLATES_DOWNLOAD_URL);
 }
 
 /**
