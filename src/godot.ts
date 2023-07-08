@@ -82,6 +82,7 @@ async function downloadGodot(): Promise<void> {
 
   await prepareExecutable();
 
+  core.info('Preparing templates');
   if (USE_GODOT_3) {
     await prepareTemplates3();
   } else {
@@ -156,15 +157,32 @@ async function prepareExecutable(): Promise<void> {
   await downloadExecutable();
 
   const zipFile = path.join(GODOT_WORKING_PATH, GODOT_ZIP);
-  const zipTo = path.join(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
-  await exec('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
+  let zipTo = path.join(GODOT_WORKING_PATH, GODOT_EXECUTABLE);
+
+  core.info(`Extracting ${zipFile} to ${zipTo}`);
+
+  if (process.platform === 'darwin') {
+    // 7zip doesn't recognize the zipped DMG file correctly, and tries to extract the whole thing
+    // which results in it picking a single file from the DMG and extracting it to the destination.
+    // Also note that we have to extract to the directory. Extracting to a file name will result in a corrupted file.
+    await exec('ditto', ['-x', '-k', zipFile, GODOT_WORKING_PATH]);
+    zipTo = GODOT_WORKING_PATH;
+    core.info(`Extracted ${zipFile} to ${zipTo}`);
+  } else {
+    await exec('7z', ['x', zipFile, `-o${zipTo}`, '-y']);
+  }
+
   const executablePath = findGodotExecutablePath(zipTo);
   if (!executablePath) {
     throw new Error('Could not find Godot executable');
   }
   core.info(`Found executable at ${executablePath}`);
 
-  await exec('chmod', ['+x', executablePath]);
+  // chmod not needed for both Windows and macOS
+  if (process.platform !== 'darwin' && process.platform !== 'win32') {
+    fs.chmodSync(executablePath, '755');
+  }
+
   godotExecutablePath = executablePath;
 }
 
@@ -178,7 +196,7 @@ async function prepareTemplates3(): Promise<void> {
     core.info(`⬇️ Missing templates for Godot ${godotVersion}. Downloading...`);
     await downloadTemplates();
   } else {
-    core.info(`✅ Found templates for Godot ${godotVersion}.`);
+    core.info(`✅ Found templates for Godot ${godotVersion} at ${godotVersionTemplatesPath}`);
     return;
   }
 
@@ -197,13 +215,15 @@ async function prepareTemplates4(): Promise<void> {
     core.info(`⬇️ Missing templates for Godot ${godotVersion}. Downloading...`);
     await downloadTemplates();
   } else {
-    core.info(`✅ Found templates for Godot ${godotVersion}.`);
+    core.info(`✅ Found templates for Godot ${godotVersion} at ${godotVersionTemplatesPath}.`);
     return;
   }
 
-  // just unzipping straight to the target directory
+  // just unzipping straight to the target directoryu
   await io.mkdirP(godotVersionTemplatesPath);
-  await exec('unzip', [templateFile, '-d', godotVersionTemplatesPath]);
+  // -j to ignore the directory structure in the zip file
+  // 4.1 templates are in a subdirectory, so we need to ignore that
+  await exec('unzip', [templateFile, '-j', godotVersionTemplatesPath]);
 }
 
 /**
@@ -314,24 +334,31 @@ async function doExport(): Promise<BuildResult[]> {
   return buildResults;
 }
 
+/**
+ * Breadth first recursive search for the Godot executable.
+ * @param basePath
+ * @returns
+ */
 function findGodotExecutablePath(basePath: string): string | undefined {
+  core.info(`🔍 Looking for Godot executable in ${basePath}`);
   const paths = fs.readdirSync(basePath);
   const dirs: string[] = [];
+
   for (const subPath of paths) {
     const fullPath = path.join(basePath, subPath);
     const stats = fs.statSync(fullPath);
-    // || path.basename === 'Godot' && process.platform === 'darwin';
     const isLinux = stats.isFile() && (path.extname(fullPath) === '.64' || path.extname(fullPath) === '.x86_64');
-    const isMac = stats.isDirectory() && path.extname(fullPath) === '.app' && process.platform === 'darwin';
+    const isMac = process.platform === 'darwin' && stats.isDirectory() && path.extname(fullPath) === '.app';
     if (isLinux) {
       return fullPath;
     } else if (isMac) {
-      // https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
-      return path.join(fullPath, 'Contents/MacOS/Godot');
+      // on a Mac, we need to target the executable inside the .app directory. MacOS abstractions are weird
+      return path.join(fullPath, 'Contents', 'MacOS', 'Godot');
     } else {
       dirs.push(fullPath);
     }
   }
+
   for (const dir of dirs) {
     return findGodotExecutablePath(dir);
   }
@@ -428,7 +455,12 @@ function configureAndroidExport(): void {
 /** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
 async function importProject(): Promise<void> {
   core.startGroup('🎲 Import project');
-  await exec(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+  // this import tends to fail on MacOS for some reason (exit code 1), but a fail here doesn't necessarily mean the export will fail
+  try {
+    await exec(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '-e', '--quit']);
+  } catch (error) {
+    core.warning(`Import appears to have failed. Continuing anyway, but exports may fail. ${error}`);
+  }
   core.endGroup();
 }
 
