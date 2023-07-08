@@ -162,9 +162,9 @@ async function prepareExecutable(): Promise<void> {
   core.info(`Extracting ${zipFile} to ${zipTo}`);
 
   if (process.platform === 'darwin') {
-    // 7zip doesn't recognize the zipped DMG file correctly, and tries to extract the whole thing
-    // which results in it picking a single file from the DMG and extracting it to the destination.
-    // Also note that we have to extract to the directory. Extracting to a file name will result in a corrupted file.
+    // 7zip doesn't recognize the zipped .app file correctly, and tries to extract the whole thing
+    // which results in it picking a single file from the .app and extracting it to the destination.
+    // Also note that we have to extract to the directory. Extracting to a file name will result in a corrupted executable.
     await exec('ditto', ['-x', '-k', zipFile, GODOT_WORKING_PATH]);
     zipTo = GODOT_WORKING_PATH;
     core.info(`Extracted ${zipFile} to ${zipTo}`);
