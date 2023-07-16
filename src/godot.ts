@@ -223,7 +223,7 @@ async function prepareTemplates4(): Promise<void> {
   await io.mkdirP(godotVersionTemplatesPath);
   // -j to ignore the directory structure in the zip file
   // 4.1 templates are in a subdirectory, so we need to ignore that
-  await exec('unzip', [templateFile, '-j', godotVersionTemplatesPath]);
+  await exec('unzip', ['-o', '-j', templateFile, '-d', godotVersionTemplatesPath]);
 }
 
 /**
