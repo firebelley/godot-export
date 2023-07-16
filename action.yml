@@ -68,7 +68,7 @@ inputs:
     default: '/usr/local/lib/android/sdk'
     required: false
   android_keystore_debug_path:
-    description: The absolute path to the debug keystore. LEAVE PROJECT KEYSTORES BLANK IF YOU ARE USING THIS OPTION. 
+    description: The absolute path to the debug keystore. Overrides project keystore settings.
     default: ''
     required: false
   android_keystore_debug_username:
@@ -80,7 +80,7 @@ inputs:
     default: ''
     required: false
   android_keystore_release_path:
-    description: The absolute path to the release keystore. LEAVE PROJECT KEYSTORES BLANK IF YOU ARE USING THIS OPTION. 
+    description: The absolute path to the release keystore. Overrides project keystore settings.
     default: ''
     required: false
   android_keystore_release_username:
