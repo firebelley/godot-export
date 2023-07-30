@@ -59614,13 +59614,13 @@ async function downloadFile(filePath, downloadUrl, cacheKey, restoreKey) {
 async function downloadTemplates() {
     const templatesPath = external_path_.join(GODOT_WORKING_PATH, GODOT_TEMPLATES_FILENAME);
     const cacheKey = `godot-templates-${GODOT_TEMPLATES_DOWNLOAD_URL}`;
-    const restoreKey = `godot-templates-`;
+    const restoreKey = `godot-templates-${GODOT_TEMPLATES_DOWNLOAD_URL}`;
     await downloadFile(templatesPath, GODOT_TEMPLATES_DOWNLOAD_URL, cacheKey, restoreKey);
 }
 async function downloadExecutable() {
     const executablePath = external_path_.join(GODOT_WORKING_PATH, GODOT_ZIP);
     const cacheKey = `godot-executable-${GODOT_DOWNLOAD_URL}`;
-    const restoreKey = `godot-executable-`;
+    const restoreKey = `godot-executable-${GODOT_DOWNLOAD_URL}`;
     await downloadFile(executablePath, GODOT_DOWNLOAD_URL, cacheKey, restoreKey);
 }
 function isGhes() {
