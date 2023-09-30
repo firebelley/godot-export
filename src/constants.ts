@@ -35,16 +35,6 @@ if (exportPresetsStr !== '') {
 
 const PRESETS_TO_EXPORT = exportPresets;
 
-const ANDROID_SDK_PATH = core.getInput('android_sdk_path');
-
-const ANDROID_DEBUG_KEYSTORE_PATH = path.resolve(core.getInput('android_keystore_debug_path'));
-const ANDROID_DEBUG_KEYSTORE_USERNAME = core.getInput('android_keystore_debug_username');
-const ANDROID_DEBUG_KEYSTORE_PASSWORD = core.getInput('android_keystore_debug_password');
-
-const ANDROID_RELEASE_KEYSTORE_PATH = path.resolve(core.getInput('android_keystore_release_path'));
-const ANDROID_RELEASE_KEYSTORE_USERNAME = core.getInput('android_keystore_release_username');
-const ANDROID_RELEASE_KEYSTORE_PASSWORD = core.getInput('android_keystore_release_password');
-
 const GODOT_WORKING_PATH = path.resolve(path.join(os.homedir(), '/.local/share/godot'));
 const GODOT_EXPORT_TEMPLATES_PATH = path.resolve(
   path.join(
@@ -59,26 +49,6 @@ const GODOT_BUILD_PATH = path.join(GODOT_WORKING_PATH, 'builds');
 const GODOT_ARCHIVE_PATH = path.join(GODOT_WORKING_PATH, 'archives');
 const GODOT_PROJECT_PATH = path.resolve(path.join(RELATIVE_PROJECT_PATH));
 const GODOT_PROJECT_FILE_PATH = path.join(GODOT_PROJECT_PATH, 'project.godot');
-
-// the project level settings can be overridden by environment variables
-if (ANDROID_DEBUG_KEYSTORE_PATH) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_DEBUG_PATH', ANDROID_DEBUG_KEYSTORE_PATH);
-}
-if (ANDROID_DEBUG_KEYSTORE_USERNAME) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_DEBUG_USER', ANDROID_DEBUG_KEYSTORE_USERNAME);
-}
-if (ANDROID_DEBUG_KEYSTORE_PASSWORD) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD', ANDROID_DEBUG_KEYSTORE_PASSWORD);
-}
-if (ANDROID_RELEASE_KEYSTORE_PATH) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_RELEASE_PATH', ANDROID_RELEASE_KEYSTORE_PATH);
-}
-if (ANDROID_RELEASE_KEYSTORE_USERNAME) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_RELEASE_USER', ANDROID_RELEASE_KEYSTORE_USERNAME);
-}
-if (ANDROID_RELEASE_KEYSTORE_PASSWORD) {
-  core.exportVariable('GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD', ANDROID_RELEASE_KEYSTORE_PASSWORD);
-}
 
 export {
   ARCHIVE_OUTPUT,
@@ -103,11 +73,4 @@ export {
   USE_GODOT_3,
   USE_PRESET_EXPORT_PATH,
   WINE_PATH,
-  ANDROID_SDK_PATH,
-  ANDROID_DEBUG_KEYSTORE_PATH,
-  ANDROID_DEBUG_KEYSTORE_USERNAME,
-  ANDROID_DEBUG_KEYSTORE_PASSWORD,
-  ANDROID_RELEASE_KEYSTORE_PATH,
-  ANDROID_RELEASE_KEYSTORE_USERNAME,
-  ANDROID_RELEASE_KEYSTORE_PASSWORD,
 };

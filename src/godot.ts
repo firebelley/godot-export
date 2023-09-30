@@ -23,7 +23,6 @@ import {
   USE_GODOT_3,
   GODOT_EXPORT_TEMPLATES_PATH,
   CACHE_ACTIVE,
-  ANDROID_SDK_PATH,
   GODOT_PROJECT_PATH,
 } from './constants';
 
@@ -424,13 +423,13 @@ function configureWindowsExport(): void {
 }
 
 function configureAndroidExport(): void {
-  core.startGroup('📝 Appending Android editor settings');
+  core.startGroup('📝 Configuring android export');
 
-  const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
-  const linesToWrite: string[] = [];
+  // nothing to write here at the moment
+  // const editorSettingsPath = path.join(GODOT_CONFIG_PATH, EDITOR_SETTINGS_FILENAME);
+  // const linesToWrite: string[] = [];
 
-  linesToWrite.push(`export/android/android_sdk_path = "${ANDROID_SDK_PATH}"\n`);
-  fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
+  // fs.writeFileSync(editorSettingsPath, linesToWrite.join(''), { flag: 'a' });
 
   // making the gradlew executable only on unix systems
   // if the file is not executable, the build will typically fail in incredibly cryptic ways
@@ -447,8 +446,8 @@ function configureAndroidExport(): void {
     }
   }
 
-  core.info(linesToWrite.join(''));
-  core.info(`Wrote Android settings to ${editorSettingsPath}`);
+  // core.info(linesToWrite.join(''));
+  // core.info(`Wrote Android settings to ${editorSettingsPath}`);
   core.endGroup();
 }
 
