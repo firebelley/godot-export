@@ -199,10 +199,12 @@ async function getGodotVersion(): Promise<string> {
   versionLines = versionLines.filter(x => !!x.trim());
   version = versionLines.pop() || 'unknown';
   version = version.trim();
-  version = version.replace('.official', '').replace(/\.[a-z0-9]{9}$/g, '');
-
-  if (!version) {
-    throw new Error('Godot version could not be determined.');
+  const regex = /(\d+(\.\d+)+\.\w+(\.mono)?)/;
+  const match = version.match(regex);    
+  if (match) {
+      version = match[1];
+  } else {
+      throw new Error('Godot version could not be determined.');
   }
 
   return version;
