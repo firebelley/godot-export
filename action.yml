@@ -18,7 +18,7 @@ inputs:
 
   # optional inputs
   archive_output:
-    description: If "true", exported files will be archived into a ".zip" file.
+    description: If "true", all exported files will be archived into a ".zip" file.
     default: false
     required: false
   archive_root_folder:
@@ -56,7 +56,12 @@ inputs:
   export_as_pack:
     description: Export project files as a .pck file.
     default: false
+    required: false 
+  presets_to_export:
+    description: A comma-separated list of export presets to export. If not specified, all presets will be exported.
+    default: ''
     required: false
+    
 
 outputs:
   build_directory:

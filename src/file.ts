@@ -2,7 +2,6 @@ import { BuildResult } from './types/GodotExport';
 import path from 'path';
 import * as io from '@actions/io';
 import { exec } from '@actions/exec';
-import * as fs from 'fs';
 import {
   ARCHIVE_ROOT_FOLDER,
   GODOT_ARCHIVE_PATH,
@@ -16,7 +15,12 @@ async function zipBuildResults(buildResults: BuildResult[]): Promise<void> {
   core.startGroup('⚒️ Zipping binaries');
   const promises: Promise<void>[] = [];
   for (const buildResult of buildResults) {
-    promises.push(zipBuildResult(buildResult));
+    promises.push(
+      (async function () {
+        await zipBuildResult(buildResult);
+        core.info(`📦 Zipped ${buildResult.preset.name} to ${buildResult.archivePath}`);
+      })(),
+    );
   }
   await Promise.all(promises);
   core.endGroup();
@@ -35,9 +39,10 @@ async function zipBuildResult(buildResult: BuildResult): Promise<void> {
     const baseName = path.basename(buildResult.preset.export_path);
     const macPath = path.join(buildResult.directory, baseName);
     await io.cp(macPath, zipPath);
-  } else if (!fs.existsSync(zipPath)) {
-    await exec('7z', ['a', zipPath, `${buildResult.directory}${ARCHIVE_ROOT_FOLDER ? '' : '/*'}`]);
   }
+
+  // 7zip automatically overwrites files that are in the way
+  await exec('7z', ['a', zipPath, `${buildResult.directory}${ARCHIVE_ROOT_FOLDER ? '' : '/*'}`]);
 
   buildResult.archivePath = zipPath;
 }

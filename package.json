@@ -4,7 +4,7 @@
   "description": "Exports Godot games.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "yarn lint && ncc build ./src/main.ts -o dist && rm -rf dist/godot-export",
+    "build": "yarn lint && ncc build ./src/main.ts -o dist && shx rm -rf dist/godot-export",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts"
   },
@@ -36,6 +36,7 @@
     "eslint-plugin-github": "^4.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.3",
+    "shx": "^0.3.4",
     "typescript": "^4.9.5"
   }
 }
