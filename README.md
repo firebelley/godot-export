@@ -79,12 +79,12 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
   
     - name: export game
       id: export
       # Use latest version (see releases for all versions)
-      uses: firebelley/godot-export@v5.2.0
+      uses: firebelley/godot-export@v6.0.0
       with:
         # Defining all the required inputs
         godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_linux.x86_64.zip
@@ -95,7 +95,7 @@ jobs:
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
       # https://github.com/ncipollo/release-action
     - name: create release
-      uses: ncipollo/release-action@v1.12.0
+      uses: ncipollo/release-action@v1.14.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
@@ -139,7 +139,7 @@ In order to configure this action to update your game's Windows exe icon, includ
 # Any other intermediate steps can go here
 
 - name: export game
-  uses: firebelley/godot-export@v5.2.0
+  uses: firebelley/godot-export@v6.0.0
   with:
     # ...supply your other options here
     wine_path: ${{ steps.wine_install.outputs.WINE_PATH }} # set the wine path here which is the output of the wine_install step
