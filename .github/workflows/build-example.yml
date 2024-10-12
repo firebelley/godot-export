@@ -9,7 +9,7 @@ jobs:
     name: Export Game Job
     steps:
       - name: checkout
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4
       - name: install wine
         id: wine_install
         run: |
@@ -17,7 +17,7 @@ jobs:
           echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
       - name: export game
         id: export
-        uses: firebelley/godot-export@v5.2.0
+        uses: firebelley/godot-export@v6.0.0
         with:
           godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_linux.x86_64.zip
           godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_export_templates.tpz
@@ -26,7 +26,7 @@ jobs:
           archive_output: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
       - name: create release
-        uses: ncipollo/release-action@v1.11.2
+        uses: ncipollo/release-action@v1.14.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
