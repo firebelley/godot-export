@@ -79,7 +79,7 @@ jobs:
       # Always include the checkout step so that 
       # your project is available for Godot to export
     - name: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
   
     - name: export game
       id: export
