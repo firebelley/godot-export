@@ -7,6 +7,8 @@ jobs:
   export_game:
     runs-on: ubuntu-latest
     name: Export Game Job
+    permissions:
+      contents: write
     steps:
       - name: checkout
         uses: actions/checkout@v5

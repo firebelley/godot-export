@@ -72,7 +72,8 @@ jobs:
     # Always use ubuntu-latest for this action
     runs-on: ubuntu-latest
     # Add permission for release creation. Can be made narrower according to your needs
-    permissions: write-all
+    permissions:
+      contents: write
     # Job name, can be anything
     name: Export Game
     steps:
