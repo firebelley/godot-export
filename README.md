@@ -138,7 +138,6 @@ In order to configure this action to update your game's Windows exe icon, includ
     sudo apt update
     sudo apt install -y wine64 wine32
     echo "WINE_PATH=$(which wine)" >> $GITHUB_OUTPUT
-    echo "$GITHUB_OUTPUT"
 
 # Any other intermediate steps can go here
 

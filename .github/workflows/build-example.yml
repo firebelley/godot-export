@@ -19,7 +19,6 @@ jobs:
           sudo apt update
           sudo apt install -y wine64 wine32
           echo "WINE_PATH=$(which wine)" >> $GITHUB_OUTPUT
-          echo "$GITHUB_OUTPUT"
       - name: export game
         id: export
         uses: firebelley/godot-export@v7.0.0
