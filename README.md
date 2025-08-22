@@ -95,7 +95,7 @@ jobs:
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
       # https://github.com/ncipollo/release-action
     - name: create release
-      uses: ncipollo/release-action@v1.14.0
+      uses: ncipollo/release-action@v1.18.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         generateReleaseNotes: true
