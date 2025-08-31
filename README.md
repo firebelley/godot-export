@@ -44,7 +44,7 @@ Define at least 1 export preset by going to `Project -> Export` in the Godot edi
 | `use_godot_3`                         | Build using Godot 3 executable. **NOTE**: `godot_executable_download_url` and `godot_export_templates_download_url` still need to be configured to download the correct version.                                                                                                     | `boolean` | `false` | No       |
 | `export_as_pack`                      | Export project files as a .pck file                                                                                                                                                                                                                                                  | `boolean` | `false` | No       |
 | `presets_to_export`                   | A comma-separated list of export presets to export. If not specified, all presets will be exported. EX: `Windows, Mac OSX, android`                                                                                                                                                  | `string`  | `''`    | No       |
-
+| `project_version`                     | The version of your project. Sets the project settings `Application/Version` in Godot. | `string`  | `''`    | No       |
 
 ### Action Outputs
 

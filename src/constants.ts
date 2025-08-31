@@ -16,6 +16,7 @@ const GODOT_VERBOSE = core.getBooleanInput('verbose');
 const ARCHIVE_ROOT_FOLDER = core.getBooleanInput('archive_root_folder');
 const USE_GODOT_3 = core.getBooleanInput('use_godot_3');
 const EXPORT_PACK_ONLY = core.getBooleanInput('export_as_pack');
+const PROJECT_VERSION = core.getInput('project_version');
 
 // Parse export targets
 const exportPresetsStr = core.getInput('presets_to_export').trim();
@@ -73,4 +74,5 @@ export {
   USE_GODOT_3,
   USE_PRESET_EXPORT_PATH,
   WINE_PATH,
+  PROJECT_VERSION,
 };
