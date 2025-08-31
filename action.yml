@@ -61,6 +61,10 @@ inputs:
     description: A comma-separated list of export presets to export. If not specified, all presets will be exported.
     default: ''
     required: false
+  project_version:
+    description: The version of your project. Sets the project settings `Application/Version` in Godot.
+    default: ''
+    required: false
     
 
 outputs:
