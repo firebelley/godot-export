@@ -70,5 +70,5 @@ outputs:
     description: The directory containing archived exports if "archive_output" is set.
 
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
