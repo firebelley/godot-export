@@ -24,6 +24,7 @@ import {
   GODOT_EXPORT_TEMPLATES_PATH,
   CACHE_ACTIVE,
   GODOT_PROJECT_PATH,
+  VALIDATE_PROJECT,
 } from './constants';
 
 const GODOT_EXECUTABLE = 'godot_executable';
@@ -456,12 +457,42 @@ function configureAndroidExport(): void {
 /** Open the editor in headless mode once, to import all assets, creating the `.godot` directory if it doesn't exist. */
 async function importProject(): Promise<void> {
   core.startGroup('🎲 Import project');
-  // this import tends to fail on MacOS for some reason (exit code 1), but a fail here doesn't necessarily mean the export will fail
-  try {
-    await exec(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '--import']);
-  } catch (error) {
-    core.warning(`Import appears to have failed. Continuing anyway, but exports may fail. ${error}`);
+
+  if (VALIDATE_PROJECT) {
+    const output: string[] = [];
+
+    const options: ExecOptions = {
+      ignoreReturnCode: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          const text = data.toString('utf-8');
+          output.push(text);
+          process.stdout.write(text);
+        },
+        stderr: (data: Buffer) => {
+          const text = data.toString('utf-8');
+          output.push(text);
+          process.stderr.write(text);
+        },
+      },
+    };
+
+    const result = await exec(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '--import'], options);
+
+    const outputText = output.join('');
+
+    if (result !== 0 || /SCRIPT ERROR:|Parse Error:/.test(outputText)) {
+      core.endGroup();
+      throw new Error('Godot project validation failed.');
+    }
+  } else {
+    try {
+      await exec(godotExecutablePath, [GODOT_PROJECT_FILE_PATH, '--headless', '--import']);
+    } catch (error) {
+      core.warning(`Import appears to have failed. Continuing anyway, but exports may fail. ${error}`);
+    }
   }
+
   core.endGroup();
 }
 

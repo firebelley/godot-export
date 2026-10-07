@@ -61,6 +61,10 @@ inputs:
     description: A comma-separated list of export presets to export. If not specified, all presets will be exported.
     default: ''
     required: false
+  validate_project:
+    description: If "true", fail when Godot reports script or parse errors during project import.
+    default: false
+    required: false
     
 
 outputs:
